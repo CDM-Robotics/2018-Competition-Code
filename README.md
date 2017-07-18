@@ -36,3 +36,41 @@ git commit -m "message here"
 git push origin BRANCH_NAME_HERE
 ```
 When you are all done with a ticket, mark it for code review needed and generate a pull request.
+
+### Robot Config Information ###
+
+<b> Port Mappings </b>
+Motors
+
+|  Port      |    Function        |
+|  --------  |  ----------------  |
+|   0        | Left Motor 1       |
+|   1        | Left Motor 2       |
+|   2        | Left Motor 3       |
+|   3        | Right Motor 1      | 
+|   4        | Right Motor 2      |
+|   5        | Right Motor 3      |
+|   6        | Climber            |
+
+<br></br>
+Pneumatics
+
+| Port       |    Function        |
+| ---------- | ------------------ |
+|   0        | Gear Solenoid On   |
+|   1        | Gear Solenoid Off  |
+|   2        | Shifter Solenoid On|
+|   3        |Shifter Solenoid Off|
+
+<br></br>
+Dio Channels
+
+| Port       |    Function        |
+| ---------- | ------------------ |
+|   0        | Gear Limit 0       |
+|   1        | Gear Limit Max     |
+|   4        | Encoder Left A     |
+|   5        | Encoder Left B     |
+|   2        | Encoder Right A    |
+|   3        | Encoder Right B    |
+  
