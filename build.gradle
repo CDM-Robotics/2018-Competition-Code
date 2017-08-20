@@ -1,34 +1,31 @@
-group 'com.team6072'
-version '1.0-SNAPSHOT'
-
-buildscript {
-    ext.kotlin_version = '1.1.4'
-
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
+plugins {
+    id "java"
+    id "eclipse"
+    id "idea"
+    id "jaci.openrio.gradle.GradleRIO" version "2017.2.3"
 }
 
-apply plugin: 'java'
-apply plugin: 'kotlin'
-
-sourceCompatibility = 1.8
-
-repositories {
-    mavenCentral()
+frc {
+    team = "6027"
+    robotClass = "org.team672.Robot"
 }
 
 dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    compile wpilib()
+    compile talonSrx()
+    compile navx()
 }
 
-compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+def robotManifest = {
+  attributes 'Main-Class': 'edu.wpi.first.wpilibj.RobotBase'
+  attributes 'Robot-Class': frc.robotClass
 }
-compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+
+jar {
+    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    manifest robotManifest
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.2.1'
 }
