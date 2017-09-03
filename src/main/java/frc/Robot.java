@@ -2,12 +2,10 @@ package frc;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 
-public class Robot extends IterativeRobot {
+public class Robot {
 
-    @Override
-    public void robotInit() {
-        super.robotInit();
-        System.out.println("Hello World");
+    public static void main(String[] args) {
+        System.out.println("Hello, world!");
     }
 
 }
