@@ -7,7 +7,17 @@ public class Robot extends IterativeRobot {
     @Override
     public void robotInit() {
         super.robotInit();
-        System.out.println("Hello World");
+
     }
+
+    @Override
+    public void teleopInit() {
+        super.teleopInit();
+    }
+
+    @Override public void autonomousInit() {
+        super.autonomousInit();
+    }
+
 
 }
