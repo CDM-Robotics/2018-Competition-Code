@@ -1,8 +1,10 @@
 package frc;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
+import frc.subsystems.DriveTrain;
 
 public class Robot extends IterativeRobot {
+    private DriveTrain driveTrain = DriveTrain.getInstance();
 
     @Override
     public void robotInit() {
@@ -16,6 +18,7 @@ public class Robot extends IterativeRobot {
     }
 
     @Override public void autonomousInit() {
+
         super.autonomousInit();
     }
 
