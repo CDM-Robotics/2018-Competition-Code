@@ -26,6 +26,7 @@ public class DriveTrain extends Subsystem {
 
     private DriveControlState driveState;
 
+    // loop run for state tracking in either teleop or autonomous mode
     private final Loop mainLoop = new Loop() {
         @Override
         public void onStart(double timestamp) {
@@ -111,5 +112,9 @@ public class DriveTrain extends Subsystem {
 
     private void goBackward() {
 
+    }
+
+    public synchronized void setHighGear() {
+        shifter.set(DoubleSolenoid.Value.kForward);
     }
 }

@@ -28,6 +28,8 @@ public class RobotConfig {
     public static int GEARBOX_MODULE_NUMBER = 1;
     public static int GEARBOX_FORWARD_CHANNEL = 0;
     public static int GEARBOX_REVERSE_CHANNEL = 0;
+    public static int LOW_GEAR = 0;
+    public static int HIGH_GEAR = 1;
 
     // encoders
     public static int ENCODER_LEFT_1 = 0;
