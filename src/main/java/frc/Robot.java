@@ -1,11 +1,26 @@
 package frc;
 
-public class Robot {
+import edu.wpi.first.wpilibj.IterativeRobot;
+import frc.subsystems.DriveTrain;
 
-    public static void main(String[] args) {
-        Core core = Core.getInstance();
-        core.log("Testing logging capability.");
-        core.warn("Testing warning capability.");
+public class Robot extends IterativeRobot {
+    private DriveTrain driveTrain = DriveTrain.getInstance();
+
+    @Override
+    public void robotInit() {
+        super.robotInit();
+
     }
+
+    @Override
+    public void teleopInit() {
+        super.teleopInit();
+    }
+
+    @Override public void autonomousInit() {
+
+        super.autonomousInit();
+    }
+
 
 }
