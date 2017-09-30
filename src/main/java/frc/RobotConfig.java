@@ -31,6 +31,9 @@ public class RobotConfig {
     public static int LOW_GEAR = 0;
     public static int HIGH_GEAR = 1;
 
+    // GEAR Slider
+    public static int SLIDER_TALON = 5;
+
     // encoders
     public static int ENCODER_LEFT_1 = 0;
     public static int ENCODER_LEFT_2 = 0;

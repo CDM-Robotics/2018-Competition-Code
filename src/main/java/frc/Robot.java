@@ -10,13 +10,18 @@ public class Robot extends IterativeRobot {
     public void robotInit() {
         super.robotInit();
 
+        // get subsystems to tie them together
+        driveTrain.getInstance();
+
+
     }
 
     @Override
     public void teleopInit() {
         super.teleopInit();
 
-        //driveTrain
+
+
     }
 
     @Override public void autonomousInit() {
