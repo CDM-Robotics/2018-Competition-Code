@@ -31,9 +31,9 @@ class Core {
         // Generating log name.
         String today = LOG_FORMAT.format(new Date());
 
-        File[] matchingLogs = logDir.listFiles((dir, name) -> name.startsWith(today));
+        //File[] matchingLogs = logDir.listFiles((dir, name) -> name.startsWith(today));
 
-        if (matchingLogs == null) {
+        /*if (matchingLogs == null) {
             throw new RuntimeException("Couldn't list logs in logs directory.");
         }
 
@@ -46,7 +46,7 @@ class Core {
             writer = new BufferedWriter(new FileWriter(LOG_DIR + logName, true));
         } catch (IOException e) {
             throw new RuntimeException("Couldn't create FileWriter instance.");
-        }
+        }*/
     }
 
     // Singleton Configuration:
