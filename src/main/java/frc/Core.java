@@ -34,6 +34,9 @@ class Core {
         //File[] matchingLogs = logDir.listFiles((dir, name) -> name.startsWith(today));
 
         /*if (matchingLogs == null) {
+        File[] matchingLogs = logDir.listFiles((dir, name) -> name.startsWith(today));
+
+        if (matchingLogs == null) {
             throw new RuntimeException("Couldn't list logs in logs directory.");
         }
 
@@ -47,6 +50,7 @@ class Core {
         } catch (IOException e) {
             throw new RuntimeException("Couldn't create FileWriter instance.");
         }*/
+        }
     }
 
     // Singleton Configuration:
