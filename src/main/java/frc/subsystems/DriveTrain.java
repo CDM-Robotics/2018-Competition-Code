@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.RobotDrive.MotorType;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import frc.RobotConfig;
+import frc.loops.Loop;
 
 /**
  * Created by Cole on 9/3/17.
@@ -16,6 +17,46 @@ public class DriveTrain extends Subsystem {
     public static DriveTrain getInstance() {
         return instance;
     }
+
+    public enum DriveControlState {
+        GO_FORWARD,
+        GO_BACKWARD,
+        TURN_TO_HEADING
+    }
+
+    private DriveControlState driveState;
+
+    // loop run for state tracking in either teleop or autonomous mode
+    private final Loop mainLoop = new Loop() {
+        @Override
+        public void onStart(double timestamp) {
+            synchronized (DriveTrain.this) {
+
+            }
+        }
+
+        @Override
+        public void onLoop(double timestamp) {
+            synchronized (DriveTrain.this) {
+                switch (driveState) {
+                    case GO_FORWARD:
+                        goForward();
+                        return;
+                    case GO_BACKWARD:
+                        goBackward();
+                        return;
+                    case TURN_TO_HEADING:
+                        turnToHeading();
+                        return;
+                }
+            }
+        }
+
+        @Override
+        public void onStop(double timestamp) {
+            // go to neutral or something
+        }
+    };
 
     // LEFT motors on the drive train
     VictorSP leftMotors[] = {
@@ -61,4 +102,19 @@ public class DriveTrain extends Subsystem {
 
     }
 
+    private void turnToHeading() {
+
+    }
+
+    private void goForward() {
+
+    }
+
+    private void goBackward() {
+
+    }
+
+    public synchronized void setHighGear() {
+        shifter.set(DoubleSolenoid.Value.kForward);
+    }
 }
