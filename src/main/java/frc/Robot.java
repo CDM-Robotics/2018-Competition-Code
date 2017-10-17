@@ -22,6 +22,7 @@ public class Robot extends IterativeRobot {
 
     @Override
     public void teleopInit() {
+        System.out.print("teleop started");
         super.teleopInit();
 
 
@@ -29,7 +30,6 @@ public class Robot extends IterativeRobot {
     }
 
     @Override public void autonomousInit() {
-
         super.autonomousInit();
     }
 
