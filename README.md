@@ -21,7 +21,7 @@ git remote add origin repo_url_here
 ```
 4. Run the following command to pull the remote code:
 ```
-git fetch origin master
+git pull origin master
 ```
 
 ### Contribution Guidlines ###
@@ -31,7 +31,7 @@ git checkout -b 1010_climber_fix
 ```
 When you are done writing code on your branch, commit and push it. To do so, run the following commands:
 ```
-git add -A
+git add .
 git commit -m "message here"
 git push origin BRANCH_NAME_HERE
 ```
