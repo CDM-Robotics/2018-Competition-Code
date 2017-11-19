@@ -15,9 +15,9 @@ public class RobotConfig {
      */
 
     // front, mid, and back motors on chasis
-    public static int LEFT_MOTOR_1 = 1;
-    public static int LEFT_MOTOR_2 = 2;
-    public static int LEFT_MOTOR_3 = 3;
+    public static int LEFT_MOTOR_1 = 0;
+    public static int LEFT_MOTOR_2 = 1;
+    public static int LEFT_MOTOR_3 = 2;
 
     // front, mid, and back motors on chasis
     public static int RIGHT_MOTOR_1 = 3;
@@ -41,5 +41,9 @@ public class RobotConfig {
     public static int ENCODER_RIGHT_2 = 0;
 
     public static int CLIMBER_MOTOR = 0;
+
+
+    // constants (units in inches)
+    public static double DRIVE_WHEEL_DIAMETER = 6.0;
 
 }

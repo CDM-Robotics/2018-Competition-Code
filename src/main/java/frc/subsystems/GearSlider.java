@@ -1,8 +1,7 @@
-package frc.subsystems;
-import com.sun.xml.internal.bind.annotation.OverrideAnnotationOf;
+//package frc.subsystems;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Command;
-import com.ctre.CANTalon;
+//import com.ctre.CANTalon;
 import frc.ControlBoard;
 import frc.RobotConfig;
 import frc.loops.Loop;
@@ -10,7 +9,7 @@ import java.lang.Math;
 /**
  * Created by Cole on 9/29/17.
  */
-public class GearSlider {
+/*public class GearSlider {
     // singleton instance
     public static GearSlider instance = new GearSlider();
     public static GearSlider getInstance() {
@@ -114,3 +113,4 @@ public class GearSlider {
     }
 
 }
+*/

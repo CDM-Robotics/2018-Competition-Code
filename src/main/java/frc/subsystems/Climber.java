@@ -1,5 +1,5 @@
 package frc.subsystems;
-import com.ctre.CANTalon;
+/*import com.ctre.CANTalon;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.Spark;
 import frc.ControlBoard;
@@ -45,3 +45,4 @@ public class Climber {
     }
 
 }
+*/
