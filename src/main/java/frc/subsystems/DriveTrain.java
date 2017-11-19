@@ -8,6 +8,7 @@ import frc.ControlBoard;
 import frc.RobotConfig;
 import frc.commands.TankDrive;
 import frc.loops.Loop;
+import frc.SpeedControllerArray;
 
 
 /**
@@ -33,7 +34,7 @@ public class DriveTrain extends Subsystem {
     private DriveControlState driveState;
 
     // loop run for state tracking in either teleop or autonomous mode
-    private final Loop mainLoop = new Loop() {
+   /* private final Loop mainLoop = new Loop() {
         @Override
         public void onStart(double timestamp) {
             synchronized (DriveTrain.this) {
@@ -64,7 +65,7 @@ public class DriveTrain extends Subsystem {
         public void onStop(double timestamp) {
             // go to neutral or something
         }
-    };
+    };*/
 
     // LEFT motors on the drive train
     VictorSP leftMotors[] = {
@@ -83,11 +84,11 @@ public class DriveTrain extends Subsystem {
     SpeedController[] leftSideMotors = { leftMotors[1], leftMotors[2] };
     SpeedController[] rightSideMotors = { rightMotors[1], rightMotors[2] };
 
-    //SpeedController leftSide = new SpeedControllerArray(leftSideMotors);
-
+    SpeedController leftSide = new SpeedControllerArray(leftSideMotors);
+    SpeedController rightSide = new SpeedControllerArray(rightSideMotors);
 
     // front left motor, rear left, front right, rear right
-    //RobotDrive drive = new RobotDrive(leftSideMotors[2], leftSideMotors[0], rightSideMotors[2], rightMotors[0]);
+    public RobotDrive drive = new RobotDrive(leftSide, leftSideMotors[0], rightSide, rightMotors[0]);
 
     // shifter (changing gear)
     DoubleSolenoid shifter = new DoubleSolenoid(1,0,1);
@@ -101,6 +102,7 @@ public class DriveTrain extends Subsystem {
     private DriveTrain() {
         super("Drivetrain system");
         System.out.println("Drive train initialized");
+        driveState = DriveControlState.GO_FORWARD;
         // Reverse motors so that they all spin in the correct direction
         //drive.setInvertedMotor(MotorType.kFrontLeft, true);
         //drive.setInvertedMotor(MotorType.kFrontRight, true);
@@ -125,7 +127,7 @@ public class DriveTrain extends Subsystem {
 
             protected void execute() {
                 //drive.tankDrive();
-                //drive.tankDrive(ControlBoard.getInstance().stick, 1, ControlBoard.getInstance().stick, 5);
+                drive.tankDrive(ControlBoard.getInstance().stick, 1, ControlBoard.getInstance().stick, 5);
             }
         };
     }

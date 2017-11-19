@@ -9,6 +9,7 @@ public class Robot extends IterativeRobot {
     private DriveTrain driveTrain = DriveTrain.getInstance();
     //private GearSlider slider;
     //private Climber climber;
+    public ControlBoard oi = ControlBoard.getInstance();
 
 
     @Override
