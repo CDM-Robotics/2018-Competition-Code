@@ -2,10 +2,10 @@ package org.cdm.team6072.subsystems;
 
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import org.cdm.team6072.ControlBoard;
 import org.cdm.team6072.RobotConfig;
-import org.cdm.team6072.commands.TankDrive;
 import org.cdm.team6072.SpeedControllerArray;
 
 
@@ -70,7 +70,7 @@ public class DriveTrain extends Subsystem {
     @Override
     public void initDefaultCommand() {
         System.out.println("6072: init default command");
-        setDefaultCommand(new TankDrive());
+        teleopDrive();
     }
 
 
@@ -80,20 +80,20 @@ public class DriveTrain extends Subsystem {
 
 
 
-    private void goForward() {
+    private void teleopDrive() {
         System.out.println("6072: Go forward");
-        Command fwd = new Command() {
+        Command driveCommand = new Command() {
             @Override
             protected boolean isFinished() {
                 return false;
             }
 
             protected void execute() {
-                //drive.tankDrive();
                 System.out.println("executing tank drive");
                 drive.tankDrive(ControlBoard.getInstance().stick, 1, ControlBoard.getInstance().stick, 5);
             }
         };
+        Scheduler.getInstance().add(driveCommand);
     }
 
     private void goBackward() {

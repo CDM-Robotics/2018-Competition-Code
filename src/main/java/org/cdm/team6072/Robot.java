@@ -47,6 +47,10 @@ public class Robot extends IterativeRobot {
 
     @Override public void autonomousInit() {
         super.autonomousInit();
+
+        // driveTrain.goForward()
+        // asynch positionArm
+        // driveTrain.moveLeft()
     }
 
 }

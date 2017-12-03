@@ -40,7 +40,7 @@ public class RobotConfig {
     public static int ENCODER_RIGHT_1 = 0;
     public static int ENCODER_RIGHT_2 = 0;
 
-    public static int CLIMBER_MOTOR = 0;
+    public static int CLIMBER_MOTOR = 6;
 
 
     // constants (units in inches)

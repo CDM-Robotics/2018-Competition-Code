@@ -1,16 +1,20 @@
 package org.cdm.team6072.subsystems;
-/*import com.ctre.CANTalon;
+import org.cdm.team6072.RobotConfig;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.Spark;
-import ControlBoard;
-import RobotConfig;
+
+
 
 public class Climber {
-    public static Climber instance = new Climber();
+    private static Climber mInstance;
     double climb_speed = 50;
 
     public static Climber getInstance() {
-        return instance;
+
+        if (mInstance == null) {
+            mInstance = new Climber();
+        }
+        return mInstance;
     }
 
     private Spark motor;
@@ -20,11 +24,12 @@ public class Climber {
 
     }
 
-    public Command initiateClimb() {
+    public Command climbUp() {
+        System.out.println("6072 initiating climb");
         return new Command() {
             @Override
             protected void initialize() {
-                super.initialize();
+
             }
 
             @Override
@@ -45,4 +50,3 @@ public class Climber {
     }
 
 }
-*/
