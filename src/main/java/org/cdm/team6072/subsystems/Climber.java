@@ -1,9 +1,9 @@
-package frc.subsystems;
+package org.cdm.team6072.subsystems;
 /*import com.ctre.CANTalon;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.Spark;
-import frc.ControlBoard;
-import frc.RobotConfig;
+import ControlBoard;
+import RobotConfig;
 
 public class Climber {
     public static Climber instance = new Climber();

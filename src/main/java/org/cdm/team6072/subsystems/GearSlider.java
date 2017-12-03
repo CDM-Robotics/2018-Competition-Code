@@ -1,11 +1,6 @@
 //package frc.subsystems;
-import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.command.Command;
 //import com.ctre.CANTalon;
-import frc.ControlBoard;
-import frc.RobotConfig;
-import frc.loops.Loop;
-import java.lang.Math;
+
 /**
  * Created by Cole on 9/29/17.
  */

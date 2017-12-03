@@ -1,4 +1,4 @@
-package frc;
+package org.cdm.team6072;
 
 public class ControlMappings {
 

@@ -1,17 +1,18 @@
-package frc;
+package org.cdm.team6072;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
-import edu.wpi.first.wpilibj.command.Command;
 //import frc.subsystems.Climber;
 //import frc.subsystems.GearSlider;
 
-import javax.naming.ldap.Control;
 
 public class ControlBoard {
 
-    public static ControlBoard instance = new ControlBoard();
+    public static ControlBoard instance;
     public static ControlBoard getInstance() {
+        if (instance == null) {
+            instance = new ControlBoard();
+        }
         return instance;
     }
 
@@ -23,6 +24,7 @@ public class ControlBoard {
 
     private ControlBoard () {
         stick = new Joystick(0); // joystick at usb port 0
+
         gamepad = new Joystick(1); // gamepad at usb port 1
 
         // map buttons and actions

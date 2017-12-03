@@ -1,14 +1,12 @@
-package frc.subsystems;
-//package frc.SpeedControllerArray;
+package org.cdm.team6072.subsystems;
 
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Subsystem;
-import frc.ControlBoard;
-import frc.RobotConfig;
-import frc.commands.TankDrive;
-import frc.loops.Loop;
-import frc.SpeedControllerArray;
+import org.cdm.team6072.ControlBoard;
+import org.cdm.team6072.RobotConfig;
+import org.cdm.team6072.commands.TankDrive;
+import org.cdm.team6072.SpeedControllerArray;
 
 
 /**
@@ -16,12 +14,14 @@ import frc.SpeedControllerArray;
  */
 public class DriveTrain extends Subsystem {
     // singleton instance
-    public static DriveTrain instance = new DriveTrain();
-
+    private static DriveTrain mInstance;
     private boolean mIsBreakMode;
 
     public static DriveTrain getInstance() {
-        return instance;
+        if (mInstance == null) {
+            mInstance = new DriveTrain();
+        }
+        return mInstance;
     }
 
     public enum DriveControlState {
@@ -32,40 +32,6 @@ public class DriveTrain extends Subsystem {
     }
 
     private DriveControlState driveState;
-
-    // loop run for state tracking in either teleop or autonomous mode
-   /* private final Loop mainLoop = new Loop() {
-        @Override
-        public void onStart(double timestamp) {
-            synchronized (DriveTrain.this) {
-
-            }
-        }
-
-        @Override
-        public void onLoop(double timestamp) {
-            synchronized (DriveTrain.this) {
-                switch (driveState) {
-                    case VELOCITY_SETPOINT:
-                        return;
-                    case GO_FORWARD:
-                        goForward();
-                        return;
-                    case GO_BACKWARD:
-                        goBackward();
-                        return;
-                    case TURN_TO_HEADING:
-                        turnToHeading();
-                        return;
-                }
-            }
-        }
-
-        @Override
-        public void onStop(double timestamp) {
-            // go to neutral or something
-        }
-    };*/
 
     // LEFT motors on the drive train
     VictorSP leftMotors[] = {
@@ -88,37 +54,34 @@ public class DriveTrain extends Subsystem {
     SpeedController rightSide = new SpeedControllerArray(rightSideMotors);
 
     // front left motor, rear left, front right, rear right
-    public RobotDrive drive = new RobotDrive(leftSide, leftSideMotors[0], rightSide, rightMotors[0]);
+    public RobotDrive drive;
 
     // shifter (changing gear)
     DoubleSolenoid shifter = new DoubleSolenoid(1,0,1);
 
-    // encoders for drive train (source A, source B, reverse direction, encoding type)
-    //Encoder leftEncoder = new Encoder(RobotConfig.ENCODER_LEFT_1, RobotConfig.ENCODER_LEFT_2, false, Encoder.EncodingType.k4X);
-    //Encoder rightEncoder = new Encoder(RobotConfig.ENCODER_RIGHT_1, RobotConfig.ENCODER_RIGHT_2, false, Encoder.EncodingType.k4X);
-
-
     // Initialization
     private DriveTrain() {
-        super("Drivetrain system");
-        System.out.println("Drive train initialized");
+        System.out.println("6072: Drive train constructor");
         driveState = DriveControlState.GO_FORWARD;
-        // Reverse motors so that they all spin in the correct direction
-        //drive.setInvertedMotor(MotorType.kFrontLeft, true);
-        //drive.setInvertedMotor(MotorType.kFrontRight, true);
+        this.drive = new RobotDrive(leftSide, leftSideMotors[0], rightSide, rightMotors[0]);
     }
 
+
     @Override
-    protected void initDefaultCommand() {
+    public void initDefaultCommand() {
+        System.out.println("6072: init default command");
         setDefaultCommand(new TankDrive());
     }
 
-    private void turnToHeading() {
 
+
+    private void turnToHeading() {
     }
 
+
+
     private void goForward() {
-        System.out.println("Go forward");
+        System.out.println("6072: Go forward");
         Command fwd = new Command() {
             @Override
             protected boolean isFinished() {
@@ -127,14 +90,16 @@ public class DriveTrain extends Subsystem {
 
             protected void execute() {
                 //drive.tankDrive();
+                System.out.println("executing tank drive");
                 drive.tankDrive(ControlBoard.getInstance().stick, 1, ControlBoard.getInstance().stick, 5);
             }
         };
     }
 
     private void goBackward() {
-
     }
+
+
 
     public synchronized void setHighGear() {
         shifter.set(DoubleSolenoid.Value.kForward);
@@ -143,7 +108,6 @@ public class DriveTrain extends Subsystem {
     public synchronized void setBrakeMode(boolean on)
     {
         if (mIsBreakMode != on) {
-            //TODO
         }
     }
 
@@ -161,6 +125,7 @@ public class DriveTrain extends Subsystem {
     private static double rotationsToInches(double rotations) {
         return rotations * (RobotConfig.DRIVE_WHEEL_DIAMETER * Math.PI);
     }
+            //TODO
 
     private static double rpmToInchesPerSec(double rpm) {
         return rotationsToInches(rpm)/60;
