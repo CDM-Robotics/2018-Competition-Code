@@ -8,14 +8,18 @@ import org.cdm.team6072.subsystems.Climber;
 //import frc.subsystems.GearSlider;
 
 
+/**
+ * ControlBoard holds the code for interacting with the
+ */
 public class ControlBoard {
 
-    public static ControlBoard instance;
+    private static ControlBoard mInstance;
+
     public static ControlBoard getInstance() {
-        if (instance == null) {
-            instance = new ControlBoard();
+        if (mInstance == null) {
+            mInstance = new ControlBoard();
         }
-        return instance;
+        return mInstance;
     }
 
     public Joystick stick;
@@ -23,6 +27,8 @@ public class ControlBoard {
 
     public Joystick gamepad;
     private JoystickButton[] gamepadButtons;
+
+
 
     private ControlBoard () {
 
@@ -42,7 +48,7 @@ public class ControlBoard {
         //gamepadButtons[ControlMappings.CLIMB_BTN].whenActive(Climber.getInstance().initiateClimb());
         Command climb = Climber.getInstance().climbUp();
         gamepadButtons[ControlMappings.CLIMB_BTN].whileHeld(climb);
-
-
     }
+
+
 }

@@ -21,9 +21,16 @@ public class Climber {
 
     private Climber() {
         motor = new Spark(RobotConfig.CLIMBER_MOTOR);
-
     }
 
+    /**
+     * Create a command to run the climber.
+     * Called from the ControlBoard:
+     *          Command climb = Climber.getInstance().climbUp();
+     *          gamepadButtons[ControlMappings.CLIMB_BTN].whileHeld(climb);
+     * TODO: the command should indicate that it requires the Climber subsystem
+     * @return  Command
+     */
     public Command climbUp() {
         System.out.println("6072 initiating climb");
         return new Command() {

@@ -13,9 +13,9 @@ import org.cdm.team6072.SpeedControllerArray;
  * Created by Cole on 9/3/17.
  */
 public class DriveTrain extends Subsystem {
+
     // singleton instance
     private static DriveTrain mInstance;
-    private boolean mIsBreakMode;
 
     public static DriveTrain getInstance() {
         if (mInstance == null) {
@@ -24,6 +24,8 @@ public class DriveTrain extends Subsystem {
         return mInstance;
     }
 
+    private boolean mIsBreakMode;
+
     public enum DriveControlState {
         GO_FORWARD,
         GO_BACKWARD,
@@ -31,7 +33,7 @@ public class DriveTrain extends Subsystem {
         VELOCITY_SETPOINT
     }
 
-    private DriveControlState driveState;
+    private DriveControlState mDriveState;
 
     // LEFT motors on the drive train
     VictorSP leftMotors[] = {
@@ -53,7 +55,8 @@ public class DriveTrain extends Subsystem {
     SpeedController leftSide = new SpeedControllerArray(leftSideMotors);
     SpeedController rightSide = new SpeedControllerArray(rightSideMotors);
 
-    // front left motor, rear left, front right, rear right
+    // RobotDrive is an FRC class that handles basic driving for robot
+    // This should not be public - means external objects are modifying state
     public RobotDrive drive;
 
     // shifter (changing gear)
@@ -62,7 +65,7 @@ public class DriveTrain extends Subsystem {
     // Initialization
     private DriveTrain() {
         System.out.println("6072: Drive train constructor");
-        driveState = DriveControlState.GO_FORWARD;
+        mDriveState = DriveControlState.GO_FORWARD;
         this.drive = new RobotDrive(leftSide, leftSideMotors[0], rightSide, rightMotors[0]);
     }
 
@@ -74,12 +77,8 @@ public class DriveTrain extends Subsystem {
     }
 
 
-
-    private void turnToHeading() {
-    }
-
-
-
+    // create a new command as an anonymous object, and pass it to the scheduler
+    //
     private void teleopDrive() {
         System.out.println("6072: Go forward");
         Command driveCommand = new Command() {
@@ -89,12 +88,18 @@ public class DriveTrain extends Subsystem {
             }
 
             protected void execute() {
-                System.out.println("executing tank drive");
+                System.out.println("executing DriveTrain.teleopDrive.tankDrive");
                 drive.tankDrive(ControlBoard.getInstance().stick, 1, ControlBoard.getInstance().stick, 5);
             }
         };
         Scheduler.getInstance().add(driveCommand);
     }
+
+
+
+    private void turnToHeading() {
+    }
+
 
     private void goBackward() {
     }
@@ -113,7 +118,7 @@ public class DriveTrain extends Subsystem {
 
     // ips is inches per second
     public synchronized void setVelocitySetpoint(double left_ips, double right_ips) {
-        driveState = DriveControlState.VELOCITY_SETPOINT;
+        mDriveState = DriveControlState.VELOCITY_SETPOINT;
 
         // update each motor speed
         for (int i = 0; i < leftMotors.length; i++) {

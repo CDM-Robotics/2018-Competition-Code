@@ -5,23 +5,31 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import org.cdm.team6072.subsystems.DriveTrain;
 
 public class Robot extends IterativeRobot {
+
+
     private DriveTrain mDriveTrain;
     //private GearSlider slider;
     //private Climber climber;
-    private ControlBoard mOi;
+
+    // ControlBoard holds the operator interface code such as JoyStick
+    private ControlBoard mControlBoard;
 
 
     @Override
     public void robotInit() {
         System.out.println("6072: robot initialized");
 
-        // get subsystems to tie them together
+        mControlBoard = ControlBoard.getInstance();
+
+        // Create the drive train subsystem, which had code to handle the drive motors
+        // Currently this sets a default command of drive forward and passes it to the
+        // scheduler. The scheduler is then called in teleoPerodic
+        // The command ties itself to
         mDriveTrain = DriveTrain.getInstance();
-        mOi = ControlBoard.getInstance();
+
         //slider = GearSlider.getInstance();
         //climber = Climber.getInstance();
         //dTrain = new Drivetrain();
-
     }
 
     @Override
@@ -32,11 +40,16 @@ public class Robot extends IterativeRobot {
 
     @Override
     public void teleopInit() {
-        System.out.println("6072: teleop started");
+        System.out.println("6072: teleop init");
     }
 
 
-
+    /**
+     * teleopPeriodic is called about every 20mSec
+     * We call the scheduler to cause all commands that have been scheduled to run
+     * A command is typically placed on the scheduler in response to operator input
+     *  e.g. a button press
+     */
     @Override
     public void teleopPeriodic() {
         // must call the scheduler to run
