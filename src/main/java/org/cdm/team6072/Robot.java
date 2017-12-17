@@ -3,12 +3,13 @@ package org.cdm.team6072;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import org.cdm.team6072.subsystems.DriveTrain;
+import org.cdm.team6072.subsystems.GearSlider;
 
 public class Robot extends IterativeRobot {
 
 
     private DriveTrain mDriveTrain;
-    //private GearSlider slider;
+    private GearSlider mSlider;
     //private Climber climber;
 
     // ControlBoard holds the operator interface code such as JoyStick
@@ -27,7 +28,7 @@ public class Robot extends IterativeRobot {
         // The command ties itself to
         mDriveTrain = DriveTrain.getInstance();
 
-        //slider = GearSlider.getInstance();
+        mSlider = GearSlider.getInstance();
         //climber = Climber.getInstance();
         //dTrain = new Drivetrain();
     }

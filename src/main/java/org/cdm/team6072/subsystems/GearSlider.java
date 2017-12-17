@@ -1,11 +1,15 @@
 //package frc.subsystems;
 package org.cdm.team6072.subsystems;
 //import com.ctre.MotorControl.CANTalon;
+//import com.ctre.MotorControl.CANTalon;
+import com.ctre.CTR_Code;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.command.Subsystem;
-import org.cdm.team6072.RobotConfig;
 import org.cdm.team6072.ControlBoard;
+import org.cdm.team6072.RobotConfig;
+//import com.ctre.CTR_Code.*;
+
 //import com.ctre.CANTalon;
 // NOTE: support for WPI CANTalon dropped
 // need to get a jar from somewhere else
@@ -14,7 +18,7 @@ import org.cdm.team6072.ControlBoard;
 /**
  * Created by Cole on 9/29/17.
  */
-/*public class GearSlider extends Subsystem {
+public class GearSlider extends Subsystem {
     // singleton instance
     private static GearSlider instance;
     public static GearSlider getInstance() {
@@ -22,11 +26,12 @@ import org.cdm.team6072.ControlBoard;
     }
 
     // motor controller
-    private CANTalon talon;
+    //private CANTalon talon;
 
     private GearSlider() {
 
-        talon = new CANTalon(RobotConfig.SLIDER_TALON);
+        //this.talon = new CANTalon(RobotConfig.SLIDER_TALON);
+        //this.talon = new CANTalon(RobotConfig.SLIDER_TALON);
     }
 
     public void stop() {
@@ -36,7 +41,7 @@ import org.cdm.team6072.ControlBoard;
     public void setSpeed(double speed) {
         //this.talon.changeControlMode(CANTalon.TalonControlMode.Speed);
         //this.talon.set(speed);
-        talon.set(speed);
+        //talon.set(speed);
     }
 
     @Override
@@ -74,4 +79,4 @@ import org.cdm.team6072.ControlBoard;
 
 }
 
-*/
+
