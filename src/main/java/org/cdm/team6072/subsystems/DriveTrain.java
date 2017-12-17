@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.Encoder;
 import org.cdm.team6072.ControlBoard;
 import org.cdm.team6072.RobotConfig;
 import org.cdm.team6072.SpeedControllerArray;
@@ -59,6 +60,9 @@ public class DriveTrain extends Subsystem {
     // This should not be public - means external objects are modifying state
     public RobotDrive drive;
 
+    private Encoder encoder1;
+    private Encoder encoder2;
+
     // shifter (changing gear)
     DoubleSolenoid shifter = new DoubleSolenoid(1,0,1);
 
@@ -96,14 +100,18 @@ public class DriveTrain extends Subsystem {
                 // gamepad
                 //drive.tankDrive(ControlBoard.getInstance().stick, 1, ControlBoard.getInstance().stick, 5);
                 // 3D Pro Joystick
-                //drive.tankDrive(ControlBoard.getInstance().stick, 1, ControlBoard.getInstance().stick, 0);
-                // Taranis
                 drive.tankDrive(ControlBoard.getInstance().stick, 1, ControlBoard.getInstance().stick, 0);
+                // Taranis
+                //drive.tankDrive(ControlBoard.getInstance().stick, 1, ControlBoard.getInstance().stick, 0);
             }
         };
         Scheduler.getInstance().add(driveCommand);
     }
 
+    // distance is in meters
+    private void autonomousDriveDistance(float distance) {
+        System.out.println("driving distance");
+    }
 
 
     private void turnToHeading() {
