@@ -79,6 +79,9 @@ public class DriveTrain extends Subsystem {
 
     // create a new command as an anonymous object, and pass it to the scheduler
     //
+    // Taranis:   Y is 1   X is 0
+    // Joystick:  Y is 1  X  is 0
+    // Gamepad:   LY = 1   RY = 5  LTrigger = 2  RTrigger = 3  LX = 0  RX = 4
     private void teleopDrive() {
         System.out.println("6072: Go forward");
         Command driveCommand = new Command() {
@@ -89,7 +92,13 @@ public class DriveTrain extends Subsystem {
 
             protected void execute() {
                 System.out.println("executing DriveTrain.teleopDrive.tankDrive");
-                drive.tankDrive(ControlBoard.getInstance().stick, 1, ControlBoard.getInstance().stick, 5);
+
+                // gamepad
+                //drive.tankDrive(ControlBoard.getInstance().stick, 1, ControlBoard.getInstance().stick, 5);
+                // 3D Pro Joystick
+                //drive.tankDrive(ControlBoard.getInstance().stick, 1, ControlBoard.getInstance().stick, 0);
+                // Taranis
+                drive.tankDrive(ControlBoard.getInstance().stick, 1, ControlBoard.getInstance().stick, 0);
             }
         };
         Scheduler.getInstance().add(driveCommand);

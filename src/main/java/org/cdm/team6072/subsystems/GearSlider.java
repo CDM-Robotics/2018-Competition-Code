@@ -1,12 +1,22 @@
 //package frc.subsystems;
+package org.cdm.team6072.subsystems;
+//import com.ctre.MotorControl.CANTalon;
+import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.command.Subsystem;
+import org.cdm.team6072.RobotConfig;
+import org.cdm.team6072.ControlBoard;
 //import com.ctre.CANTalon;
+// NOTE: support for WPI CANTalon dropped
+// need to get a jar from somewhere else
+
 
 /**
  * Created by Cole on 9/29/17.
  */
-/*public class GearSlider {
+/*public class GearSlider extends Subsystem {
     // singleton instance
-    public static GearSlider instance = new GearSlider();
+    private static GearSlider instance;
     public static GearSlider getInstance() {
         return instance;
     }
@@ -19,72 +29,26 @@
         talon = new CANTalon(RobotConfig.SLIDER_TALON);
     }
 
-    private enum State {
-        IDLE,
-        MOVE_LEFT,
-        MOVE_RIGHT
-    }
-
-    private State mState = State.IDLE;
-
-
-    private Loop mLoop = new Loop() {
-        @Override
-        public void onStart(double timestamp) {
-            stop();
-            synchronized (GearSlider.this) {
-                mState = State.IDLE;
-            }
-        }
-
-        @Override
-        public void onLoop(double timestamp) {
-            synchronized (GearSlider.this) {
-                switch (mState) {
-                    case IDLE:
-                        return;
-                    case MOVE_LEFT:
-
-                        return;
-                    case MOVE_RIGHT:
-
-                        return;
-                    default:
-                        return;
-                }
-            }
-        }
-
-        @Override
-        public void onStop(double timestamp) {
-            stop();
-        }
-    };
-
-
     public void stop() {
 
     }
 
-    public State handleIdle() {
-        return State.IDLE;
-    }
-
-    public void slideLeft() {
-
-    }
-
-    public void slideRight() {
-
-    }
-
     public void setSpeed(double speed) {
-        this.talon.changeControlMode(CANTalon.TalonControlMode.Speed);
-        this.talon.set(speed);
+        //this.talon.changeControlMode(CANTalon.TalonControlMode.Speed);
+        //this.talon.set(speed);
+        talon.set(speed);
     }
 
-    public Command slide() {
-        return new Command() {
+    @Override
+    public void initDefaultCommand() {
+        manualSlide();
+    }
+
+
+    // slide according to the yaw of the xbox remote
+    // a manual command doesn't need to return
+    public void manualSlide() {
+        Command cmd = new Command() {
 
             @Override
             protected void initialize() {
@@ -105,7 +69,9 @@
                 return false;
             }
         };
+        Scheduler.getInstance().add(cmd);
     }
 
 }
+
 */
