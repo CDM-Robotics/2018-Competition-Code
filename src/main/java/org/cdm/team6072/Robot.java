@@ -2,14 +2,15 @@ package org.cdm.team6072;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
-import org.cdm.team6072.subsystems.DriveTrain;
-import org.cdm.team6072.subsystems.GearSlider;
+import org.cdm.team6072.commands.TankDriveCmd;
+import org.cdm.team6072.subsystems.DriveTrain2018;
+//import org.cdm.team6072.subsystems.GearSlider;
 
 public class Robot extends IterativeRobot {
 
 
-    private DriveTrain mDriveTrain;
-    private GearSlider mSlider;
+    private DriveTrain2018 mDriveTrain;
+    //private GearSlider mSlider;
     //private Climber climber;
 
     // ControlBoard holds the operator interface code such as JoyStick
@@ -26,9 +27,9 @@ public class Robot extends IterativeRobot {
         // Currently this sets a default command of drive forward and passes it to the
         // scheduler. The scheduler is then called in teleoPerodic
         // The command ties itself to
-        mDriveTrain = DriveTrain.getInstance();
+        mDriveTrain = DriveTrain2018.getInstance();
 
-        mSlider = GearSlider.getInstance();
+        //mSlider = GearSlider.getInstance();
         //climber = Climber.getInstance();
         //dTrain = new Drivetrain();
     }
@@ -39,9 +40,14 @@ public class Robot extends IterativeRobot {
 
 
 
+    private TankDriveCmd mDriveCmd;
+
     @Override
     public void teleopInit() {
-        System.out.println("6072: teleop init");
+        System.out.println("6072 2018 2: teleop init");
+        mDriveCmd = new TankDriveCmd(mControlBoard.usb0_stick);
+        Scheduler.getInstance().removeAll();
+        Scheduler.getInstance().add(mDriveCmd);
     }
 
 

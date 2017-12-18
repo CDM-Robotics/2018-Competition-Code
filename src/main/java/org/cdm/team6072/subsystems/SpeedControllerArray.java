@@ -1,4 +1,4 @@
-package org.cdm.team6072;
+package org.cdm.team6072.subsystems;
 
 import edu.wpi.first.wpilibj.SpeedController;
 

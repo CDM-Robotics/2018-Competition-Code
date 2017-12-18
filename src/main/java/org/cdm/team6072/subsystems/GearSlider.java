@@ -1,16 +1,16 @@
-//package frc.subsystems;
+
 package org.cdm.team6072.subsystems;
+
+
 //import com.ctre.MotorControl.CANTalon;
 //import com.ctre.MotorControl.CANTalon;
-import com.ctre.CTR_Code;
+import com.ctre.CANTalon;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import org.cdm.team6072.ControlBoard;
 import org.cdm.team6072.RobotConfig;
-//import com.ctre.CTR_Code.*;
 
-//import com.ctre.CANTalon;
 // NOTE: support for WPI CANTalon dropped
 // need to get a jar from somewhere else
 
@@ -78,5 +78,6 @@ public class GearSlider extends Subsystem {
     }
 
 }
+
 
 

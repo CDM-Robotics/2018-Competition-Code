@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.Encoder;
 import org.cdm.team6072.ControlBoard;
 import org.cdm.team6072.RobotConfig;
-import org.cdm.team6072.SpeedControllerArray;
 
 
 /**
@@ -127,7 +126,7 @@ public class DriveTrain extends Subsystem {
     @Override
     public void initDefaultCommand() {
         System.out.println("6072: init default command");
-        teleopDrive();
+        //teleopDrive();
     }
 
 
@@ -145,14 +144,14 @@ public class DriveTrain extends Subsystem {
             }
 
             protected void execute() {
-                System.out.println("executing DriveTrain.teleopDrive.tankDrive");
+                System.out.println("6072: executing DriveTrain.teleopDrive.tankDrive");
 
                 // gamepad
-                //drive.tankDrive(ControlBoard.getInstance().stick, 1, ControlBoard.getInstance().stick, 5);
+                drive.tankDrive(ControlBoard.getInstance().usb0_stick, 1, ControlBoard.getInstance().usb0_stick, 5);
                 // 3D Pro Joystick
-                drive.tankDrive(ControlBoard.getInstance().stick, 1, ControlBoard.getInstance().stick, 0);
+                //drive.tankDrive(ControlBoard.getInstance().usb0_stick, 1, ControlBoard.getInstance().usb0_stick, 0);
                 // Taranis
-                //drive.tankDrive(ControlBoard.getInstance().stick, 1, ControlBoard.getInstance().stick, 0);
+                //drive.tankDrive(ControlBoard.getInstance().usb0_stick, 1, ControlBoard.getInstance().usb0_stick, 0);
             }
         };
         Scheduler.getInstance().add(driveCommand);
