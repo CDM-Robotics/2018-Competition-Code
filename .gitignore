@@ -1,4 +1,12 @@
-.idea/
-**/.idea/
 .gradle
+.idea
+build
+dist
+gradle
 out
+2018-Competition-Code.iml
+2018-Competition-Code.ipr
+2018-Competition-Code.iws
+gradlew
+gradlew.bat
+settings.graddle
