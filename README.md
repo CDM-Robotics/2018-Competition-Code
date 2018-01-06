@@ -77,3 +77,5 @@ Dio Channels
   
   ### Game Information ###
  Read the latest rules and learn about the field setup <a href="https://firstfrc.blob.core.windows.net/frc2018/Manual/2018FRCGameSeasonManual.pdf">here</a>
+<br>
+On the driver station computer, the project is located in the following directory: C:\Users\trito\Triton-Tech-2018
