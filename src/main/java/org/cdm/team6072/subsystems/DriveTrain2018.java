@@ -30,17 +30,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
  */
 public class DriveTrain2018 extends Subsystem {
 
-
-    private static DriveTrain2018 mInstance = new DriveTrain2018();
-    public static DriveTrain2018 getInstance() {
-        if (mInstance == null) {
-            mInstance = new DriveTrain2018();
-        }
-        return mInstance;
-    }
-
-
-    private static int LEFT_MASTER = 13;
+    private static int LEFT_MASTER = 13; //13;
     private static int LEFT_SLAVE0 = 14;
     private static int LEFT_SLAVE1 = 12;
 
@@ -49,37 +39,80 @@ public class DriveTrain2018 extends Subsystem {
     private static int RIGHT_SLAVE1 = 15;
 
     private CANTalon mLeftMaster;
-    private CANTalon mRightMaster;
     private CANTalon mLeft_Slave0;
-    private CANTalon mRight_Slave0;
     private CANTalon mLeft_Slave1;
+    private CANTalon mRightMaster;
+    private CANTalon mRight_Slave0;
     private CANTalon mRight_Slave1;
 
     private RobotDrive mRoboDrive;
 
 
+
+    private static DriveTrain2018 mInstance;
+    public static DriveTrain2018 getInstance() {
+        if (mInstance == null) {
+            mInstance = new DriveTrain2018();
+        }
+        return mInstance;
+    }
+
     private DriveTrain2018() {
         System.out.println("6072: DriveTrain2018 constructor");
 
-        mLeftMaster = new CANTalon(LEFT_MASTER);
-        mRightMaster = new CANTalon(RIGHT_MASTER);
+        try {
+            mLeftMaster = new CANTalon(LEFT_MASTER);
 
-        mLeft_Slave0 = new CANTalon(LEFT_SLAVE0);
-        mLeft_Slave0.changeControlMode(TalonControlMode.Follower);
-        mLeft_Slave0.set(LEFT_MASTER);
-        mLeft_Slave1 = new CANTalon(LEFT_SLAVE1);
-        mLeft_Slave1.changeControlMode(TalonControlMode.Follower);
-        mLeft_Slave1.set(LEFT_MASTER);
+            mLeft_Slave0 = new CANTalon(LEFT_SLAVE0);
+            mLeft_Slave0.changeControlMode(TalonControlMode.Follower);
+            mLeft_Slave0.reverseOutput(true);
+            mLeft_Slave0.set(LEFT_MASTER);
+            mLeft_Slave1 = new CANTalon(LEFT_SLAVE1);
+            mLeft_Slave1.changeControlMode(TalonControlMode.Follower);
+            mLeft_Slave1.reverseOutput(true);
+            mLeft_Slave1.set(LEFT_MASTER);
 
-        mRight_Slave0 = new CANTalon(RIGHT_SLAVE0);
-        mRight_Slave0.changeControlMode(TalonControlMode.Follower);
-        mRight_Slave0.set(RIGHT_MASTER);
-        mRight_Slave1 = new CANTalon(RIGHT_SLAVE1);
-        mRight_Slave1.changeControlMode(TalonControlMode.Follower);
-        mRight_Slave1.set(RIGHT_MASTER);
+            mRightMaster = new CANTalon(RIGHT_MASTER);
 
-        mRoboDrive = new RobotDrive(mLeftMaster, mRightMaster);
+            mRight_Slave0 = new CANTalon(RIGHT_SLAVE0);
+            mRight_Slave0.changeControlMode(TalonControlMode.Follower);
+            mRight_Slave0.reverseOutput(true);
+            mRight_Slave0.set(RIGHT_MASTER);
+            mRight_Slave1 = new CANTalon(RIGHT_SLAVE1);
+            mRight_Slave1.changeControlMode(TalonControlMode.Follower);
+            mRight_Slave1.reverseOutput(true);
+            mRight_Slave1.set(RIGHT_MASTER);
+
+            mRoboDrive = new RobotDrive(mLeftMaster, mRightMaster);
+
+            String msg = "LM: isAlive: " + mLeftMaster.isAlive() + " isEn:" + mLeftMaster.isEnabled() + "\r\n";
+            msg += "LS0: isAlive: " + mLeft_Slave0.isAlive() + " isEn:" + mLeft_Slave0.isEnabled() + "\r\n";
+            msg += "LS1: isAlive: " + mLeft_Slave1.isAlive() + " isEn:" + mLeft_Slave1.isEnabled() + "\r\n";
+            msg += "RM: isAlive: " + mRightMaster.isAlive() + " isEn:" + mRightMaster.isEnabled() + "\r\n";
+            msg += "RS0: isAlive: " + mRight_Slave0.isAlive() + " isEn:" + mRight_Slave0.isEnabled() + "\r\n";
+            msg += "RS1: isAlive: " + mRight_Slave1.isAlive() + " isEn:" + mRight_Slave1.isEnabled() + "\r\n";
+
+            System.out.println("6072: talon status \r\n" + msg);
+        }
+        catch (Exception ex) {
+            System.out.println("Exception in DriveTrain2018 ctor: " + ex.getMessage() + "\r\n" + ex.getStackTrace());
+        }
+
     }
+
+
+    /**
+     * See TalonSRX manual section 21.18
+     */
+//    public void disabledPeriodic() {
+//        //System.out.println("6072: disabledPeriodic");
+//        mLeft_Slave0.enableBrakeMode(false);
+//        mLeft_Slave1.enableBrakeMode(false);
+//        mLeftMaster.enableBrakeMode(false);
+//        mRight_Slave0.enableBrakeMode(false);
+//        mRight_Slave1.enableBrakeMode(false);
+//        mRightMaster.enableBrakeMode(false);
+//    }
 
 
     @Override
@@ -90,7 +123,7 @@ public class DriveTrain2018 extends Subsystem {
 
     /**
      * Implement the tank drive method for the RobotDrive
-     * Allows external acces for commands without exposing the RobotDrive object
+     * Allows external access for commands without exposing the RobotDrive object
      * @param left
      * @param right
      */
@@ -98,11 +131,9 @@ public class DriveTrain2018 extends Subsystem {
         mRoboDrive.tankDrive(left, right);
     }
 
-
     public void tankDrive(Joystick leftStick, int leftAxis, Joystick rightStick, int rightAxis) {
         mRoboDrive.tankDrive(leftStick, leftAxis, rightStick, rightAxis);
     }
-
 
 
 }

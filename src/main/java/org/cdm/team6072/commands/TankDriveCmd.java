@@ -19,7 +19,6 @@ public class TankDriveCmd extends Command {
      * Specify the the command requires the DriveTrain2018 subsystem
      */
     public TankDriveCmd(Joystick stick) {
-
         mStick = stick;
         requires(DriveTrain2018.getInstance());
     }
@@ -44,4 +43,6 @@ public class TankDriveCmd extends Command {
     protected boolean isFinished() {
         return false;
     }
+
+
 }
