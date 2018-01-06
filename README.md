@@ -1,4 +1,4 @@
-# 2018-Competition-Code
+# 2018 CompetitionCode
 CDM Robotics Team #6072
 <br>http://www.tritontech6072.com
 
@@ -74,3 +74,6 @@ Dio Channels
 |   2        | Encoder Right A    |
 |   3        | Encoder Right B    |
   
+  
+  ### Game Information ###
+ Read the latest rules and learn about the field setup <a href="https://firstfrc.blob.core.windows.net/frc2018/Manual/2018FRCGameSeasonManual.pdf">here</a>
