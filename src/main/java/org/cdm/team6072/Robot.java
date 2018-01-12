@@ -6,12 +6,14 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import org.cdm.team6072.commands.TankDriveCmd;
 import org.cdm.team6072.subsystems.DriveTrain2018;
 import edu.wpi.first.wpilibj.*;
+import org.cdm.team6072.subsystems.Navigator;
 //import org.cdm.team6072.subsystems.GearSlider;
 
 public class Robot extends IterativeRobot {
 
 
     private DriveTrain2018 mDriveTrain = DriveTrain2018.getInstance();
+    private Navigator mNavx = Navigator.getInstance();
     //private GearSlider mSlider;
     //private Climber climber;
 

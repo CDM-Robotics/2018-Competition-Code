@@ -32,7 +32,14 @@ public class TankDriveCmd extends Command {
         //System.out.println("6072: execute called");
         DriveTrain2018 driveTrain = DriveTrain2018.getInstance();
         //driveTrain.tankDrive(mStick.getRawAxis(1), mStick.getRawAxis(0));
-        driveTrain.tankDrive(mStick, 0, mStick, 1);
+        //driveTrain.tankDrive(mStick, 0, mStick, 1);
+
+        // gamepad
+        driveTrain.tankDrive(ControlBoard.getInstance().usb0_stick.getY(), ControlBoard.getInstance().usb0_stick.getZ());
+        // 3D Pro Joystick
+        //driveTrain.tankDrive(ControlBoard.getInstance().usb0_stick, 1, ControlBoard.getInstance().usb0_stick, 0);
+        // Taranis
+        //driveTrain.tankDrive(ControlBoard.getInstance().usb0_stick, 1, ControlBoard.getInstance().usb0_stick, 0);
     }
 
 
