@@ -1,9 +1,12 @@
 package org.cdm.team6072.commands;
 
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
 import org.cdm.team6072.ControlBoard;
 import org.cdm.team6072.subsystems.DriveTrain2018;
+
+import javax.naming.ldap.Control;
 
 
 /**
@@ -35,8 +38,11 @@ public class TankDriveCmd extends Command {
         //driveTrain.tankDrive(mStick, 0, mStick, 1);
 
         // gamepad
-        driveTrain.tankDrive(ControlBoard.getInstance().usb0_stick.getY(), ControlBoard.getInstance().usb0_stick.getZ());
+        //ControlBoard.getInstance().usb0_stick.
+        driveTrain.arcadeDrive(ControlBoard.getInstance().usb0_stick.getY(), ControlBoard.getInstance().usb0_stick.getZ());
+        //driveTrain.tankDrive(ControlBoard.getInstance().usb0_stick.getY(GenericHID.Hand.kLeft), ControlBoard.getInstance().usb0_stick.getY(GenericHID.Hand.kRight));
         // 3D Pro Joystick
+
         //driveTrain.tankDrive(ControlBoard.getInstance().usb0_stick, 1, ControlBoard.getInstance().usb0_stick, 0);
         // Taranis
         //driveTrain.tankDrive(ControlBoard.getInstance().usb0_stick, 1, ControlBoard.getInstance().usb0_stick, 0);

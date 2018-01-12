@@ -69,17 +69,17 @@ public class DriveTrain2018 extends Subsystem {
             mLeft_Slave0 = new WPI_TalonSRX(LEFT_SLAVE0);
             mLeft_Slave0.set(ControlMode.Follower, LEFT_MASTER);
             mLeft_Slave0.setInverted(true);
-            mLeft_Slave1 = new WPI_TalonSRX(LEFT_SLAVE0);
+            mLeft_Slave1 = new WPI_TalonSRX(LEFT_SLAVE1);
             mLeft_Slave1.set(ControlMode.Follower, LEFT_MASTER);
             mLeft_Slave1.setInverted(true);
 
             mRightMaster = new WPI_TalonSRX(RIGHT_MASTER);
 
-            mRight_Slave0 = new WPI_TalonSRX(LEFT_SLAVE0);
-            mRight_Slave0.set(ControlMode.Follower, LEFT_MASTER);
+            mRight_Slave0 = new WPI_TalonSRX(RIGHT_SLAVE0);
+            mRight_Slave0.set(ControlMode.Follower, RIGHT_MASTER);
             mRight_Slave0.setInverted(true);
-            mRight_Slave1 = new WPI_TalonSRX(LEFT_SLAVE0);
-            mRight_Slave1.set(ControlMode.Follower, LEFT_MASTER);
+            mRight_Slave1 = new WPI_TalonSRX(RIGHT_SLAVE1);
+            mRight_Slave1.set(ControlMode.Follower, RIGHT_MASTER);
             mRight_Slave1.setInverted(true);
 
             mRoboDrive = new DifferentialDrive(mLeftMaster, mRightMaster);
@@ -122,6 +122,8 @@ public class DriveTrain2018 extends Subsystem {
         mRoboDrive.tankDrive(left, right);
     }
 
-
+    public void arcadeDrive(double mag, double turn) {
+        mRoboDrive.arcadeDrive(mag, turn);
+    }
 
 }
