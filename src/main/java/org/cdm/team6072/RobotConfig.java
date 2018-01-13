@@ -34,6 +34,9 @@ public class RobotConfig {
     // ELEVATOR
     public static int ELEVATOR_TALON = 5;
 
+    // GRABBER
+    public static int SOLENOID_CONTROL = 0;
+
     // encoders
     public static int ENCODER_LEFT_1 = 0;
     public static int ENCODER_LEFT_2 = 0;
