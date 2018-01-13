@@ -1,18 +1,16 @@
 package org.cdm.team6072;
 
-import com.ctre.CANTalon;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
-import org.cdm.team6072.commands.TankDriveCmd;
-import org.cdm.team6072.subsystems.DriveTrain2018;
-import edu.wpi.first.wpilibj.*;
+import org.cdm.team6072.commands.drive.ArcadeDriveCmd;
+import org.cdm.team6072.subsystems.DriveTrain;
 import org.cdm.team6072.subsystems.Navigator;
 //import org.cdm.team6072.subsystems.GearSlider;
 
 public class Robot extends IterativeRobot {
 
 
-    private DriveTrain2018 mDriveTrain = DriveTrain2018.getInstance();
+    private DriveTrain mDriveTrain = DriveTrain.getInstance();
     private Navigator mNavx = Navigator.getInstance();
     //private GearSlider mSlider;
     //private Climber climber;
@@ -25,7 +23,7 @@ public class Robot extends IterativeRobot {
     public void robotInit() {
         System.out.println("6072: robotInit");
        // mControlBoard = ControlBoard.getInstance();
-        //mDriveTrain = DriveTrain2018.getInstance();
+        //mDriveTrain = DriveTrain.getInstance();
         //mSlider = GearSlider.getInstance();
         //climber = Climber.getInstance();
         //dTrain = new Drivetrain();
@@ -49,12 +47,12 @@ public class Robot extends IterativeRobot {
 
 
 
-    private TankDriveCmd mDriveCmd;
+    private ArcadeDriveCmd mDriveCmd;
 
     @Override
     public void teleopInit() {
         System.out.println("6072 2018: teleop init");
-        mDriveCmd = new TankDriveCmd(mControlBoard.usb0_stick);
+        mDriveCmd = new ArcadeDriveCmd(mControlBoard.usb0_stick);
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(mDriveCmd);
     }
