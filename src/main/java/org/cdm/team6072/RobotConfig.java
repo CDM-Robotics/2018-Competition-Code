@@ -15,14 +15,14 @@ public class RobotConfig {
      */
 
     // front, mid, and back motors on chasis
-    public static int LEFT_MOTOR_1 = 0;
-    public static int LEFT_MOTOR_2 = 1;
-    public static int LEFT_MOTOR_3 = 2;
+    public static int LEFT_MASTER = 13;
+    public static int LEFT_SLAVE0 = 14;
+    public static int LEFT_SLAVE1 = 12;
 
     // front, mid, and back motors on chasis
-    public static int RIGHT_MOTOR_1 = 3;
-    public static int RIGHT_MOTOR_2 = 4;
-    public static int RIGHT_MOTOR_3 = 5;
+    public static int RIGHT_MASTER = 0;
+    public static int RIGHT_SLAVE0 = 1;
+    public static int RIGHT_SLAVE1 = 15;
 
     // shifter (gearbox)
     public static int GEARBOX_MODULE_NUMBER = 1;
@@ -31,15 +31,14 @@ public class RobotConfig {
     public static int LOW_GEAR = 0;
     public static int HIGH_GEAR = 1;
 
-    // GEAR Slider
-    public static int SLIDER_TALON = 5;
+    // ELEVATOR
+    public static int ELEVATOR_TALON = 2;
 
-    // encoders
-    public static int ENCODER_LEFT_1 = 0;
-    public static int ENCODER_LEFT_2 = 0;
-    public static int ENCODER_RIGHT_1 = 0;
-    public static int ENCODER_RIGHT_2 = 0;
 
+    // GRABBER
+    public static int SOLENOID_CONTROL = 0;
+
+    // CLIMBER
     public static int CLIMBER_MOTOR = 6;
 
 

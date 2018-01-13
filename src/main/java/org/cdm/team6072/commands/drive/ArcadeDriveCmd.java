@@ -1,29 +1,26 @@
-package org.cdm.team6072.commands;
+package org.cdm.team6072.commands.drive;
 
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
 import org.cdm.team6072.ControlBoard;
-import org.cdm.team6072.subsystems.DriveTrain2018;
-
-import javax.naming.ldap.Control;
+import org.cdm.team6072.subsystems.DriveTrain;
 
 
 /**
  * Define a command for driving
  */
-public class TankDriveCmd extends Command {
+public class ArcadeDriveCmd extends Command {
 
 
     private Joystick mStick;
 
 
     /**
-     * Specify the the command requires the DriveTrain2018 subsystem
+     * Specify the the command requires the DriveTrain subsystem
      */
-    public TankDriveCmd(Joystick stick) {
+    public ArcadeDriveCmd(Joystick stick) {
         mStick = stick;
-        requires(DriveTrain2018.getInstance());
+        requires(DriveTrain.getInstance());
     }
 
 
@@ -33,7 +30,7 @@ public class TankDriveCmd extends Command {
      */
     protected void execute() {
         //System.out.println("6072: execute called");
-        DriveTrain2018 driveTrain = DriveTrain2018.getInstance();
+        DriveTrain driveTrain = DriveTrain.getInstance();
         //driveTrain.tankDrive(mStick.getRawAxis(1), mStick.getRawAxis(0));
         //driveTrain.tankDrive(mStick, 0, mStick, 1);
 
