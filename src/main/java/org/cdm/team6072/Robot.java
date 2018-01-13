@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import org.cdm.team6072.commands.drive.ArcadeDriveCmd;
 import org.cdm.team6072.subsystems.DriveTrain;
+import org.cdm.team6072.subsystems.Elevator;
 import org.cdm.team6072.subsystems.Navigator;
 //import org.cdm.team6072.subsystems.GearSlider;
 
@@ -12,6 +13,7 @@ public class Robot extends IterativeRobot {
 
     private DriveTrain mDriveTrain = DriveTrain.getInstance();
     private Navigator mNavx = Navigator.getInstance();
+    private Elevator elevator = Elevator.getInstance();
     //private GearSlider mSlider;
     //private Climber climber;
 

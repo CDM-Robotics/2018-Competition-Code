@@ -41,7 +41,7 @@ public class Elevator extends Subsystem {
         this.mainTalon.setInverted(false);
     }
 
-    public Command moveUp() {
+    /*public Command moveUp() {
         this.mainTalon.setInverted(false);
         Command cmd = new MoveElevatorCmd();
         return cmd;
@@ -51,7 +51,11 @@ public class Elevator extends Subsystem {
         this.mainTalon.setInverted(true);
         Command cmd = new MoveElevatorCmd();
         return cmd;
-    }
+    }*/
+
+    //public Command stop() {
+        //this.mainTalon.set(0);
+    //}
 
     public TalonSRX getMotorController() {
         return this.mainTalon;
