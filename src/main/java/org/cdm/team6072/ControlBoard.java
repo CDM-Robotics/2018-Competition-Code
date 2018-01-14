@@ -60,7 +60,7 @@ public class ControlBoard {
         gamepadButtons[ControlMappings.GRABBER_WHEELS_OUT_BTN] = new JoystickButton(usb0_stick, ControlMappings.GRABBER_WHEELS_OUT_BTN);
         gamepadButtons[ControlMappings.GRABBER_WHEELS_OUT_BTN].whenPressed(new RunGrabberWheelsCmd(Grabber.WheelDirn.Out));
         gamepadButtons[ControlMappings.GRABBER_WHEELS_OUT_BTN].whenReleased(new StopGrabberWheelsCmd());
-        
+
 
         //stick_buttons[ControlMappings.SHIFT_DRIVE_LOW_BTN] = new JoystickButton(usb0_stick, ControlMappings.SHIFT_DRIVE_LOW_BTN);
 
