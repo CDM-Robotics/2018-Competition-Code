@@ -18,6 +18,11 @@ public class Grabber extends Subsystem {
         Out
     }
 
+    public static enum GrabberPosition {
+        Open,
+        Closed
+    }
+
 
     private Solenoid mPneumaticsController;
 
@@ -42,9 +47,7 @@ public class Grabber extends Subsystem {
         mTalonRight.setNeutralMode(NeutralMode.Brake);
     }
 
-    public Solenoid getPneumaticsController() {
-        return mPneumaticsController;
-    }
+
 
     @Override
     protected void initDefaultCommand() {
@@ -71,6 +74,16 @@ public class Grabber extends Subsystem {
         mTalonRight.set(ControlMode.PercentOutput, 0);
     }
 
+
+
+    public void OpenGrabber() {
+        mPneumaticsController.set(true);
+    }
+
+
+    public void CloseGrabber() {
+        mPneumaticsController.set(true);
+    }
 
 
 
