@@ -57,6 +57,7 @@ public class DriveTrain extends Subsystem {
 
         try {
             mLeftMaster = new WPI_TalonSRX(RobotConfig.LEFT_MASTER);
+            mLeftMaster.configOpenloopRamp(1 , 0);
 
             mLeft_Slave0 = new WPI_TalonSRX(RobotConfig.LEFT_SLAVE0);
             mLeft_Slave0.set(ControlMode.Follower, RobotConfig.LEFT_MASTER);
@@ -66,6 +67,7 @@ public class DriveTrain extends Subsystem {
             mLeft_Slave1.setInverted(true);
 
             mRightMaster = new WPI_TalonSRX(RobotConfig.RIGHT_MASTER);
+            mRightMaster.configOpenloopRamp(1, 0);
 
             mRight_Slave0 = new WPI_TalonSRX(RobotConfig.RIGHT_SLAVE0);
             mRight_Slave0.set(ControlMode.Follower, RobotConfig.RIGHT_MASTER);
