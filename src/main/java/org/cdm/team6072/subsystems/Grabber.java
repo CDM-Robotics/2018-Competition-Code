@@ -18,6 +18,11 @@ public class Grabber extends Subsystem {
         Out
     }
 
+    public static enum GrabberPosition {
+        Open,
+        Closed
+    }
+
 
     private WPI_TalonSRX mTalonLeft;
     private WPI_TalonSRX mTalonRight;
@@ -38,7 +43,6 @@ public class Grabber extends Subsystem {
         mTalonRight = new WPI_TalonSRX(RobotConfig.GRABBER_TALON_RIGHT);
         mTalonRight.setNeutralMode(NeutralMode.Brake);
     }
-
 
     @Override
     protected void initDefaultCommand() {
@@ -65,6 +69,16 @@ public class Grabber extends Subsystem {
         mTalonRight.set(ControlMode.PercentOutput, 0);
     }
 
+
+
+    public void OpenGrabber() {
+        mPneumaticsController.set(true);
+    }
+
+
+    public void CloseGrabber() {
+        mPneumaticsController.set(true);
+    }
 
 
 

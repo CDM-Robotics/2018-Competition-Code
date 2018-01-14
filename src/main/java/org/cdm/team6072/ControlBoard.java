@@ -5,8 +5,11 @@ import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.command.Command;
 import org.cdm.team6072.commands.elevator.MoveElevatorCmd;
 import org.cdm.team6072.commands.elevator.StopElevatorCmd;
+import org.cdm.team6072.commands.grabber.OpenGrabberCmd;
 import org.cdm.team6072.commands.grabber.RunGrabberWheelsCmd;
 import org.cdm.team6072.commands.grabber.StopGrabberWheelsCmd;
+import org.cdm.team6072.commands.grabber.OpenGrabberCmd;
+import org.cdm.team6072.commands.grabber.CloseGrabberCmd;
 import org.cdm.team6072.subsystems.Climber;
 import org.cdm.team6072.subsystems.Elevator;
 import org.cdm.team6072.subsystems.Grabber;
@@ -60,6 +63,13 @@ public class ControlBoard {
         gamepadButtons[ControlMappings.GRABBER_WHEELS_OUT_BTN] = new JoystickButton(usb0_stick, ControlMappings.GRABBER_WHEELS_OUT_BTN);
         gamepadButtons[ControlMappings.GRABBER_WHEELS_OUT_BTN].whenPressed(new RunGrabberWheelsCmd(Grabber.WheelDirn.Out));
         gamepadButtons[ControlMappings.GRABBER_WHEELS_OUT_BTN].whenReleased(new StopGrabberWheelsCmd());
+
+        gamepadButtons[ControlMappings.GRABBER_OPEN_BTN] = new JoystickButton(usb0_stick, ControlMappings.GRABBER_OPEN_BTN);
+        gamepadButtons[ControlMappings.GRABBER_OPEN_BTN].whenPressed(new OpenGrabberCmd());
+
+        gamepadButtons[ControlMappings.GRABBER_CLOSE_BTN] = new JoystickButton(usb0_stick, ControlMappings.GRABBER_CLOSE_BTN);
+        gamepadButtons[ControlMappings.GRABBER_CLOSE_BTN].whenPressed(new CloseGrabberCmd());
+
 
 
         //stick_buttons[ControlMappings.SHIFT_DRIVE_LOW_BTN] = new JoystickButton(usb0_stick, ControlMappings.SHIFT_DRIVE_LOW_BTN);
