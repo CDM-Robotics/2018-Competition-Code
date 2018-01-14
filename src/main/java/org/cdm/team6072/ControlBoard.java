@@ -45,7 +45,7 @@ public class ControlBoard {
         stick_buttons = new JoystickButton[12];
 
         gamepad = new Joystick(1); // gamepad at usb port 1
-        gamepadButtons = new JoystickButton[7];
+        gamepadButtons = new JoystickButton[12];
 
         // map buttons and actions
         gamepadButtons[ControlMappings.ELEVATOR_UP_BTN] = new JoystickButton(usb0_stick, ControlMappings.ELEVATOR_UP_BTN);

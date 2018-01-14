@@ -36,7 +36,6 @@ public class RobotConfig {
 
 
     // GRABBER
-    public static int SOLENOID_CONTROL = 0;
     public static int GRABBER_TALON_LEFT = 7;
     public static int GRABBER_TALON_RIGHT = 8;
 
@@ -49,8 +48,8 @@ public class RobotConfig {
 
 
     // PNEUMATICS
-    public static int PNEUMATICS_PCM = 61;
-    public static int PNEUMATICS_PDP = 62;
+    public static int GRABBER_OPEN_SOLENOID_ON = 0;
+    public static int GRABBER_OPEN_SOLENOID_OFF = 1;
     public static int COMPRESSOR = 0;
 
 }
