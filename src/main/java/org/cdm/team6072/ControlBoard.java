@@ -5,8 +5,11 @@ import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import edu.wpi.first.wpilibj.command.Command;
 import org.cdm.team6072.commands.elevator.MoveElevatorCmd;
 import org.cdm.team6072.commands.elevator.StopElevatorCmd;
+import org.cdm.team6072.commands.grabber.RunGrabberWheelsCmd;
+import org.cdm.team6072.commands.grabber.StopGrabberWheelsCmd;
 import org.cdm.team6072.subsystems.Climber;
 import org.cdm.team6072.subsystems.Elevator;
+import org.cdm.team6072.subsystems.Grabber;
 //import frc.subsystems.Climber;
 //import org.cdm.team6072.subsystems.GearSlider;
 
@@ -43,12 +46,21 @@ public class ControlBoard {
 
         // map buttons and actions
         gamepadButtons[ControlMappings.ELEVATOR_UP_BTN] = new JoystickButton(usb0_stick, ControlMappings.ELEVATOR_UP_BTN);
-        gamepadButtons[ControlMappings.ELEVATOR_UP_BTN].whenPressed(new MoveElevatorCmd(false));
+        gamepadButtons[ControlMappings.ELEVATOR_UP_BTN].whenPressed(new MoveElevatorCmd(Elevator.Direction.Up, 0.5));
         gamepadButtons[ControlMappings.ELEVATOR_UP_BTN].whenReleased(new StopElevatorCmd());
 
         gamepadButtons[ControlMappings.ELEVATOR_DOWN_BTN] = new JoystickButton(usb0_stick, ControlMappings.ELEVATOR_DOWN_BTN);
-        gamepadButtons[ControlMappings.ELEVATOR_DOWN_BTN].whenPressed(new MoveElevatorCmd(true));
+        gamepadButtons[ControlMappings.ELEVATOR_DOWN_BTN].whenPressed(new MoveElevatorCmd(Elevator.Direction.Down, 0.5));
         gamepadButtons[ControlMappings.ELEVATOR_DOWN_BTN].whenReleased(new StopElevatorCmd());
+
+        gamepadButtons[ControlMappings.GRABBER_WHEELS_IN_BTN] = new JoystickButton(usb0_stick, ControlMappings.GRABBER_WHEELS_IN_BTN);
+        gamepadButtons[ControlMappings.GRABBER_WHEELS_IN_BTN].whenPressed(new RunGrabberWheelsCmd(Grabber.WheelDirn.In));
+        gamepadButtons[ControlMappings.GRABBER_WHEELS_IN_BTN].whenReleased(new StopGrabberWheelsCmd());
+
+        gamepadButtons[ControlMappings.GRABBER_WHEELS_OUT_BTN] = new JoystickButton(usb0_stick, ControlMappings.GRABBER_WHEELS_OUT_BTN);
+        gamepadButtons[ControlMappings.GRABBER_WHEELS_OUT_BTN].whenPressed(new RunGrabberWheelsCmd(Grabber.WheelDirn.Out));
+        gamepadButtons[ControlMappings.GRABBER_WHEELS_OUT_BTN].whenReleased(new StopGrabberWheelsCmd());
+        
 
         //stick_buttons[ControlMappings.SHIFT_DRIVE_LOW_BTN] = new JoystickButton(usb0_stick, ControlMappings.SHIFT_DRIVE_LOW_BTN);
 

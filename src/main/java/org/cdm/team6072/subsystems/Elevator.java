@@ -11,10 +11,26 @@ import org.cdm.team6072.commands.elevator.MoveElevatorCmd;
 import util.CrashTracker;
 
 public class Elevator extends Subsystem {
+
+    /**
+     * Specify the direction the elevator should move
+     */
+    public static enum Direction {
+        Up,
+        Down
+    }
+
+    /**
+     * Specify the target position we want to reach.
+     * Might be replaced by an enum or some other way of specifying desired state
+     */
+    private static double mTarget;
+
+
+    private WPI_TalonSRX mElevatorTalon;
+
+
     private static Elevator mInstance;
-
-    private WPI_TalonSRX mainTalon;
-
     public static Elevator getInstance() {
         if (mInstance == null) {
             mInstance = new Elevator();
@@ -25,8 +41,8 @@ public class Elevator extends Subsystem {
     private Elevator() {
         CrashTracker.logMessage("Elevator Subsystem initializing");
         try {
-            this.mainTalon = new WPI_TalonSRX(RobotConfig.ELEVATOR_TALON);
-            this.mainTalon.set(ControlMode.MotionProfile, ControlMode.MotionProfile.value);
+            mElevatorTalon = new WPI_TalonSRX(RobotConfig.ELEVATOR_TALON);
+            mElevatorTalon.set(ControlMode.MotionProfile, ControlMode.MotionProfile.value);
         } catch (Exception ex) {
             System.out.println(ex.getStackTrace());
         }
@@ -37,27 +53,38 @@ public class Elevator extends Subsystem {
 
     }
 
+    public void setTarget(double target) {
+        mTarget = target;
+    }
+
+
+    /**
+     * Thhis needs to return true when the elevator has reached the target position,
+     * or if the elevator has hit a limit switch
+     * @return
+     */
+    public boolean targetReached() {
+        return false;
+    }
+
     public void resetSystemState() {
-        this.mainTalon.setInverted(false);
+        mElevatorTalon.setInverted(false);
     }
 
-    /*public Command moveUp() {
-        this.mainTalon.setInverted(false);
-        Command cmd = new MoveElevatorCmd();
-        return cmd;
+
+    public void move(Direction dir, double speed) {
+        if (dir == Direction.Up) {
+            mElevatorTalon.setInverted(false);
+        }
+        else {
+            mElevatorTalon.setInverted(true);
+        }
+        mElevatorTalon.set(ControlMode.PercentOutput, speed);
     }
 
-    public Command moveDown() {
-        this.mainTalon.setInverted(true);
-        Command cmd = new MoveElevatorCmd();
-        return cmd;
-    }*/
-
-    //public Command stop() {
-        //this.mainTalon.set(0);
-    //}
-
-    public TalonSRX getMotorController() {
-        return this.mainTalon;
+    public void stop() {
+        mElevatorTalon.set(0);
     }
+
+
 }

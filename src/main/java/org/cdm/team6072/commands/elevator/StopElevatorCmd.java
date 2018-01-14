@@ -6,16 +6,21 @@ import org.cdm.team6072.subsystems.Elevator;
 
 public class StopElevatorCmd extends Command {
 
+
+    /**
+     * If StopElevatorCmd is called when MoveElevatorCmd is running, it will cause an interrupt
+     * on move which will cause it to stop anyway
+     */
     public StopElevatorCmd() {
         requires(Elevator.getInstance());
     }
 
     protected void execute() {
-        Elevator.getInstance().getMotorController().set(ControlMode.PercentOutput, 0);
+        Elevator.getInstance().stop();
     }
 
     @Override
     protected boolean isFinished() {
-        return false;
+        return true;
     }
 }

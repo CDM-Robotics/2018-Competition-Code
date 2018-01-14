@@ -20,7 +20,7 @@ public class RobotConfig {
     public static int LEFT_SLAVE1 = 12;
 
     // front, mid, and back motors on chasis
-    public static int RIGHT_MASTER = 0;
+    public static int RIGHT_MASTER = 30;        // changed 2018-01-13
     public static int RIGHT_SLAVE0 = 1;
     public static int RIGHT_SLAVE1 = 15;
 
@@ -37,6 +37,8 @@ public class RobotConfig {
 
     // GRABBER
     public static int SOLENOID_CONTROL = 0;
+    public static int GRABBER_TALON_LEFT = 7;
+    public static int GRABBER_TALON_RIGHT = 8;
 
     // CLIMBER
     public static int CLIMBER_MOTOR = 6;

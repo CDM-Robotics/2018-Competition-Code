@@ -25,7 +25,7 @@ import org.cdm.team6072.RobotConfig;
  *      Left Front      14
  *      Left Rear       12
  *
- *      Right Top        0
+ *      Right Top        30     // changed 2018-01-13  0 -> 30
  *      Right Front      1
  *      Right Rear      15
  *
@@ -83,21 +83,17 @@ public class DriveTrain extends Subsystem {
     }
 
 
-    /**
-     * See WPI_TalonSRX manual section 21.18
-     */
-//    public void disabledPeriodic() {
-//        //System.out.println("6072: disabledPeriodic");
-//        mLeft_Slave0.enableBrakeMode(false);
-//        mLeft_Slave1.enableBrakeMode(false);
-//        mLeftMaster.enableBrakeMode(false);
-//        mRight_Slave0.enableBrakeMode(false);
-//        mRight_Slave1.enableBrakeMode(false);
-//        mRightMaster.enableBrakeMode(false);
-//    }
-
 
     @Override
+    /**
+     * Each subsystem may, but is not required to, have a default command
+     * which is scheduled whenever the subsystem is idle
+     * (the command currently requiring the system completes).
+     *  The most common example of a default command is a command for the drivetrain
+     *  that implements the normal joystick control. This command may be interrupted
+     *  by other commands for specific maneuvers ("precision mode", automatic alignment/targeting, etc.)
+     *  but after any command requiring the drivetrain completes the joystick command would be scheduled again.
+     */
     public void initDefaultCommand() {
         System.out.println("DriveTrain: init default command");
     }

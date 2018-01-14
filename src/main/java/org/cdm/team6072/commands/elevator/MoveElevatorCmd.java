@@ -6,40 +6,49 @@ import edu.wpi.first.wpilibj.command.Command;
 import org.cdm.team6072.subsystems.Elevator;
 import util.CrashTracker;
 
-public class MoveElevatorCmd extends Command {
-    private boolean down;
-    public MoveElevatorCmd(boolean down) {
-        CrashTracker.logMessage("Move Elevator Cmd");
-        requires(Elevator.getInstance());
 
-        this.down = down;
+
+public class MoveElevatorCmd extends Command {
+
+    private Elevator.Direction mDirection;
+    private double mSpeed = 0.5;
+    private double mTarget;
+
+    private Elevator mElevator;
+
+
+    public MoveElevatorCmd(Elevator.Direction dir, double target) {
+        CrashTracker.logMessage("MoveElevatorCmd: direction: " + dir);
+        requires(Elevator.getInstance());
+        mDirection = dir;
+        mTarget = target;
+    }
+
+    @Override
+    protected void initialize() {
+        mElevator = Elevator.getInstance();
     }
 
     @Override
     protected void execute() {
-        if (this.down) {
-            Elevator.getInstance().getMotorController().setInverted(true);
-        } else {
-            Elevator.getInstance().getMotorController().setInverted(false);
-        }
-        CrashTracker.logMessage("execute move elevator cmd");
-        Elevator.getInstance().getMotorController().set(ControlMode.PercentOutput, 0.5);
+        CrashTracker.logMessage("MoveElevatorCmd.execute");
+        mElevator.move(mDirection, mSpeed);
     }
 
     @Override
     protected boolean isFinished() {
-        return false;
+        return mElevator.targetReached();
     }
 
 
     protected void end() {
-        CrashTracker.logMessage("ended");
-        Elevator.getInstance().getMotorController().setNeutralMode(NeutralMode.Brake);
-        Elevator.getInstance().getMotorController().set(ControlMode.PercentOutput, 0);
-        Elevator.getInstance().getMotorController().setInverted(false);
+        CrashTracker.logMessage("MoveElevatorCmd.end");
+        mElevator.stop();
     }
 
     protected void interrupted() {
-        CrashTracker.logMessage("interrupted");
+        CrashTracker.logMessage("MoveElevatorCmd.interrupted");
+        mElevator.stop();
     }
+
 }
