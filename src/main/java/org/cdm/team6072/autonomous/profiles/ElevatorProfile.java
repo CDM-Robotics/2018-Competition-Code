@@ -1,7 +1,10 @@
 package org.cdm.team6072.autonomous.profiles;
 
-public class ElevatorProfile {
+import org.cdm.team6072.autonomous.MotionProfile;
+
+public class ElevatorProfile extends MotionProfile {
     public static final int kNumPoints = 185;
+
     // Position (rotations)	Velocity (RPM)	Duration (ms)
     public static double[][] Points = new double[][]{
             {0, 0, 10},
@@ -189,5 +192,9 @@ public class ElevatorProfile {
             {4.99988095238096, 0.8571428571, 10},
             {4.99997619047619, 0.2857142857, 10},
             {5., 0, 10}};
+
+    private ElevatorProfile() {
+        super();
+    }
 }
 
