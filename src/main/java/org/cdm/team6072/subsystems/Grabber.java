@@ -19,8 +19,6 @@ public class Grabber extends Subsystem {
     }
 
 
-    private Solenoid mPneumaticsController;
-
     private WPI_TalonSRX mTalonLeft;
     private WPI_TalonSRX mTalonRight;
 
@@ -34,17 +32,13 @@ public class Grabber extends Subsystem {
 
     private Grabber() {
         CrashTracker.logMessage("Grabber subsystem initialized");
-        mPneumaticsController = new Solenoid(RobotConfig.SOLENOID_CONTROL);
-        mPneumaticsController.free();
+
         mTalonLeft = new WPI_TalonSRX(RobotConfig.GRABBER_TALON_LEFT);
         mTalonLeft.setNeutralMode(NeutralMode.Brake);
         mTalonRight = new WPI_TalonSRX(RobotConfig.GRABBER_TALON_RIGHT);
         mTalonRight.setNeutralMode(NeutralMode.Brake);
     }
 
-    public Solenoid getPneumaticsController() {
-        return mPneumaticsController;
-    }
 
     @Override
     protected void initDefaultCommand() {

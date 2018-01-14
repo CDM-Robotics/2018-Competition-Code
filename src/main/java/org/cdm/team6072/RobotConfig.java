@@ -47,4 +47,10 @@ public class RobotConfig {
     // constants (units in inches)
     public static double DRIVE_WHEEL_DIAMETER = 6.0;
 
+
+    // PNEUMATICS
+    public static int PNEUMATICS_PCM = 61;
+    public static int PNEUMATICS_PDP = 62;
+    public static int COMPRESSOR = 0;
+
 }
