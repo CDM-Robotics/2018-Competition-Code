@@ -2,6 +2,7 @@ package org.cdm.team6072.commands.grabber;
 
 import edu.wpi.first.wpilibj.command.Command;
 import org.cdm.team6072.subsystems.Grabber;
+import org.cdm.team6072.subsystems.PneumaticsControl;
 
 public class CloseGrabberCmd extends Command {
 
@@ -11,7 +12,7 @@ public class CloseGrabberCmd extends Command {
 
     @Override
     protected void execute() {
-        Grabber.getInstance().CloseGrabber();
+        PneumaticsControl.getInstance().turnSolenoidOn(PneumaticsControl.SolenoidType.GRABBER);
     }
 
     @Override

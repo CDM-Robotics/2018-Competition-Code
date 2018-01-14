@@ -43,6 +43,7 @@ public class Elevator extends Subsystem {
         try {
             mElevatorTalon = new WPI_TalonSRX(RobotConfig.ELEVATOR_TALON);
             mElevatorTalon.set(ControlMode.MotionProfile, ControlMode.MotionProfile.value);
+            mElevatorTalon.configOpenloopRamp(2, 0);
         } catch (Exception ex) {
             System.out.println(ex.getStackTrace());
         }
