@@ -12,7 +12,7 @@ public class CloseGrabberCmd extends Command {
 
     @Override
     protected void execute() {
-        PneumaticsControl.getInstance().turnSolenoidOn(PneumaticsControl.SolenoidType.GRABBER);
+        Grabber.getInstance().CloseGrabber();
     }
 
     @Override

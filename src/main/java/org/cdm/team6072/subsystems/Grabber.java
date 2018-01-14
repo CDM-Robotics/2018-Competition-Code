@@ -72,12 +72,12 @@ public class Grabber extends Subsystem {
 
 
     public void OpenGrabber() {
-        mPneumaticsController.set(true);
+       PneumaticsControl.getInstance().turnSolenoidOff(PneumaticsControl.SolenoidType.GRABBER);
     }
 
 
     public void CloseGrabber() {
-        mPneumaticsController.set(true);
+       PneumaticsControl.getInstance().turnSolenoidOn(PneumaticsControl.SolenoidType.GRABBER);
     }
 
 
