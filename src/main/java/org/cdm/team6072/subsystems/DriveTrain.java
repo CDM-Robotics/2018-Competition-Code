@@ -108,12 +108,13 @@ public class DriveTrain extends Subsystem {
      * @param right
      */
     public void tankDrive(double left, double right) {
-
+        System.out.println("Drivetrain.tankDrive: " + left + "      " + right);
         mRoboDrive.tankDrive(left, right);
     }
 
     public void arcadeDrive(double mag, double turn) {
         mRoboDrive.arcadeDrive(-mag, -turn, true);
+        System.out.println("Drivetrain.arcadeDrive: " + mag + "      " + turn);
     }
 
 }

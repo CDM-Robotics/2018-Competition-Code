@@ -14,8 +14,9 @@ public class Robot extends IterativeRobot {
     private DriveTrain mDriveTrain = DriveTrain.getInstance();
     private Navigator mNavx = Navigator.getInstance();
     private Elevator elevator = Elevator.getInstance();
-    //private GearSlider mSlider;
-    //private Climber climber;
+//    private int mCounter;
+//    private GearSlider mSlider;
+//    private Climber climber;
 
     // ControlBoard holds the operator interface code such as JoyStick
     private ControlBoard mControlBoard  = ControlBoard.getInstance();;
@@ -24,11 +25,11 @@ public class Robot extends IterativeRobot {
     @Override
     public void robotInit() {
         System.out.println("6072: robotInit");
-       // mControlBoard = ControlBoard.getInstance();
-        //mDriveTrain = DriveTrain.getInstance();
-        //mSlider = GearSlider.getInstance();
-        //climber = Climber.getInstance();
-        //dTrain = new Drivetrain();
+        mControlBoard = ControlBoard.getInstance();
+        mDriveTrain = DriveTrain.getInstance();
+//        mSlider = GearSlider.getInstance();
+//        climber = Climber.getInstance();
+//        dTrain = new Drivetrain();
     }
 
     @Override
@@ -54,11 +55,15 @@ public class Robot extends IterativeRobot {
     @Override
     public void teleopInit() {
         System.out.println("6072 2018: teleop init");
+        //mCounter = 1;
         mDriveCmd = new ArcadeDriveCmd(mControlBoard.usb0_stick);
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(mDriveCmd);
     }
 
+//    public void disabledPeriodic() {
+//        mDriveTrain.arcadeDrive(0,0);
+//    }
 
     /**
      * teleopPeriodic is called about every 20mSec
@@ -68,6 +73,16 @@ public class Robot extends IterativeRobot {
      */
     @Override
     public void teleopPeriodic() {
+//        if (mCounter < 500) {
+//            mCounter++;
+//            mDriveTrain.arcadeDrive(-0.4,0);
+//        }
+//        if (mCounter%5==0 && mCounter<500) {
+//            System.out.println(ControlBoard.getInstance().usb0_stick.getY() + "       " + ControlBoard.getInstance().usb0_stick.getZ());
+//        }
+//        if (mCounter==500) {
+//            disabledPeriodic();
+//        }
         // must call the scheduler to run
         Scheduler.getInstance().run();
     }
