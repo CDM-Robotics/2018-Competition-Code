@@ -113,7 +113,7 @@ public class DriveTrain extends Subsystem {
     }
 
     public void arcadeDrive(double mag, double turn) {
-        mRoboDrive.arcadeDrive(mag, turn);
+        mRoboDrive.arcadeDrive(-mag, -turn, true);
     }
 
 }

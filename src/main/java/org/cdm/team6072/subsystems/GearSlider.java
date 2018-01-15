@@ -62,11 +62,11 @@ public class GearSlider extends Subsystem {
 
             @Override
             protected void execute() {
-                double speed = ControlBoard.getInstance().gamepad.getRawAxis(0);
-                if (Math.abs(speed) > 85) { //limit the speed
-                    speed = 85;
-                }
-                setSpeed(speed);
+                //double speed = ControlBoard.getInstance().gamepad.getRawAxis(0);
+//                if (Math.abs(speed) > 85) { //limit the speed
+//                    speed = 85;
+//                }
+//                setSpeed(speed);
             }
 
             @Override

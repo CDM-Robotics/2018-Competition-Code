@@ -13,6 +13,7 @@ public class OpenGrabberCmd extends Command {
 
     @Override
     protected void execute() {
+        System.out.println("OpenGrabberCmd: exec");
         Grabber.getInstance().OpenGrabber();
     }
 
@@ -20,4 +21,6 @@ public class OpenGrabberCmd extends Command {
     protected boolean isFinished() {
         return true;
     }
+
+
 }

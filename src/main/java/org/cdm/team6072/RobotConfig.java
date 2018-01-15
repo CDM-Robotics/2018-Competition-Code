@@ -50,6 +50,10 @@ public class RobotConfig {
     // PNEUMATICS
     public static int GRABBER_OPEN_SOLENOID_ON = 0;
     public static int GRABBER_OPEN_SOLENOID_OFF = 1;
+    public static int GRABBER_CLOSE_LO_SOLENOID_ON = 2;
+    public static int GRABBER_CLOSE_LO_SOLENOID_OFF = 3;
+    public static int GRABBER_CLOSE_HI_SOLENOID_ON = 4;
+    public static int GRABBER_CLOSE_HI_SOLENOID_OFF = 5;
     public static int COMPRESSOR = 0;
 
 }

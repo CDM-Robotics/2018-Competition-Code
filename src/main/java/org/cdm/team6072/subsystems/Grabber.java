@@ -70,13 +70,19 @@ public class Grabber extends Subsystem {
     }
 
 
+    //-----------------------------------------------------------------------------------
+    //
+    //  Opening and closing the grabber is actually controlled by the pneumatic system
+
 
     public void OpenGrabber() {
+        System.out.println("Grabber.OpenGrabber: exec");
        PneumaticsControl.getInstance().turnSolenoidOff(PneumaticsControl.SolenoidType.GRABBER);
     }
 
 
     public void CloseGrabber() {
+        System.out.println("Grabber.CloseGrabber: exec");
        PneumaticsControl.getInstance().turnSolenoidOn(PneumaticsControl.SolenoidType.GRABBER);
     }
 
