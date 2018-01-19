@@ -1,11 +1,16 @@
 package org.cdm.team6072.subsystems;
 
 
+import edu.wpi.first.wpilibj.Sendable;
+import edu.wpi.first.wpilibj.command.PIDSubsystem;
 import edu.wpi.first.wpilibj.command.Subsystem;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.cdm.team6072.RobotConfig;
 
 
@@ -31,7 +36,7 @@ import org.cdm.team6072.RobotConfig;
  *
  *      We set to top motor on each side as the master for the side, then the other motors as slaves
  */
-public class DriveTrain extends Subsystem {
+public class DriveTrain extends PIDSubsystem {
 
     private WPI_TalonSRX mLeftMaster;
     private WPI_TalonSRX mLeft_Slave0;
@@ -53,7 +58,35 @@ public class DriveTrain extends Subsystem {
     }
 
     private DriveTrain() {
+        super(0, 0, 0);
         System.out.println("6072: DriveTrain constructor");
+        LiveWindow.addChild(new Sendable() {
+            @Override
+            public String getName() {
+                return "driveTrain";
+            }
+
+            @Override
+            public void setName(String name) {
+
+            }
+
+            @Override
+            public String getSubsystem() {
+                return null;
+            }
+
+            @Override
+            public void setSubsystem(String subsystem) {
+
+            }
+
+            @Override
+            public void initSendable(SendableBuilder builder) {
+
+            }
+        }, this);
+
 
         try {
             mLeftMaster = new WPI_TalonSRX(RobotConfig.LEFT_MASTER);
@@ -109,6 +142,7 @@ public class DriveTrain extends Subsystem {
      */
     public void tankDrive(double left, double right) {
         System.out.println("Drivetrain.tankDrive: " + left + "      " + right);
+        getPIDController().setEnabled(false); // disable PID controller while manually driving
         mRoboDrive.tankDrive(left, right);
     }
 
@@ -117,4 +151,13 @@ public class DriveTrain extends Subsystem {
         System.out.println("Drivetrain.arcadeDrive: " + mag + "      " + turn);
     }
 
+    @Override
+    protected double returnPIDInput() {
+        return 0;
+    }
+
+    @Override
+    protected void usePIDOutput(double output) {
+
+    }
 }

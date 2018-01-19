@@ -1,7 +1,11 @@
 package org.cdm.team6072;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.cdm.team6072.commands.drive.ArcadeDriveCmd;
 import org.cdm.team6072.subsystems.DriveTrain;
 import org.cdm.team6072.subsystems.Elevator;
@@ -14,9 +18,7 @@ public class Robot extends IterativeRobot {
     private DriveTrain mDriveTrain = DriveTrain.getInstance();
     private Navigator mNavx = Navigator.getInstance();
     private Elevator elevator = Elevator.getInstance();
-//    private int mCounter;
-//    private GearSlider mSlider;
-//    private Climber climber;
+
 
     // ControlBoard holds the operator interface code such as JoyStick
     private ControlBoard mControlBoard  = ControlBoard.getInstance();;
@@ -27,9 +29,6 @@ public class Robot extends IterativeRobot {
         System.out.println("6072: robotInit");
         mControlBoard = ControlBoard.getInstance();
         mDriveTrain = DriveTrain.getInstance();
-//        mSlider = GearSlider.getInstance();
-//        climber = Climber.getInstance();
-//        dTrain = new Drivetrain();
     }
 
     @Override
@@ -49,13 +48,14 @@ public class Robot extends IterativeRobot {
 //    }
 
 
+    //  TELEOP MODE  ---------------------------------------------------------------
+
 
     private ArcadeDriveCmd mDriveCmd;
 
     @Override
     public void teleopInit() {
         System.out.println("6072 2018: teleop init");
-        //mCounter = 1;
         mDriveCmd = new ArcadeDriveCmd(mControlBoard.usb0_stick);
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(mDriveCmd);
@@ -73,24 +73,46 @@ public class Robot extends IterativeRobot {
      */
     @Override
     public void teleopPeriodic() {
-//        if (mCounter < 500) {
-//            mCounter++;
-//            mDriveTrain.arcadeDrive(-0.4,0);
-//        }
-//        if (mCounter%5==0 && mCounter<500) {
-//            System.out.println(ControlBoard.getInstance().usb0_stick.getY() + "       " + ControlBoard.getInstance().usb0_stick.getZ());
-//        }
-//        if (mCounter==500) {
-//            disabledPeriodic();
-//        }
         // must call the scheduler to run
         Scheduler.getInstance().run();
     }
 
-
+    //  AUTONOMOUS MODE  ---------------------------------------------------------------
 
     @Override public void autonomousInit() {
         super.autonomousInit();
     }
+
+
+
+    //  TEST MODE  ---------------------------------------------------------------
+
+    private int mCounter;
+
+
+    @Override
+    public void testInit() {
+        System.out.println("testInit: --------------------");
+        mCounter = 0;
+        LiveWindow.add(DriveTrain.getInstance());
+    }
+
+    @Override public void testPeriodic() {
+        System.out.println("test periodic called");
+        if (mCounter < 500) {
+            mCounter++;
+            //mDriveTrain.arcadeDrive(-0.4,0);
+        }
+        if (mCounter%5==0 && mCounter<500) {
+            System.out.println(ControlBoard.getInstance().usb0_stick.getY() + "       " + ControlBoard.getInstance().usb0_stick.getZ());
+            SmartDashboard.putNumber("Counter: ", mCounter);
+        }
+        if (mCounter==500) {
+            disabledPeriodic();
+        }
+        LiveWindow.run();
+    }
+
+
 
 }

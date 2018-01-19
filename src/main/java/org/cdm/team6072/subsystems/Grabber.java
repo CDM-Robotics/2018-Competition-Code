@@ -67,6 +67,8 @@ public class Grabber extends Subsystem {
     public void stopWheels() {
         mTalonLeft.set(ControlMode.PercentOutput, 0);
         mTalonRight.set(ControlMode.PercentOutput, 0);
+        mTalonRight.setNeutralMode(NeutralMode.Brake);
+        mTalonLeft.setNeutralMode(NeutralMode.Brake);
     }
 
 
