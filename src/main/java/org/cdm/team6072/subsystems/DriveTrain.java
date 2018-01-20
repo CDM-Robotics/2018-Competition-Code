@@ -1,6 +1,13 @@
 package org.cdm.team6072.subsystems;
 
 
+import com.ctre.phoenix.motion.SetValueMotionProfile;
+import com.ctre.phoenix.motion.TrajectoryPoint;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.sun.corba.se.impl.orbutil.closure.Constant;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
 import edu.wpi.first.wpilibj.command.Subsystem;
@@ -12,7 +19,13 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.cdm.team6072.RobotConfig;
+import org.cdm.team6072.autonomous.Constants;
+import org.cdm.team6072.autonomous.MotionProfileManager;
+import org.cdm.team6072.autonomous.profiles.DrivetrainProfile;
 
+import com.ctre.phoenix.motion.TrajectoryPoint;
+
+import java.util.ArrayList;
 
 /**
  * Implement a drive subsystem for the 2018 robot
@@ -45,8 +58,10 @@ public class DriveTrain extends PIDSubsystem {
     private WPI_TalonSRX mRight_Slave0;
     private WPI_TalonSRX mRight_Slave1;
 
-    private DifferentialDrive mRoboDrive;
+    ArrayList<TalonSRX> masters = new ArrayList<TalonSRX>();
 
+    private DifferentialDrive mRoboDrive;
+    private MotionProfileManager mMotionProfileManager;
 
 
     private static DriveTrain mInstance;
@@ -58,35 +73,8 @@ public class DriveTrain extends PIDSubsystem {
     }
 
     private DriveTrain() {
-        super(0, 0, 0);
+        super(34, 20, 55);
         System.out.println("6072: DriveTrain constructor");
-        LiveWindow.addChild(new Sendable() {
-            @Override
-            public String getName() {
-                return "driveTrain";
-            }
-
-            @Override
-            public void setName(String name) {
-
-            }
-
-            @Override
-            public String getSubsystem() {
-                return null;
-            }
-
-            @Override
-            public void setSubsystem(String subsystem) {
-
-            }
-
-            @Override
-            public void initSendable(SendableBuilder builder) {
-
-            }
-        }, this);
-
 
         try {
             mLeftMaster = new WPI_TalonSRX(RobotConfig.LEFT_MASTER);
@@ -110,11 +98,48 @@ public class DriveTrain extends PIDSubsystem {
             mRight_Slave1.setInverted(true);
 
             mRoboDrive = new DifferentialDrive(mLeftMaster, mRightMaster);
+
+            masters.add(mRightMaster);
+            masters.add(mLeftMaster);
+
+            // used for motion profiling and autonomous management
+            mMotionProfileManager = new MotionProfileManager(masters);
         }
         catch (Exception ex) {
             System.out.println("Exception in DriveTrain ctor: " + ex.getMessage() + "\r\n" + ex.getStackTrace());
         }
 
+    }
+
+
+
+    public void setupProfile() {
+        // temporarily setting the profile here
+        this.mMotionProfileManager.loadMotionProfile(new DrivetrainProfile());
+
+        for (int i=0; i < this.masters.size(); i++) {
+            this.masters.get(i).configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
+            this.masters.get(i).setSensorPhase(true);
+            this.masters.get(i).configNeutralDeadband(Constants.kNeutralDeadband, Constants.kTimeoutMs);
+
+            this.masters.get(i).config_kF(0, 0.076, Constants.kTimeoutMs);
+            this.masters.get(i).config_kP(0, 2, Constants.kTimeoutMs);
+            this.masters.get(i).config_kI(0, 0, Constants.kTimeoutMs);
+            this.masters.get(i).config_kD(0,20, Constants.kTimeoutMs);
+
+            //this.masters.get(i).setControlFramePeriod(10, Constants.kTimeoutMs);
+            this.masters.get(i).setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, Constants.kTimeoutMs);
+        }
+    }
+
+    public void updateProfileValue() {
+        SetValueMotionProfile setOutput = this.mMotionProfileManager.getSetValue();
+
+        System.out.println("val: " + setOutput.value);
+
+        for (int i=0; i < masters.size(); i++) {
+            this.masters.get(i).set(ControlMode.MotionProfile, setOutput.value);
+        }
     }
 
 
@@ -149,6 +174,10 @@ public class DriveTrain extends PIDSubsystem {
     public void arcadeDrive(double mag, double turn) {
         mRoboDrive.arcadeDrive(-mag, -turn, true);
         System.out.println("Drivetrain.arcadeDrive: " + mag + "      " + turn);
+    }
+
+    public MotionProfileManager getMotionProfileManager() {
+        return this.mMotionProfileManager;
     }
 
     @Override
