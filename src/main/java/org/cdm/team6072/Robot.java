@@ -10,6 +10,7 @@ import org.cdm.team6072.commands.drive.ArcadeDriveCmd;
 import org.cdm.team6072.subsystems.DriveTrain;
 import org.cdm.team6072.subsystems.Elevator;
 import org.cdm.team6072.subsystems.Navigator;
+import org.cdm.team6072.subsystems.PDP;
 //import org.cdm.team6072.subsystems.GearSlider;
 
 public class Robot extends IterativeRobot {
@@ -18,6 +19,7 @@ public class Robot extends IterativeRobot {
     private DriveTrain mDriveTrain = DriveTrain.getInstance();
     private Navigator mNavx = Navigator.getInstance();
     private Elevator elevator = Elevator.getInstance();
+    private PDP mPDP = PDP.getInstance();
 
 
     // ControlBoard holds the operator interface code such as JoyStick
@@ -101,11 +103,12 @@ public class Robot extends IterativeRobot {
         System.out.println("test periodic called");
         if (mCounter < 500) {
             mCounter++;
-            //mDriveTrain.arcadeDrive(-0.4,0);
+            mDriveTrain.arcadeDrive(-0.4,0);
         }
         if (mCounter%5==0 && mCounter<500) {
             System.out.println(ControlBoard.getInstance().usb0_stick.getY() + "       " + ControlBoard.getInstance().usb0_stick.getZ());
             SmartDashboard.putNumber("Counter: ", mCounter);
+            SmartDashboard.putNumber("PDP.TotalCurrent: ",mPDP.getTotalCurrent());
         }
         if (mCounter==500) {
             disabledPeriodic();
