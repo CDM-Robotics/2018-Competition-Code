@@ -115,7 +115,7 @@ public class DriveTrain extends PIDSubsystem {
 
     public void setupProfile() {
         // temporarily setting the profile here
-        this.mMotionProfileManager.loadMotionProfile(new DrivetrainProfile());
+        this.mMotionProfileManager.loadMotionProfile(DrivetrainProfile.getInstance());
 
         for (int i=0; i < this.masters.size(); i++) {
             this.masters.get(i).configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
@@ -166,14 +166,14 @@ public class DriveTrain extends PIDSubsystem {
      * @param right
      */
     public void tankDrive(double left, double right) {
-        System.out.println("Drivetrain.tankDrive: " + left + "      " + right);
+        //System.out.println("Drivetrain.tankDrive: " + left + "      " + right);
         getPIDController().setEnabled(false); // disable PID controller while manually driving
         mRoboDrive.tankDrive(left, right);
     }
 
     public void arcadeDrive(double mag, double turn) {
         mRoboDrive.arcadeDrive(-mag, -turn, true);
-        System.out.println("Drivetrain.arcadeDrive: " + mag + "      " + turn);
+        //System.out.println("Drivetrain.arcadeDrive: " + mag + "      " + turn);
     }
 
     public MotionProfileManager getMotionProfileManager() {

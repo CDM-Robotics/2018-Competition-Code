@@ -11,6 +11,8 @@ import org.cdm.team6072.subsystems.DriveTrain;
 
 import java.util.ArrayList;
 
+
+
 public class MotionProfileManager {
 
     /**
@@ -228,7 +230,7 @@ public class MotionProfileManager {
                 /* Get the motion profile status every loop */
                 _talons.get(i).getMotionProfileStatus(_status);
                 _heading = _talons.get(i).getActiveTrajectoryHeading();
-                _pos = _talons.get(i).getActiveTrajectoryPosition();
+                _pos = _talons.get(i).getSensorCollection().getQuadraturePosition(); //getActiveTrajectoryPosition();
                 _vel = _talons.get(i).getActiveTrajectoryVelocity();
 
                 System.out.println("pos: " + _pos + "  vel: " + _vel + "  sens: " + _talons.get(i).getSensorCollection().getQuadraturePosition());

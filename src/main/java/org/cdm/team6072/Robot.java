@@ -1,13 +1,8 @@
 package org.cdm.team6072;
 
-import com.ctre.phoenix.motion.SetValueMotionProfile;
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import org.cdm.team6072.autonomous.Constants;
-import org.cdm.team6072.autonomous.MotionProfileManager;
 import org.cdm.team6072.commands.drive.ArcadeDriveCmd;
 import org.cdm.team6072.subsystems.DriveTrain;
 import org.cdm.team6072.subsystems.Elevator;
@@ -19,7 +14,7 @@ public class Robot extends IterativeRobot {
 
     private DriveTrain mDriveTrain = DriveTrain.getInstance();
     private Navigator mNavx = Navigator.getInstance();
-    private Elevator elevator = Elevator.getInstance();
+    private Elevator mElevator = Elevator.getInstance();
 
     //private MotionProfileManager profile = new MotionProfileManager(DriveTrain.getInstance().getmLeftMaster());
 
@@ -33,11 +28,12 @@ public class Robot extends IterativeRobot {
         System.out.println("6072: robotInit");
         mControlBoard = ControlBoard.getInstance();
         mDriveTrain = DriveTrain.getInstance();
+        mElevator.setupProfile();
     }
 
     @Override
     public void disabledInit() {
-        DriveTrain.getInstance().setupProfile();
+        //DriveTrain.getInstance().setupProfile();
     }
 
 
@@ -63,7 +59,8 @@ public class Robot extends IterativeRobot {
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(mDriveCmd);
 
-        DriveTrain.getInstance().getMotionProfileManager().startMotionProfile();
+       //DriveTrain.getInstance().getMotionProfileManager().startMotionProfile();
+        mElevator.getMotionExample().startMotionProfile();
     }
 
 //    public void disabledPeriodic() {
@@ -82,9 +79,11 @@ public class Robot extends IterativeRobot {
         Scheduler.getInstance().run();
 
         // feed value in
-        DriveTrain.getInstance().updateProfileValue();
+        mElevator.updateTalonRequiredMPState();
+        mElevator.getMotionExample().control();
+        /*DriveTrain.getInstance().updateTalonRequiredMPState();
 
-        DriveTrain.getInstance().getMotionProfileManager().control();
+        DriveTrain.getInstance().getMotionProfileManager().control();*/
     }
 
     //  AUTONOMOUS MODE  ---------------------------------------------------------------

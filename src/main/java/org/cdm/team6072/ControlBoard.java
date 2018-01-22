@@ -45,13 +45,13 @@ public class ControlBoard {
         // drive using usb0
         usb0_stick = new Joystick(0); // joystick at usb port 0
         usb0_buttons = new JoystickButton[12];
-        usb0_buttons[3] = new JoystickButton(usb0_stick, 3);
-        usb0_buttons[3].whenPressed(new RunGrabberWheelsCmd(Grabber.WheelDirn.In));
-        usb0_buttons[3].whenReleased(new StopGrabberWheelsCmd());
+        usb0_buttons[ControlMappings.GRABBER_WHEELS_IN_BTN] = new JoystickButton(usb0_stick, ControlMappings.GRABBER_WHEELS_IN_BTN);
+        usb0_buttons[ControlMappings.GRABBER_WHEELS_IN_BTN].whenPressed(new RunGrabberWheelsCmd(Grabber.WheelDirn.In));
+        usb0_buttons[ControlMappings.GRABBER_WHEELS_IN_BTN].whenReleased(new StopGrabberWheelsCmd());
 
-        usb0_buttons[4] = new JoystickButton(usb0_stick, 4);
-        usb0_buttons[4].whenPressed(new RunGrabberWheelsCmd(Grabber.WheelDirn.Out));
-        usb0_buttons[4].whenReleased(new StopGrabberWheelsCmd());
+        usb0_buttons[ControlMappings.GRABBER_WHEELS_OUT_BTN] = new JoystickButton(usb0_stick, ControlMappings.GRABBER_WHEELS_OUT_BTN);
+        usb0_buttons[ControlMappings.GRABBER_WHEELS_OUT_BTN].whenPressed(new RunGrabberWheelsCmd(Grabber.WheelDirn.Out));
+        usb0_buttons[ControlMappings.GRABBER_WHEELS_OUT_BTN].whenReleased(new StopGrabberWheelsCmd());
 
 
         // control systems using usb1

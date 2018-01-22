@@ -1,13 +1,14 @@
 package org.cdm.team6072.subsystems;
 
-import com.ctre.phoenix.motion.MotionProfileStatus;
+import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import org.cdm.team6072.RobotConfig;
-import org.cdm.team6072.commands.elevator.MoveElevatorCmd;
+import org.cdm.team6072.autonomous.Constants;
+import org.cdm.team6072.autonomous.MotionProfileExample;
 import util.CrashTracker;
 
 public class Elevator extends Subsystem {
@@ -29,6 +30,8 @@ public class Elevator extends Subsystem {
 
     private WPI_TalonSRX mElevatorTalon;
 
+    private MotionProfileExample mMotionExample;
+
 
     private static Elevator mInstance;
     public static Elevator getInstance() {
@@ -42,12 +45,37 @@ public class Elevator extends Subsystem {
         CrashTracker.logMessage("Elevator Subsystem initializing");
         try {
             mElevatorTalon = new WPI_TalonSRX(RobotConfig.ELEVATOR_TALON);
-            mElevatorTalon.set(ControlMode.MotionProfile, ControlMode.MotionProfile.value);
-            mElevatorTalon.configOpenloopRamp(2, 0);
+            mElevatorTalon.getSensorCollection().setQuadraturePosition(0, 10);
+            //mElevatorTalon.set(ControlMode.MotionProfile, 1);
+
+            mMotionExample = new MotionProfileExample(mElevatorTalon);
+            //mElevatorTalon.set(ControlMode.Current, ControlMode.Current.value);
+            /*mElevatorTalon.set(ControlMode.MotionProfile, ControlMode.MotionProfile.value);
+            mElevatorTalon.configOpenloopRamp(2, 0);*/
         } catch (Exception ex) {
             System.out.println(ex.getStackTrace());
         }
     }
+
+
+    public void setupProfile() {
+        System.out.println("Elevator.setupProfile:  setting up ");
+        System.out.println("device (encoder): " + this.mElevatorTalon.getSensorCollection().toString());
+
+        this.mElevatorTalon.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
+        this.mElevatorTalon.setSensorPhase(true);
+        this.mElevatorTalon.configNeutralDeadband(Constants.kNeutralDeadband, Constants.kTimeoutMs);
+        this.mElevatorTalon.selectProfileSlot(0, 0 );
+
+        this.mElevatorTalon.config_kF(0, 0.0, Constants.kTimeoutMs);
+        this.mElevatorTalon.config_kP(0, 0.0, Constants.kTimeoutMs);
+        this.mElevatorTalon.config_kI(0, 0.0, Constants.kTimeoutMs);
+        this.mElevatorTalon.config_kD(0,0.0, Constants.kTimeoutMs);
+
+        //this.masters.get(i).setControlFramePeriod(10, Constants.kTimeoutMs);
+        this.mElevatorTalon.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, Constants.kTimeoutMs);
+    }
+
 
     @Override
     protected void initDefaultCommand() {
@@ -85,6 +113,22 @@ public class Elevator extends Subsystem {
 
     public void stop() {
         mElevatorTalon.set(0);
+    }
+
+
+
+
+
+    public void updateTalonRequiredMPState() {
+        SetValueMotionProfile setOutput = this.mMotionExample.getRequiredTalonMPState();
+
+        //System.out.println("Elevator.updateTalonRequiredMPState: elevator val: " + setOutput.value);
+        this.mElevatorTalon.set(ControlMode.MotionProfile, setOutput.value);
+    }
+
+
+    public MotionProfileExample getMotionExample() {
+        return mMotionExample;
     }
 
 
