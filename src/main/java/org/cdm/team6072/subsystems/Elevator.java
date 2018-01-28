@@ -6,9 +6,13 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.cdm.team6072.RobotConfig;
 import org.cdm.team6072.autonomous.Constants;
-import org.cdm.team6072.autonomous.MotionProfileExample;
+import org.cdm.team6072.autonomous.MotionProfile;
+import org.cdm.team6072.autonomous.MotionProfileController;
+import org.cdm.team6072.autonomous.profiles.DrivetrainProfile;
+import org.cdm.team6072.autonomous.profiles.PIDConfig;
 import util.CrashTracker;
 
 public class Elevator extends Subsystem {
@@ -30,8 +34,13 @@ public class Elevator extends Subsystem {
 
     private WPI_TalonSRX mElevatorTalon;
 
-    private MotionProfileExample mMotionExample;
+    private MotionProfileController mMPController;
 
+    private PIDConfig mPIDConfig;
+
+
+
+    // singleton constructor  -------------------------------------------------
 
     private static Elevator mInstance;
     public static Elevator getInstance() {
@@ -46,10 +55,12 @@ public class Elevator extends Subsystem {
         try {
             mElevatorTalon = new WPI_TalonSRX(RobotConfig.ELEVATOR_TALON);
             mElevatorTalon.getSensorCollection().setQuadraturePosition(0, 10);
+            mElevatorTalon.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
+            mElevatorTalon.setSensorPhase(true);
+            mElevatorTalon.configNeutralDeadband(Constants.kNeutralDeadband, Constants.kTimeoutMs);
             //mElevatorTalon.set(ControlMode.MotionProfile, 1);
 
-            mMotionExample = new MotionProfileExample(mElevatorTalon);
-            //mElevatorTalon.set(ControlMode.Current, ControlMode.Current.value);
+           //mElevatorTalon.set(ControlMode.Current, ControlMode.Current.value);
             /*mElevatorTalon.set(ControlMode.MotionProfile, ControlMode.MotionProfile.value);
             mElevatorTalon.configOpenloopRamp(2, 0);*/
         } catch (Exception ex) {
@@ -58,29 +69,58 @@ public class Elevator extends Subsystem {
     }
 
 
-    public void setupProfile() {
-        System.out.println("Elevator.setupProfile:  setting up ");
-        System.out.println("device (encoder): " + this.mElevatorTalon.getSensorCollection().toString());
-
-        this.mElevatorTalon.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
-        this.mElevatorTalon.setSensorPhase(true);
-        this.mElevatorTalon.configNeutralDeadband(Constants.kNeutralDeadband, Constants.kTimeoutMs);
-        this.mElevatorTalon.selectProfileSlot(0, 0 );
-
-        this.mElevatorTalon.config_kF(0, 0.0, Constants.kTimeoutMs);
-        this.mElevatorTalon.config_kP(0, 0.0, Constants.kTimeoutMs);
-        this.mElevatorTalon.config_kI(0, 0.0, Constants.kTimeoutMs);
-        this.mElevatorTalon.config_kD(0,0.0, Constants.kTimeoutMs);
-
-        //this.masters.get(i).setControlFramePeriod(10, Constants.kTimeoutMs);
-        this.mElevatorTalon.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, Constants.kTimeoutMs);
-    }
-
-
     @Override
     protected void initDefaultCommand() {
 
     }
+
+
+
+    // ------------  code for using a motion profile  ----------------------------------------------
+
+    /**
+     * Specify the motion profile to use
+     * @param profile
+     */
+    public void setMPProfile(MotionProfile profile) {
+        System.out.println("Elevator.setMPProfile:  setting up ");
+        System.out.println("device (encoder): " + this.mElevatorTalon.getSensorCollection().toString());
+        mMPController = new MotionProfileController("ElevatorMP", mElevatorTalon, profile);
+        mPIDConfig = profile.getPIDConfig();
+
+        //this.masters.get(i).setControlFramePeriod(10, Constants.kTimeoutMs);
+        mElevatorTalon.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, Constants.kTimeoutMs);
+    }
+
+    /**
+     * Start the motion profile running
+     */
+    public void startMotionProfile() {
+        mMPController.startMotionProfile();
+    }
+
+    public boolean isProfileComplete() {
+        return mMPController.isComplete();
+    }
+
+    public void runProfile() {
+        mMPController.control();
+    }
+
+
+    private void updateTalonRequiredMPState() {
+        SetValueMotionProfile setOutput = this.mMPController.getRequiredTalonMPState();
+
+        //System.out.println("Elevator.updateTalonRequiredMPState: elevator val: " + setOutput.value);
+        mElevatorTalon.set(ControlMode.MotionProfile, setOutput.value);
+    }
+
+
+
+
+
+
+    // ------------- code for open loop target  -----------------------------------------------
 
     public void setTarget(double target) {
         mTarget = target;
@@ -116,20 +156,23 @@ public class Elevator extends Subsystem {
     }
 
 
+    // --------------------------------------------------------------------
 
-
-
-    public void updateTalonRequiredMPState() {
-        SetValueMotionProfile setOutput = this.mMotionExample.getRequiredTalonMPState();
-
-        //System.out.println("Elevator.updateTalonRequiredMPState: elevator val: " + setOutput.value);
-        this.mElevatorTalon.set(ControlMode.MotionProfile, setOutput.value);
+    /**
+     * Utility method to allow us to get the encoder ticks at max speed, and check encoder phase
+     */
+    public void masterTalonTest() {
+        //this.mElevatorTalon.set(ControlMode.Velocity, 1);
+        //mElevatorTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
+        mElevatorTalon.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
+        mElevatorTalon.setSensorPhase(false);
+        SmartDashboard.putNumber("Encoder posn", mElevatorTalon.getSensorCollection().getQuadraturePosition());
+        mElevatorTalon.set(ControlMode.PercentOutput, 1);
     }
 
 
-    public MotionProfileExample getMotionExample() {
-        return mMotionExample;
-    }
+
+
 
 
 }

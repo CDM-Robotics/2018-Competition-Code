@@ -28,7 +28,6 @@ public class Robot extends IterativeRobot {
         System.out.println("6072: robotInit");
         mControlBoard = ControlBoard.getInstance();
         mDriveTrain = DriveTrain.getInstance();
-        mElevator.setupProfile();
     }
 
     @Override
@@ -54,13 +53,12 @@ public class Robot extends IterativeRobot {
 
     @Override
     public void teleopInit() {
-        System.out.println("6072 2018: teleop init");
+        System.out.println("6072: teleop init");
         mDriveCmd = new ArcadeDriveCmd(mControlBoard.usb0_stick);
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(mDriveCmd);
 
        //DriveTrain.getInstance().getMotionProfileManager().startMotionProfile();
-        mElevator.getMotionExample().startMotionProfile();
     }
 
 //    public void disabledPeriodic() {
@@ -78,12 +76,15 @@ public class Robot extends IterativeRobot {
         // must call the scheduler to run
         Scheduler.getInstance().run();
 
-        // feed value in
-        mElevator.updateTalonRequiredMPState();
-        mElevator.getMotionExample().control();
-        /*DriveTrain.getInstance().updateTalonRequiredMPState();
+        // MOTION PROFILING
+//        mElevator.updateTalonRequiredMPState();
+//        mElevator.getMPController().control();
 
-        DriveTrain.getInstance().getMotionProfileManager().control();*/
+
+//        DriveTrain.getInstance().updateTalonRequiredMPState();
+//        DriveTrain.getInstance().getMotionProfileManager().control();
+
+        Elevator.getInstance().masterTalonTest();
     }
 
     //  AUTONOMOUS MODE  ---------------------------------------------------------------
