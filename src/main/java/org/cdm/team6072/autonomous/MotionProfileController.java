@@ -31,8 +31,8 @@ import edu.wpi.first.wpilibj.Notifier;
 import com.ctre.phoenix.motion.*;
 import com.ctre.phoenix.motion.TrajectoryPoint;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import org.cdm.team6072.autonomous.profiles.DrivetrainProfile;
 import org.cdm.team6072.autonomous.profiles.PIDConfig;
+import util.CrashTracker;
 
 public class MotionProfileController {
 
@@ -121,7 +121,7 @@ public class MotionProfileController {
     Notifier _notifer = new Notifier(new PeriodicRunnable());
 
 
-    private MotionProfile _profile;
+    private MotionProfileBase _profile;
 
     private PIDConfig mPIDConfig;
 
@@ -153,7 +153,7 @@ public class MotionProfileController {
      * @param talon  -  reference to Talon object to control.
      * @param motionProfile - the motion profile that we want to run on the talon
      */
-    public MotionProfileController(String controllerName, TalonSRX talon, MotionProfile motionProfile) {
+    public MotionProfileController(String controllerName, TalonSRX talon, MotionProfileBase motionProfile) {
         _talon = talon;
         _profile = motionProfile;
         _name = controllerName + "_";
@@ -191,6 +191,7 @@ public class MotionProfileController {
      * able to).
      */
     public void startMotionProfile() {
+        CrashTracker.logMessage("MotionProfileController.startMotionProfile");
         _bStart = true;
         mIsComplete = false;
     }
@@ -199,6 +200,9 @@ public class MotionProfileController {
     private boolean mIsComplete = false;
 
     public boolean isComplete() {
+        if (mIsComplete) {
+            CrashTracker.logMessage("MotionProfileController.isComplete TRUE  ----------------------------------------");
+        }
         return mIsComplete;
     }
 
@@ -268,7 +272,7 @@ public class MotionProfileController {
             }
         }
 
-		/* first check if we are in MotionProfile mode */
+		/* first check if we are in MotionProfileBase mode */
         if (_talon.getControlMode() != ControlMode.MotionProfile) {
 			/*
 			 * we are not in MP mode. We are probably driving the robot around
@@ -282,7 +286,7 @@ public class MotionProfileController {
 			 * progress, and possibly interrupting MPs if thats what you want to
 			 * do.
 			 */
-			SmartDashboard.putString("Mode: ", "MotionProfile Control");
+			SmartDashboard.putString("Mode: ", "MotionProfileBase Control");
             switch (_state) {
                 case STOPPED: /* wait for application to tell us to start an MP */
                     if (_bStart) {
@@ -413,8 +417,8 @@ public class MotionProfileController {
             double velocityRPM = profile[i][1];
 
 			/* for each point, fill our structure and pass it to API */
-            point.position = positionRot * Constants.kSensorUnitsPerRotation; //Convert Revolutions to Units
-            point.velocity = velocityRPM * Constants.kSensorUnitsPerRotation / 600.0; //Convert RPM to Units/100ms
+            point.position = positionRot * Constants.kAndyMarkUnitsPerRotation; //Convert Revolutions to Units
+            point.velocity = velocityRPM * Constants.kAndyMarkUnitsPerRotation / 600.0; //Convert RPM to Units/100ms
             point.headingDeg = 0; /* future feature - not used in this example*/
             point.profileSlotSelect = 0; /* which set of gains would you like to use [0,3]? */
             //point.profileSlotSelect1 = 0; /* future feature  - not used in this example - cascaded PID [0,1], leave zero */
@@ -427,7 +431,7 @@ public class MotionProfileController {
             point.isLastPoint = false;
             if ((i + 1) >= totalCnt) {
                 point.isLastPoint = true; /* set this to true on the last point  */
-                _talon.set(ControlMode.Disabled, 1);
+                //_talon.set(ControlMode.Disabled, 1);
             }
 
             System.out.println("MPE:  push point i: " + i + "  pos: " + point.position + "  ISLAST: " + point.isLastPoint);

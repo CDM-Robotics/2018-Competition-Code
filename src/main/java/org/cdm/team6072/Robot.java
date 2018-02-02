@@ -3,6 +3,7 @@ package org.cdm.team6072;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import org.cdm.team6072.autonomous.profiles.DrivetrainProfile;
 import org.cdm.team6072.commands.drive.ArcadeDriveCmd;
 import org.cdm.team6072.subsystems.DriveTrain;
 import org.cdm.team6072.subsystems.Elevator;
@@ -28,6 +29,7 @@ public class Robot extends IterativeRobot {
         System.out.println("6072: robotInit");
         mControlBoard = ControlBoard.getInstance();
         mDriveTrain = DriveTrain.getInstance();
+        mElevator.setMPProfile(DrivetrainProfile.getInstance());
     }
 
     @Override
@@ -84,7 +86,7 @@ public class Robot extends IterativeRobot {
 //        DriveTrain.getInstance().updateTalonRequiredMPState();
 //        DriveTrain.getInstance().getMotionProfileManager().control();
 
-        Elevator.getInstance().masterTalonTest();
+//        Elevator.getInstance().masterTalonTest();
     }
 
     //  AUTONOMOUS MODE  ---------------------------------------------------------------

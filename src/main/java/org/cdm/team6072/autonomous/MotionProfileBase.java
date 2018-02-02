@@ -2,7 +2,7 @@ package org.cdm.team6072.autonomous;
 
 import org.cdm.team6072.autonomous.profiles.PIDConfig;
 
-public interface MotionProfile {
+public interface MotionProfileBase {
 
 
     public PIDConfig getPIDConfig();

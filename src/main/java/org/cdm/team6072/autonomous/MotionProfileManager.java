@@ -3,11 +3,8 @@ package org.cdm.team6072.autonomous;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.*;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import com.ctre.phoenix.motion.*;
-import org.cdm.team6072.autonomous.profiles.DrivetrainProfile;
-import org.cdm.team6072.subsystems.DriveTrain;
 
 import java.util.ArrayList;
 
@@ -21,7 +18,7 @@ public class MotionProfileManager {
      * keep one copy.
      */
     private MotionProfileStatus _status = new MotionProfileStatus();
-    private MotionProfile currentProfile;
+    private MotionProfileBase currentProfile;
 
     /** additional cache for holding the active trajectory point */
     double _pos=0,_vel=0,_heading=0;
@@ -311,7 +308,7 @@ public class MotionProfileManager {
         return _setValue;
     }
 
-    public void loadMotionProfile(MotionProfile profile) {
+    public void loadMotionProfile(MotionProfileBase profile) {
         System.out.println("loaded motion profile");
         this.currentProfile = profile;
     }

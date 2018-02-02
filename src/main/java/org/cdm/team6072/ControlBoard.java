@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import org.cdm.team6072.commands.elevator.MoveElevatorCmd;
 import org.cdm.team6072.commands.elevator.StopElevatorCmd;
+import org.cdm.team6072.commands.elevator.RunMPCmd;
 import org.cdm.team6072.commands.grabber.OpenGrabberCmd;
 import org.cdm.team6072.commands.grabber.RunGrabberWheelsCmd;
 import org.cdm.team6072.commands.grabber.StopGrabberWheelsCmd;
@@ -35,8 +36,8 @@ public class ControlBoard {
 
 
     // put Logitech gamepad on 1
-    public Joystick usb1_stick;
-    private JoystickButton[] usb1_Buttons;
+    public Joystick usb1_stick;                 // logitech  Extreme
+    private JoystickButton[] usb1_Buttons;      // logitech  Gamepad
 
 
 
@@ -68,19 +69,22 @@ public class ControlBoard {
         usb1_Buttons[ControlMappings.ELEVATOR_DOWN_BTN].whenPressed(new MoveElevatorCmd(Elevator.Direction.Down, 0.5));
         usb1_Buttons[ControlMappings.ELEVATOR_DOWN_BTN].whenReleased(new StopElevatorCmd());
 
-        usb1_Buttons[ControlMappings.GRABBER_WHEELS_IN_BTN] = new JoystickButton(usb1_stick, ControlMappings.GRABBER_WHEELS_IN_BTN);
-        usb1_Buttons[ControlMappings.GRABBER_WHEELS_IN_BTN].whenPressed(new RunGrabberWheelsCmd(Grabber.WheelDirn.In));
-        usb1_Buttons[ControlMappings.GRABBER_WHEELS_IN_BTN].whenReleased(new StopGrabberWheelsCmd());
+        usb1_Buttons[ControlMappings.ELEVATOR_MP] = new JoystickButton(usb1_stick, ControlMappings.ELEVATOR_MP);
+        usb1_Buttons[ControlMappings.ELEVATOR_MP].whenPressed(new RunMPCmd());
 
-        usb1_Buttons[ControlMappings.GRABBER_WHEELS_OUT_BTN] = new JoystickButton(usb1_stick, ControlMappings.GRABBER_WHEELS_OUT_BTN);
-        usb1_Buttons[ControlMappings.GRABBER_WHEELS_OUT_BTN].whenPressed(new RunGrabberWheelsCmd(Grabber.WheelDirn.Out));
-        usb1_Buttons[ControlMappings.GRABBER_WHEELS_OUT_BTN].whenReleased(new StopGrabberWheelsCmd());
-
-        usb1_Buttons[ControlMappings.GRABBER_OPEN_BTN] = new JoystickButton(usb1_stick, ControlMappings.GRABBER_OPEN_BTN);
-        usb1_Buttons[ControlMappings.GRABBER_OPEN_BTN].whenPressed(new OpenGrabberCmd());
-
-        usb1_Buttons[ControlMappings.GRABBER_CLOSE_BTN] = new JoystickButton(usb1_stick, ControlMappings.GRABBER_CLOSE_BTN);
-        usb1_Buttons[ControlMappings.GRABBER_CLOSE_BTN].whenPressed(new CloseGrabberCmd());
+//        usb1_Buttons[ControlMappings.GRABBER_WHEELS_IN_BTN] = new JoystickButton(usb1_stick, ControlMappings.GRABBER_WHEELS_IN_BTN);
+//        usb1_Buttons[ControlMappings.GRABBER_WHEELS_IN_BTN].whenPressed(new RunGrabberWheelsCmd(Grabber.WheelDirn.In));
+//        usb1_Buttons[ControlMappings.GRABBER_WHEELS_IN_BTN].whenReleased(new StopGrabberWheelsCmd());
+//
+//        usb1_Buttons[ControlMappings.GRABBER_WHEELS_OUT_BTN] = new JoystickButton(usb1_stick, ControlMappings.GRABBER_WHEELS_OUT_BTN);
+//        usb1_Buttons[ControlMappings.GRABBER_WHEELS_OUT_BTN].whenPressed(new RunGrabberWheelsCmd(Grabber.WheelDirn.Out));
+//        usb1_Buttons[ControlMappings.GRABBER_WHEELS_OUT_BTN].whenReleased(new StopGrabberWheelsCmd());
+//
+//        usb1_Buttons[ControlMappings.GRABBER_OPEN_BTN] = new JoystickButton(usb1_stick, ControlMappings.GRABBER_OPEN_BTN);
+//        usb1_Buttons[ControlMappings.GRABBER_OPEN_BTN].whenPressed(new OpenGrabberCmd());
+//
+//        usb1_Buttons[ControlMappings.GRABBER_CLOSE_BTN] = new JoystickButton(usb1_stick, ControlMappings.GRABBER_CLOSE_BTN);
+//        usb1_Buttons[ControlMappings.GRABBER_CLOSE_BTN].whenPressed(new CloseGrabberCmd());
 
 
     }

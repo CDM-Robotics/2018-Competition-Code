@@ -1,11 +1,9 @@
 package org.cdm.team6072.autonomous.profiles;
 
-import org.cdm.team6072.autonomous.MotionProfile;
+import org.cdm.team6072.autonomous.MotionProfileBase;
 
 
-
-
-public class DrivetrainProfile implements MotionProfile {
+public class DrivetrainProfile implements MotionProfileBase {
 
 
 

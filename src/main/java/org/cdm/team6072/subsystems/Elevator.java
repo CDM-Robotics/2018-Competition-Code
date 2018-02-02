@@ -9,9 +9,8 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.cdm.team6072.RobotConfig;
 import org.cdm.team6072.autonomous.Constants;
-import org.cdm.team6072.autonomous.MotionProfile;
+import org.cdm.team6072.autonomous.MotionProfileBase;
 import org.cdm.team6072.autonomous.MotionProfileController;
-import org.cdm.team6072.autonomous.profiles.DrivetrainProfile;
 import org.cdm.team6072.autonomous.profiles.PIDConfig;
 import util.CrashTracker;
 
@@ -58,10 +57,10 @@ public class Elevator extends Subsystem {
             mElevatorTalon.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
             mElevatorTalon.setSensorPhase(true);
             mElevatorTalon.configNeutralDeadband(Constants.kNeutralDeadband, Constants.kTimeoutMs);
-            //mElevatorTalon.set(ControlMode.MotionProfile, 1);
+            //mElevatorTalon.set(ControlMode.MotionProfileBase, 1);
 
            //mElevatorTalon.set(ControlMode.Current, ControlMode.Current.value);
-            /*mElevatorTalon.set(ControlMode.MotionProfile, ControlMode.MotionProfile.value);
+            /*mElevatorTalon.set(ControlMode.MotionProfileBase, ControlMode.MotionProfileBase.value);
             mElevatorTalon.configOpenloopRamp(2, 0);*/
         } catch (Exception ex) {
             System.out.println(ex.getStackTrace());
@@ -82,7 +81,7 @@ public class Elevator extends Subsystem {
      * Specify the motion profile to use
      * @param profile
      */
-    public void setMPProfile(MotionProfile profile) {
+    public void setMPProfile(MotionProfileBase profile) {
         System.out.println("Elevator.setMPProfile:  setting up ");
         System.out.println("device (encoder): " + this.mElevatorTalon.getSensorCollection().toString());
         mMPController = new MotionProfileController("ElevatorMP", mElevatorTalon, profile);
@@ -96,6 +95,7 @@ public class Elevator extends Subsystem {
      * Start the motion profile running
      */
     public void startMotionProfile() {
+        CrashTracker.logMessage("Elevator.startMotionProfile  ");
         mMPController.startMotionProfile();
     }
 
@@ -108,7 +108,7 @@ public class Elevator extends Subsystem {
     }
 
 
-    private void updateTalonRequiredMPState() {
+    public void updateTalonRequiredMPState() {
         SetValueMotionProfile setOutput = this.mMPController.getRequiredTalonMPState();
 
         //System.out.println("Elevator.updateTalonRequiredMPState: elevator val: " + setOutput.value);

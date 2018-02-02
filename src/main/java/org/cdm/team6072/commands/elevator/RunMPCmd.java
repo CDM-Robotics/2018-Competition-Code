@@ -21,6 +21,7 @@ public class RunMPCmd  extends Command {
 
     @Override
     protected void initialize() {
+        CrashTracker.logMessage("RunMPCmd.initialize");
         mElevator = Elevator.getInstance();
         mElevator.setMPProfile(DrivetrainProfile.getInstance());
         mElevator.startMotionProfile();
@@ -29,8 +30,9 @@ public class RunMPCmd  extends Command {
 
     @Override
     protected void execute() {
-        CrashTracker.logMessage("RunMPCmd.execute");
-
+        //CrashTracker.logMessage("RunMPCmd.execute");
+        mElevator.updateTalonRequiredMPState();
+        mElevator.runProfile();
     }
 
 
