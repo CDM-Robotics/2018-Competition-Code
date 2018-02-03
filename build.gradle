@@ -23,6 +23,11 @@ deploy {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
+
 // Defining my dependencies. In this case, WPILib (+ friends), CTRE Toolsuite (Talon SRX)
 // and NavX.
 dependencies {
@@ -30,6 +35,7 @@ dependencies {
     compile ctre()
     compile navx()
     compile openrio.powerup.matchData()
+    compile 'org.codehaus.groovy:groovy-all:2.4.10'
 }
 
 // Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')

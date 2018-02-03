@@ -29,7 +29,6 @@ public class Robot extends IterativeRobot {
         System.out.println("6072: robotInit");
         mControlBoard = ControlBoard.getInstance();
         mDriveTrain = DriveTrain.getInstance();
-        mElevator.setMPProfile(DrivetrainProfile.getInstance());
     }
 
     @Override

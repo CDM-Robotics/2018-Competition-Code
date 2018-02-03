@@ -42,7 +42,7 @@ public class RunMPCmd  extends Command {
             mElevator.stop();
             mElevator.resetSystemState();
         }
-        CrashTracker.logMessage(String.valueOf(mElevator.isProfileComplete()));
+       // CrashTracker.logMessage(String.valueOf(mElevator.isProfileComplete()));
     }
 
 

@@ -423,7 +423,7 @@ public class MotionProfileController {
             point.position = positionRot * Constants.kAndyMarkUnitsPerRotation; //Convert Revolutions to Units
             point.velocity = velocityRPM * Constants.kAndyMarkUnitsPerRotation / 600.0; //Convert RPM to Units/100ms
             point.headingDeg = 0; /* future feature - not used in this example*/
-            point.profileSlotSelect = 0; /* which set of gains would you like to use [0,3]? */
+            point.profileSlotSelect = _profile.getPIDConfig().SlotId; /* which set of gains would you like to use [0,3]? */
             //point.profileSlotSelect1 = 0; /* future feature  - not used in this example - cascaded PID [0,1], leave zero */
             //point.timeDur = GetTrajectoryDuration((int)profile[i][2]);
             point.zeroPos = false;
@@ -438,7 +438,7 @@ public class MotionProfileController {
             }
 
             if ((i % 100 == 0) || point.isLastPoint) {
-                System.out.println("MPE:  push point i: " + i + "  pos: " + point.position + "  ISLAST: " + point.isLastPoint);
+                System.out.println(_name + "MPE:  push point i: " + i + "  pos: " + point.position + "  ISLAST: " + point.isLastPoint);
             }
             _talon.pushMotionProfileTrajectory(point);
         }

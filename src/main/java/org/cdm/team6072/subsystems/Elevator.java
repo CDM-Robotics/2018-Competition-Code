@@ -59,6 +59,13 @@ public class Elevator extends Subsystem {
             mElevatorTalon.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
             mElevatorTalon.setSensorPhase(true);
             mElevatorTalon.configNeutralDeadband(Constants.kNeutralDeadband, Constants.kTimeoutMs);
+
+            // test  --------------
+            System.out.println("Elevator.setMPProfile:  setting Talon control mode to MotionProfile ");
+            mElevatorTalon.set(ControlMode.MotionProfile, SetValueMotionProfile.Disable.value);
+            System.out.println("Elevator.setMPProfile:  back from setting Talon ");
+
+
             //mElevatorTalon.set(ControlMode.MotionProfileBase, 1);
 
            //mElevatorTalon.set(ControlMode.Current, ControlMode.Current.value);
@@ -85,7 +92,7 @@ public class Elevator extends Subsystem {
      */
     public void setMPProfile(MotionProfileBase profile) {
         System.out.println("Elevator.setMPProfile:  setting up ");
-        System.out.println("device (encoder): " + this.mElevatorTalon.getSensorCollection().toString());
+
         mMPController = new MotionProfileController("ElevatorMP", mElevatorTalon, profile);
         mPIDConfig = profile.getPIDConfig();
 
