@@ -24,7 +24,9 @@ public class RunMPCmd  extends Command {
         CrashTracker.logMessage("RunMPCmd.initialize");
         mElevator = Elevator.getInstance();
         mElevator.setMPProfile(DrivetrainProfile.getInstance());
+        mElevator.resetSystemState();
         mElevator.startMotionProfile();
+        CrashTracker.logMessage(mElevator.getSubsystem().toString());
     }
 
 
@@ -33,6 +35,13 @@ public class RunMPCmd  extends Command {
         //CrashTracker.logMessage("RunMPCmd.execute");
         mElevator.updateTalonRequiredMPState();
         mElevator.runProfile();
+
+        if (mElevator.isProfileComplete()) {
+            //isFinished();
+            mElevator.stop();
+            mElevator.resetSystemState();
+        }
+        CrashTracker.logMessage(String.valueOf(mElevator.isProfileComplete()));
     }
 
 
