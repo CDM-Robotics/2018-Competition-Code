@@ -112,7 +112,6 @@ public class Elevator extends Subsystem {
 
     public void updateTalonRequiredMPState() {
         SetValueMotionProfile setOutput = this.mMPController.getRequiredTalonMPState();
-
         //System.out.println("Elevator.updateTalonRequiredMPState: elevator val: " + setOutput.value);
         mElevatorTalon.set(ControlMode.MotionProfile, setOutput.value);
     }

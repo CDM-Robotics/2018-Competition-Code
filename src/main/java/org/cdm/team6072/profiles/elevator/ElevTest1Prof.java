@@ -35,6 +35,8 @@ public class ElevTest1Prof implements MotionProfileBase {
     }
 
 
+    // define the normal duration of each trajectory point
+    // sued to control flow of points to talon
     private int mBaseDurationMs = 10;
 
     @Override

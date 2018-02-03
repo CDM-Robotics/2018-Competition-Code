@@ -301,12 +301,9 @@ public class MotionProfileController {
                         _loopTimeout = kNumLoopsTimeout;
                     }
                     break;
-                case STARTING: /*
-						 * wait for MP to stream to Talon, really just the first few
-						 * points
-						 */
-					/* do we have a minimum numberof points in Talon */
-					SmartDashboard.putNumber("buffer count", _status.btmBufferCnt);
+                case STARTING:
+                    /* wait for MP to stream to Talon, really just the first few points */
+					/* do we have a minimum number of points in Talon */
                     if (_status.btmBufferCnt > kMinPointsInTalon) {
 						/* start (once) the motion profile */
                         _requiredTalonMPState = SetValueMotionProfile.Enable;
@@ -337,7 +334,6 @@ public class MotionProfileController {
 						/*
 						 * because we set the last point's isLast to true, we will get here when the MP is done
 						 */
-						SmartDashboard.putString("HoldState", "HOLD_STATE");
                         _requiredTalonMPState = SetValueMotionProfile.Disable;
                         _state = ControlState.STOPPED;;
                         _loopTimeout = DISABLELOOP;
@@ -441,7 +437,9 @@ public class MotionProfileController {
                 //_talon.set(ControlMode.Disabled, 1);
             }
 
-            System.out.println("MPE:  push point i: " + i + "  pos: " + point.position + "  ISLAST: " + point.isLastPoint);
+            if ((i % 100 == 0) || point.isLastPoint) {
+                System.out.println("MPE:  push point i: " + i + "  pos: " + point.position + "  ISLAST: " + point.isLastPoint);
+            }
             _talon.pushMotionProfileTrajectory(point);
         }
     }
