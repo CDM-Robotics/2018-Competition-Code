@@ -247,7 +247,7 @@ public class MotionProfileController {
      * Called every loop.
      */
     public void control() {
-        
+
 		/* Get the motion profile status every loop */
         _talon.getMotionProfileStatus(_status);
         SmartDashboard.putNumber(_name + Keys.TopBufferCount, _status.topBufferCnt);
@@ -390,6 +390,13 @@ public class MotionProfileController {
         startFilling(_profile.getPoints(), _profile.getPoints().length);
     }
 
+
+    /**
+     * Profile is array
+     *      position   velocity     duration mSec
+     * @param profile
+     * @param totalCnt
+     */
     private void startFilling(double[][] profile, int totalCnt) {
 
 		/* did we get an underrun condition since last time we checked ? */

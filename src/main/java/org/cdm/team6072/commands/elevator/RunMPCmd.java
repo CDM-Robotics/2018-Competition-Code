@@ -1,7 +1,7 @@
 package org.cdm.team6072.commands.elevator;
 
 import edu.wpi.first.wpilibj.command.Command;
-import org.cdm.team6072.autonomous.profiles.DrivetrainProfile;
+import org.cdm.team6072.profiles.test.Rot_5_Vel_1;
 import org.cdm.team6072.subsystems.Elevator;
 import util.CrashTracker;
 
@@ -23,7 +23,7 @@ public class RunMPCmd  extends Command {
     protected void initialize() {
         CrashTracker.logMessage("RunMPCmd.initialize");
         mElevator = Elevator.getInstance();
-        mElevator.setMPProfile(DrivetrainProfile.getInstance());
+        mElevator.setMPProfile(Rot_5_Vel_1.getInstance());
         mElevator.resetSystemState();
         mElevator.startMotionProfile();
         CrashTracker.logMessage(mElevator.getSubsystem().toString());
