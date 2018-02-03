@@ -2,6 +2,7 @@ package org.cdm.team6072.commands.elevator;
 
 import edu.wpi.first.wpilibj.command.Command;
 import org.cdm.team6072.profiles.drive.DrivetrainProfile;
+import org.cdm.team6072.profiles.elevator.ElevTest1Prof;
 import org.cdm.team6072.subsystems.Elevator;
 import util.CrashTracker;
 
@@ -23,7 +24,7 @@ public class RunMPCmd  extends Command {
     protected void initialize() {
         CrashTracker.logMessage("RunMPCmd.initialize");
         mElevator = Elevator.getInstance();
-        mElevator.setMPProfile(DrivetrainProfile.getInstance());
+        mElevator.setMPProfile(ElevTest1Prof.getInstance());
         mElevator.startMotionProfile();
     }
 

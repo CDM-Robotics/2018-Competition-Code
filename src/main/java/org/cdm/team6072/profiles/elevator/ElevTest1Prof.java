@@ -2,13 +2,28 @@ package org.cdm.team6072.profiles.elevator;
 
 import org.cdm.team6072.profiles.MotionProfileBase;
 import org.cdm.team6072.profiles.PIDConfig;
-
+import org.cdm.team6072.profiles.drive.DrivetrainProfile;
 
 
 public class ElevTest1Prof implements MotionProfileBase {
 
 
-    // kF is feed forward correction, For AnyMarkCIM, has 80 units per rev.
+    // singleton constructor     -------------------------
+
+    private static ElevTest1Prof mInstance;
+    public static ElevTest1Prof getInstance() {
+        if (mInstance == null) {
+            mInstance = new ElevTest1Prof();
+        }
+        return mInstance;
+    }
+
+    private ElevTest1Prof() {
+
+    }
+
+
+    // kF is feed forward correction, For AndyMarkCIM, has 80 units per rev.
     // Measured max for elevator motor was 820
     // So  kF = 1023 / 820 = 1.24756
     private static PIDConfig mPIDConfig = new PIDConfig(0, 1.24756, 2.0, 0, 0);

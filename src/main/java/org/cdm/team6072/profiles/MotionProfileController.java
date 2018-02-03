@@ -247,6 +247,7 @@ public class MotionProfileController {
      * Called every loop.
      */
     public void control() {
+        
 		/* Get the motion profile status every loop */
         _talon.getMotionProfileStatus(_status);
         SmartDashboard.putNumber(_name + Keys.TopBufferCount, _status.topBufferCnt);
