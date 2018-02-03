@@ -3,7 +3,7 @@ package org.cdm.team6072;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import org.cdm.team6072.autonomous.profiles.DrivetrainProfile;
+import org.cdm.team6072.profiles.drive.DrivetrainProfile;
 import org.cdm.team6072.commands.drive.ArcadeDriveCmd;
 import org.cdm.team6072.subsystems.DriveTrain;
 import org.cdm.team6072.subsystems.Elevator;

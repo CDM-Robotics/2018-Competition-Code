@@ -21,7 +21,7 @@
  * [1] Calling pushMotionProfileTrajectory() continuously while the Talon executes the motion profile, thereby keeping it going indefinitely.
  * [2] Instead of setting the sensor position to zero at the start of each MP, the program could offset the MP's position based on current position.
  */
-package org.cdm.team6072.autonomous;
+package org.cdm.team6072.profiles;
 
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
@@ -31,7 +31,6 @@ import edu.wpi.first.wpilibj.Notifier;
 import com.ctre.phoenix.motion.*;
 import com.ctre.phoenix.motion.TrajectoryPoint;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import org.cdm.team6072.autonomous.profiles.PIDConfig;
 import util.CrashTracker;
 
 public class MotionProfileController {

@@ -1,17 +1,19 @@
 package org.cdm.team6072.subsystems;
 
+import edu.wpi.first.wpilibj.command.Subsystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import edu.wpi.first.wpilibj.command.Subsystem;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import org.cdm.team6072.RobotConfig;
-import org.cdm.team6072.autonomous.Constants;
-import org.cdm.team6072.autonomous.MotionProfileBase;
-import org.cdm.team6072.autonomous.MotionProfileController;
-import org.cdm.team6072.autonomous.profiles.PIDConfig;
+import org.cdm.team6072.profiles.Constants;
+import org.cdm.team6072.profiles.MotionProfileBase;
+import org.cdm.team6072.profiles.MotionProfileController;
+import org.cdm.team6072.profiles.PIDConfig;
 import util.CrashTracker;
 
 public class Elevator extends Subsystem {

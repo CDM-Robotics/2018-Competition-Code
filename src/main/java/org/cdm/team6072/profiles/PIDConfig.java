@@ -1,4 +1,4 @@
-package org.cdm.team6072.autonomous.profiles;
+package org.cdm.team6072.profiles;
 
 
 /**

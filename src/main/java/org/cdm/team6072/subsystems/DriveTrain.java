@@ -2,28 +2,18 @@ package org.cdm.team6072.subsystems;
 
 
 import com.ctre.phoenix.motion.SetValueMotionProfile;
-import com.ctre.phoenix.motion.TrajectoryPoint;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.sun.corba.se.impl.orbutil.closure.Constant;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.command.PIDSubsystem;
-import edu.wpi.first.wpilibj.command.Subsystem;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import edu.wpi.first.wpilibj.smartdashboard.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.cdm.team6072.RobotConfig;
-import org.cdm.team6072.autonomous.Constants;
+import org.cdm.team6072.profiles.Constants;
 import org.cdm.team6072.autonomous.MotionProfileManager;
-import org.cdm.team6072.autonomous.profiles.DrivetrainProfile;
-
-import com.ctre.phoenix.motion.TrajectoryPoint;
+import org.cdm.team6072.profiles.drive.DrivetrainProfile;
 
 import java.util.ArrayList;
 

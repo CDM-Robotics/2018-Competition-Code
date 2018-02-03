@@ -1,6 +1,7 @@
-package org.cdm.team6072.autonomous.profiles;
+package org.cdm.team6072.profiles.drive;
 
-import org.cdm.team6072.autonomous.MotionProfileBase;
+import org.cdm.team6072.profiles.PIDConfig;
+import org.cdm.team6072.profiles.MotionProfileBase;
 
 
 public class DrivetrainProfile implements MotionProfileBase {
@@ -34,7 +35,7 @@ public class DrivetrainProfile implements MotionProfileBase {
 
 
 
-    // singleton onstructor     -------------------------
+    // singleton constructor     -------------------------
 
     private static DrivetrainProfile mInstance;
     public static DrivetrainProfile getInstance() {

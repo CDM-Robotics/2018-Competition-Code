@@ -5,6 +5,8 @@ import com.ctre.phoenix.motorcontrol.can.*;
 
 import edu.wpi.first.wpilibj.Notifier;
 import com.ctre.phoenix.motion.*;
+import org.cdm.team6072.profiles.Constants;
+import org.cdm.team6072.profiles.MotionProfileBase;
 
 import java.util.ArrayList;
 

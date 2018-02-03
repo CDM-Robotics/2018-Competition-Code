@@ -1,4 +1,4 @@
-package org.cdm.team6072.autonomous;
+package org.cdm.team6072.profiles;
 
 public class Constants {
 

@@ -1,7 +1,7 @@
 package org.cdm.team6072.commands.elevator;
 
 import edu.wpi.first.wpilibj.command.Command;
-import org.cdm.team6072.autonomous.profiles.DrivetrainProfile;
+import org.cdm.team6072.profiles.drive.DrivetrainProfile;
 import org.cdm.team6072.subsystems.Elevator;
 import util.CrashTracker;
 
