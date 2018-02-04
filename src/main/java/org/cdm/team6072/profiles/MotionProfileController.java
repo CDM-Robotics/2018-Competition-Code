@@ -30,6 +30,7 @@ import com.ctre.phoenix.motorcontrol.can.*;
 import edu.wpi.first.wpilibj.Notifier;
 import com.ctre.phoenix.motion.*;
 import com.ctre.phoenix.motion.TrajectoryPoint;
+import com.ctre.phoenix.motion.TrajectoryPoint.TrajectoryDuration;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import util.CrashTracker;
 
@@ -330,7 +331,7 @@ public class MotionProfileController {
 					 * another. We will go into hold state so robot servo's
 					 * position.
 					 */
-                    if ( (_status.topBufferCnt == 0) && (_status.btmBufferCnt == 0)) { //(_status.isLast) && _status.activePointValid) { //_status.activePointValid && _status.isLast) {
+                    if ((_status.isLast) && _status.activePointValid) { //_status.activePointValid && _status.isLast) {
 						/*
 						 * because we set the last point's isLast to true, we will get here when the MP is done
 						 */
@@ -365,19 +366,19 @@ public class MotionProfileController {
      * @param durationMs
      * @return enum equivalent of durationMs
      */
-//    private TrajectoryDuration GetTrajectoryDuration(int durationMs)
-//    {
-//		/* create return value */
-//        TrajectoryDuration retval = TrajectoryDuration.Trajectory_Duration_0ms;
-//		/* convert duration to supported type */
-//        retval = retval.valueOf(durationMs);
-//		/* check that it is valid */
-//        if (retval.value != durationMs) {
-//            DriverStation.reportError("Trajectory Duration not supported - use configMotionProfileTrajectoryPeriod instead", false);
-//        }
-//		/* pass to caller */
-//        return retval;
-//    }
+    private TrajectoryDuration GetTrajectoryDuration(int durationMs)
+    {
+		/* create return value */
+        TrajectoryDuration retval = TrajectoryDuration.Trajectory_Duration_0ms;
+		/* convert duration to supported type */
+        retval = retval.valueOf(durationMs);
+		/* check that it is valid */
+        if (retval.value != durationMs) {
+            //DriverStation.reportError("Trajectory Duration not supported - use configMotionProfileTrajectoryPeriod instead", false);
+        }
+		/* pass to caller */
+        return retval;
+    }
 
 
     /** Start filling the MPs to all of the involved Talons. */
@@ -423,9 +424,9 @@ public class MotionProfileController {
             point.position = positionRot * Constants.kAndyMarkUnitsPerRotation; //Convert Revolutions to Units
             point.velocity = velocityRPM * Constants.kAndyMarkUnitsPerRotation / 600.0; //Convert RPM to Units/100ms
             point.headingDeg = 0; /* future feature - not used in this example*/
-            point.profileSlotSelect = _profile.getPIDConfig().SlotId; /* which set of gains would you like to use [0,3]? */
-            //point.profileSlotSelect1 = 0; /* future feature  - not used in this example - cascaded PID [0,1], leave zero */
-            //point.timeDur = GetTrajectoryDuration((int)profile[i][2]);
+            point.profileSlotSelect0 = _profile.getPIDConfig().SlotId; /* which set of gains would you like to use [0,3]? */
+            point.profileSlotSelect1 = _profile.getPIDConfig().SlotId; /* future feature  - not used in this example - cascaded PID [0,1], leave zero */
+            point.timeDur = GetTrajectoryDuration((int)profile[i][2]);
             point.zeroPos = false;
             if (i == 0) {
                 point.zeroPos = true; /* set this to true on the first point */
@@ -440,6 +441,8 @@ public class MotionProfileController {
             if ((i % 100 == 0) || point.isLastPoint) {
                 System.out.println(_name + "MPE:  push point i: " + i + "  pos: " + point.position + "  ISLAST: " + point.isLastPoint);
             }
+
+            CrashTracker.logMessage("pos rot: " + positionRot + ", velocity RPM: " + velocityRPM);
             _talon.pushMotionProfileTrajectory(point);
         }
     }

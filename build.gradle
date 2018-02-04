@@ -27,6 +27,10 @@ repositories {
     mavenCentral()
 }
 
+// specify specific library versions
+wpi {
+    ctreVersion = '5.2.1.1'
+}
 
 // Defining my dependencies. In this case, WPILib (+ friends), CTRE Toolsuite (Talon SRX)
 // and NavX.
