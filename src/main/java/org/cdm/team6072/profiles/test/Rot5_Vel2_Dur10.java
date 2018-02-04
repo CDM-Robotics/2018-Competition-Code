@@ -21,7 +21,7 @@ public class Rot5_Vel2_Dur10 implements MotionProfileBase {
     // kF is feed forward correction, For AnyMarkCIM, has 80 units per rev.
     // Measured max for elevator motor was 820
     // So  kF = 1023 / 820 = 1.24756
-    private static PIDConfig mPIDConfig = new PIDConfig(0, 1.24756, 2.0, 0, 0);
+    private static PIDConfig mPIDConfig = new PIDConfig(0, 1.24756, 0.24, 0, 0);
 
 
     @Override

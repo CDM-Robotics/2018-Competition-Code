@@ -374,7 +374,7 @@ public class MotionProfileController {
         retval = retval.valueOf(durationMs);
 		/* check that it is valid */
         if (retval.value != durationMs) {
-            //DriverStation.reportError("Trajectory Duration not supported - use configMotionProfileTrajectoryPeriod instead", false);
+            CrashTracker.logMessage("Trajectory Duration not supported - use configMotionProfileTrajectoryPeriod instead");
         }
 		/* pass to caller */
         return retval;
@@ -439,10 +439,10 @@ public class MotionProfileController {
             }
 
             if ((i % 100 == 0) || point.isLastPoint) {
-                System.out.println(_name + "MPE:  push point i: " + i + "  pos: " + point.position + "  ISLAST: " + point.isLastPoint);
+                System.out.println(_name + "MPE:  push point i: " + i + "  pos: " + point.position + " vel:" + point.velocity + "  ISLAST: " + point.isLastPoint);
             }
 
-            CrashTracker.logMessage("pos rot: " + positionRot + ", velocity RPM: " + velocityRPM);
+            CrashTracker.logMessage("MotionProfileController.startFilling: (Buffer) pos rot: " + positionRot + ", velocity RPM: " + velocityRPM);
             _talon.pushMotionProfileTrajectory(point);
         }
     }
