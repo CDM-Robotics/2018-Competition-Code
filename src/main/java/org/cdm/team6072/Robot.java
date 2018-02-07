@@ -3,6 +3,8 @@ package org.cdm.team6072;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.CameraServer;
+import edu.wpi.first.wpilibj.SerialPort;
 import org.cdm.team6072.profiles.drive.DrivetrainProfile;
 import org.cdm.team6072.commands.drive.ArcadeDriveCmd;
 import org.cdm.team6072.subsystems.DriveTrain;
@@ -18,7 +20,7 @@ public class Robot extends IterativeRobot {
     private Elevator mElevator = Elevator.getInstance();
 
     //private MotionProfileManager profile = new MotionProfileManager(DriveTrain.getInstance().getmLeftMaster());
-
+    private SerialPort cam;
 
     // ControlBoard holds the operator interface code such as JoyStick
     private ControlBoard mControlBoard  = ControlBoard.getInstance();;
@@ -29,6 +31,9 @@ public class Robot extends IterativeRobot {
         System.out.println("6072: robotInit");
         mControlBoard = ControlBoard.getInstance();
         mDriveTrain = DriveTrain.getInstance();
+
+        cam = new SerialPort(921600, SerialPort.Port.kUSB);
+        CameraServer.getInstance().startAutomaticCapture(0);
     }
 
     @Override
@@ -59,6 +64,7 @@ public class Robot extends IterativeRobot {
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(mDriveCmd);
 
+        System.out.println("teleopInit cam string: " + cam.readString());
        //DriveTrain.getInstance().getMotionProfileManager().startMotionProfile();
     }
 
