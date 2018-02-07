@@ -1,10 +1,10 @@
 package org.cdm.team6072.profiles.test;
 
 import org.cdm.team6072.profiles.PIDConfig;
-import org.cdm.team6072.profiles.MotionProfileBase;
+import org.cdm.team6072.profiles.IMotionProfile;
 
 
-public class Rot_5_Vel_1 implements MotionProfileBase {			
+public class Rot_5_Vel_1 implements IMotionProfile {
 			
 /*			
 	Vprog(max speed)	1	rotations/sec

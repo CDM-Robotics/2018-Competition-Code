@@ -1,11 +1,10 @@
 package org.cdm.team6072.profiles.elevator;
 
-import org.cdm.team6072.profiles.MotionProfileBase;
+import org.cdm.team6072.profiles.IMotionProfile;
 import org.cdm.team6072.profiles.PIDConfig;
-import org.cdm.team6072.profiles.drive.DrivetrainProfile;
 
 
-public class ElevTest1Prof implements MotionProfileBase {
+public class ElevTest1Prof implements IMotionProfile {
 
 
     // singleton constructor     -------------------------

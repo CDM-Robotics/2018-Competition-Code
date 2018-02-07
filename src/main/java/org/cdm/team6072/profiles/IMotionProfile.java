@@ -1,7 +1,7 @@
 package org.cdm.team6072.profiles;
 
 
-public interface MotionProfileBase {
+public interface IMotionProfile {
 
 
     public PIDConfig getPIDConfig();

@@ -11,7 +11,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import org.cdm.team6072.RobotConfig;
 import org.cdm.team6072.profiles.Constants;
-import org.cdm.team6072.profiles.MotionProfileBase;
+import org.cdm.team6072.profiles.IMotionProfile;
 import org.cdm.team6072.profiles.MotionProfileController;
 import org.cdm.team6072.profiles.PIDConfig;
 import util.CrashTracker;
@@ -66,10 +66,10 @@ public class Elevator extends Subsystem {
             System.out.println("Elevator.setMPProfile:  back from setting Talon ");
 
 
-            //mElevatorTalon.set(ControlMode.MotionProfileBase, 1);
+            //mElevatorTalon.set(ControlMode.IMotionProfile, 1);
 
            //mElevatorTalon.set(ControlMode.Current, ControlMode.Current.value);
-            /*mElevatorTalon.set(ControlMode.MotionProfileBase, ControlMode.MotionProfileBase.value);
+            /*mElevatorTalon.set(ControlMode.IMotionProfile, ControlMode.IMotionProfile.value);
             mElevatorTalon.configOpenloopRamp(2, 0);*/
         } catch (Exception ex) {
             System.out.println(ex.getStackTrace());
@@ -90,10 +90,10 @@ public class Elevator extends Subsystem {
      * Specify the motion profile to use
      * @param profile
      */
-    public void setMPProfile(MotionProfileBase profile) {
+    public void setMPProfile(IMotionProfile profile) {
         System.out.println("Elevator.setMPProfile:  setting up ");
 
-        mMPController = new MotionProfileController("ElevatorMP", mElevatorTalon, profile);
+        mMPController = new MotionProfileController("ElevatorMP", mElevatorTalon, profile, MotionProfileController.MPDirection.Positive);
         mPIDConfig = profile.getPIDConfig();
 
         //this.masters.get(i).setControlFramePeriod(10, Constants.kTimeoutMs);
@@ -117,11 +117,11 @@ public class Elevator extends Subsystem {
     }
 
 
-    public void updateTalonRequiredMPState() {
-        SetValueMotionProfile setOutput = this.mMPController.getRequiredTalonMPState();
-        //System.out.println("Elevator.updateTalonRequiredMPState: elevator val: " + setOutput.value);
-        mElevatorTalon.set(ControlMode.MotionProfile, setOutput.value);
-    }
+//    public void updateTalonRequiredMPState() {
+//        SetValueMotionProfile setOutput = this.mMPController.getRequiredTalonMPState();
+//        //System.out.println("Elevator.updateTalonRequiredMPState: elevator val: " + setOutput.value);
+//        mElevatorTalon.set(ControlMode.MotionProfile, setOutput.value);
+//    }
 
 
 

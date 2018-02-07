@@ -1,10 +1,10 @@
 package org.cdm.team6072.profiles.drive;
 
+import org.cdm.team6072.profiles.IMotionProfile;
 import org.cdm.team6072.profiles.PIDConfig;
-import org.cdm.team6072.profiles.MotionProfileBase;
 
 
-public class DrivetrainProfile implements MotionProfileBase {
+public class DrivetrainProfile implements IMotionProfile {
 
 
 

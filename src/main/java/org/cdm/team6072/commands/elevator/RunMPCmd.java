@@ -35,11 +35,10 @@ public class RunMPCmd  extends Command {
     @Override
     protected void execute() {
         //CrashTracker.logMessage("RunMPCmd.execute");
-        mElevator.updateTalonRequiredMPState();
+//        mElevator.updateTalonRequiredMPState();
         mElevator.runProfile();
 
         if (mElevator.isProfileComplete()) {
-            //isFinished();
             mElevator.stop();
             mElevator.resetSystemState();
         }

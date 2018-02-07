@@ -121,7 +121,7 @@ public class MotionProfileController {
     Notifier _notifer = new Notifier(new PeriodicRunnable());
 
 
-    private MotionProfileBase _profile;
+    private IMotionProfile _profile;
 
     private PIDConfig mPIDConfig;
 
@@ -142,10 +142,23 @@ public class MotionProfileController {
         IsLast,
         Velocity,
         Position,
+        StartPosition,
         Heading,
         EncoderVal,
+        PID_kF,
+        PID_kP,
+        PID_kI,
+        PID_kD,
     };
 
+
+
+    public static enum MPDirection {
+        Positive,
+        Negative,
+    }
+
+    private MPDirection mDirn = MPDirection.Positive;
 
 
     /**
@@ -153,7 +166,7 @@ public class MotionProfileController {
      * @param talon  -  reference to Talon object to control.
      * @param motionProfile - the motion profile that we want to run on the talon
      */
-    public MotionProfileController(String controllerName, TalonSRX talon, MotionProfileBase motionProfile) {
+    public MotionProfileController(String controllerName, TalonSRX talon, IMotionProfile motionProfile, MPDirection dirn) {
         _talon = talon;
         _profile = motionProfile;
         _name = controllerName + "_";
@@ -166,6 +179,7 @@ public class MotionProfileController {
         SmartDashboard.putBoolean(_name + Keys.IsLast, false);
         SmartDashboard.putNumber(_name + Keys.Velocity, -1);
         SmartDashboard.putNumber(_name + Keys.Position, -1);
+        SmartDashboard.putNumber(_name + Keys.StartPosition, -1);
         SmartDashboard.putNumber(_name + Keys.Heading, -1);
         SmartDashboard.putNumber(_name + Keys.EncoderVal, -1);
 
@@ -177,6 +191,10 @@ public class MotionProfileController {
             _talon.config_kP(mPIDConfig.SlotId, mPIDConfig.kP, Constants.kTimeoutMs);
             _talon.config_kI(mPIDConfig.SlotId, mPIDConfig.kI, Constants.kTimeoutMs);
             _talon.config_kD(mPIDConfig.SlotId, mPIDConfig.kD, Constants.kTimeoutMs);
+            SmartDashboard.putNumber(_name + Keys.PID_kF, mPIDConfig.kF);
+            SmartDashboard.putNumber(_name + Keys.PID_kP, mPIDConfig.kP);
+            SmartDashboard.putNumber(_name + Keys.PID_kI, mPIDConfig.kI);
+            SmartDashboard.putNumber(_name + Keys.PID_kD, mPIDConfig.kD);
         }
 
 		// set the control frame rate and the notifer to half the base TP duration in profile
