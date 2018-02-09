@@ -1,5 +1,6 @@
 package org.cdm.team6072.profiles.test;
 
+import org.cdm.team6072.profiles.Constants;
 import org.cdm.team6072.profiles.PIDConfig;
 import org.cdm.team6072.profiles.IMotionProfile;
 
@@ -35,6 +36,11 @@ public class Rot5_Vel1_Dur50 implements IMotionProfile {
     @Override
     public int getBaseTPDurationMs() {
         return mBaseDurationMs;
+    }
+
+    @Override
+    public double getUnitsPerRotation() {
+        return Constants.kAndyMarkUnitsPerRotation;
     }
 
 

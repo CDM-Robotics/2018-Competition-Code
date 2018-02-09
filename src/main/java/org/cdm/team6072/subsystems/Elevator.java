@@ -65,7 +65,6 @@ public class Elevator extends Subsystem {
             mElevatorTalon.set(ControlMode.MotionProfile, SetValueMotionProfile.Disable.value);
             System.out.println("Elevator.setMPProfile:  back from setting Talon ");
 
-
             //mElevatorTalon.set(ControlMode.IMotionProfile, 1);
 
            //mElevatorTalon.set(ControlMode.Current, ControlMode.Current.value);

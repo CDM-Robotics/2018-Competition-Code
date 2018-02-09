@@ -1,5 +1,6 @@
 package org.cdm.team6072.profiles.elevator;
 
+import org.cdm.team6072.profiles.Constants;
 import org.cdm.team6072.profiles.IMotionProfile;
 import org.cdm.team6072.profiles.PIDConfig;
 
@@ -31,6 +32,12 @@ public class ElevTest1Prof implements IMotionProfile {
     @Override
     public PIDConfig getPIDConfig() {
         return mPIDConfig;
+    }
+
+
+    @Override
+    public double getUnitsPerRotation() {
+        return Constants.kAndyMarkUnitsPerRotation;
     }
 
 

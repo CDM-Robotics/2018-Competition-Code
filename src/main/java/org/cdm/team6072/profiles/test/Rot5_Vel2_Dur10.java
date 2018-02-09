@@ -1,5 +1,6 @@
 package org.cdm.team6072.profiles.test;
 
+import org.cdm.team6072.profiles.Constants;
 import org.cdm.team6072.profiles.IMotionProfile;
 import org.cdm.team6072.profiles.PIDConfig;
 
@@ -27,6 +28,12 @@ public class Rot5_Vel2_Dur10 implements IMotionProfile {
     @Override
     public PIDConfig getPIDConfig() {
         return mPIDConfig;
+    }
+
+
+    @Override
+    public double getUnitsPerRotation() {
+        return Constants.kAndyMarkUnitsPerRotation;
     }
 
 

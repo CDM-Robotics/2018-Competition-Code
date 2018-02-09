@@ -1,5 +1,6 @@
 package org.cdm.team6072.profiles.drive;
 
+import org.cdm.team6072.profiles.Constants;
 import org.cdm.team6072.profiles.IMotionProfile;
 import org.cdm.team6072.profiles.PIDConfig;
 
@@ -25,6 +26,12 @@ public class DrivetrainProfile implements IMotionProfile {
     @Override
     public int getBaseTPDurationMs() {
         return mBaseDurationMs;
+    }
+    
+
+    @Override
+    public double getUnitsPerRotation() {
+        return Constants.kAndyMarkUnitsPerRotation;
     }
 
 
