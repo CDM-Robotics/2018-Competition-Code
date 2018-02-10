@@ -1,17 +1,20 @@
-package org.cdm.team6072.commands.grabber;
+package org.cdm.team6072.commands.intake;
+
 
 import edu.wpi.first.wpilibj.command.Command;
 import org.cdm.team6072.subsystems.IntakeMotorSys;
 
 
-public class StopGrabberWheelsCmd extends Command {
+public class OpenIntakeCmd extends Command {
 
-    public StopGrabberWheelsCmd() {
+    public OpenIntakeCmd() {
         requires(IntakeMotorSys.getInstance());
     }
 
+    @Override
     protected void execute() {
-        IntakeMotorSys.getInstance().stopWheels();
+        System.out.println("OpenIntakeCmd: exec");
+        IntakeMotorSys.getInstance().OpenGrabber();
     }
 
     @Override

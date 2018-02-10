@@ -10,7 +10,7 @@ import util.CrashTracker;
 public class IntakeMotorSys extends Subsystem {
 
     /**
-     * Set direction wheels on grabber are to run
+     * Set direction wheels on intake are to run
      */
     public static enum WheelDirn {
         In,
@@ -73,7 +73,7 @@ public class IntakeMotorSys extends Subsystem {
 
     //-----------------------------------------------------------------------------------
     //
-    //  Opening and closing the grabber is actually controlled by the pneumatic system
+    //  Opening and closing the intake is actually controlled by the pneumatic system
 
 
     public void OpenGrabber() {

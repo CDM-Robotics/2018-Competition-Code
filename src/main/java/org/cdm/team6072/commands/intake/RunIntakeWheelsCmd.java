@@ -1,4 +1,4 @@
-package org.cdm.team6072.commands.grabber;
+package org.cdm.team6072.commands.intake;
 
 
 import edu.wpi.first.wpilibj.command.Command;
@@ -6,15 +6,15 @@ import org.cdm.team6072.subsystems.IntakeMotorSys;
 import util.CrashTracker;
 
 
-public class RunGrabberWheelsCmd  extends Command {
+public class RunIntakeWheelsCmd extends Command {
 
 
     private IntakeMotorSys mGrabber;
     private IntakeMotorSys.WheelDirn mRunDirn;
 
 
-    public RunGrabberWheelsCmd(IntakeMotorSys.WheelDirn runDirn) {
-        CrashTracker.logMessage("RunGrabberWheelsCmd: direction: " + runDirn);
+    public RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn runDirn) {
+        CrashTracker.logMessage("RunIntakeWheelsCmd: direction: " + runDirn);
         requires(IntakeMotorSys.getInstance());
         mRunDirn = runDirn;
     }
@@ -28,7 +28,7 @@ public class RunGrabberWheelsCmd  extends Command {
 
     @Override
     protected void execute() {
-        CrashTracker.logMessage("RunGrabberWheelsCmd.execute");
+        CrashTracker.logMessage("RunIntakeWheelsCmd.execute");
         mGrabber.runWheels(mRunDirn);
     }
 
@@ -39,7 +39,7 @@ public class RunGrabberWheelsCmd  extends Command {
 
 
     protected void interrupted() {
-        CrashTracker.logMessage("RunGrabberWheelsCmd.interrupted");
+        CrashTracker.logMessage("RunIntakeWheelsCmd.interrupted");
         mGrabber.stopWheels();
     }
 

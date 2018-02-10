@@ -1,14 +1,14 @@
-package org.cdm.team6072.commands.grabber;
+package org.cdm.team6072.commands.intake;
 
 import edu.wpi.first.wpilibj.command.Command;
 import org.cdm.team6072.subsystems.IntakeMotorSys;
 import org.cdm.team6072.subsystems.IntakePneumaticsSys;
 
-public class CloseGrabberCmd extends Command {
+public class CloseIntakeCmd extends Command {
 
 
 
-    public CloseGrabberCmd() {
+    public CloseIntakeCmd() {
 
         requires(IntakeMotorSys.getInstance());
         requires(IntakePneumaticsSys.getInstance());
@@ -16,7 +16,7 @@ public class CloseGrabberCmd extends Command {
 
     @Override
     protected void execute() {
-        System.out.println("CloseGrabberCmd: exec");
+        System.out.println("CloseIntakeCmd: exec");
         IntakeMotorSys.getInstance().CloseGrabber();
     }
 
