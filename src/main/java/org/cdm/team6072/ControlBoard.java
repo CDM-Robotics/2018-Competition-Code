@@ -2,6 +2,7 @@ package org.cdm.team6072;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import org.cdm.team6072.commands.drive.TestDriveForward;
 import org.cdm.team6072.commands.elevator.ElvMoveToBaseCmd;
 import org.cdm.team6072.commands.elevator.ElvMoveToScaleCmd;
 import org.cdm.team6072.commands.elevator.MoveElevatorCmd;
@@ -28,9 +29,10 @@ public class ControlBoard {
     public static int LOGITECH_BUT_RIGHT = 6;
     
     // extreme buttons
-    // X-axis  -  forward and back
-    // Y-axis  -  left and right
+    // Y-axis  -  forward and back
+    // X-axis  -  left and right
     // Z-axis  -  twist
+    // hub is POV?
     public static int EXTREME_BUT_TRIGGER = 1;
     public static int EXTREME_BUT_THUMB = 2;
     public static int EXTREME_BUT_LEFT_TOP = 5;
@@ -40,14 +42,15 @@ public class ControlBoard {
     public static int EXTREME_BUT_7 = 7;
     public static int EXTREME_BUT_8 = 8;
     public static int EXTREME_BUT_9 = 9;
-    public static int EXTREME_BUT_10 = 10;
-    public static int EXTREME_BUT_11 = 11;
+    public static int EXTREME_BUT_10 = 10;      // not working?
+    public static int EXTREME_BUT_11 = 11;      // not working?
     public static int EXTREME_BUT_12 = 12;
 
 
     // map commands to buttons  ---------------------------------------------------------------------
 
     public static int DRIVE_HALFSPEED = EXTREME_BUT_THUMB;
+    public static int DRIVE_TEST = EXTREME_BUT_LEFT_BOT;
 
     // Elevator
     //      Move elevator up and down using X-axis
@@ -90,13 +93,17 @@ public class ControlBoard {
     private ControlBoard () {
         drive_stick = new Joystick(DRIVE_USB_PORT);
         drive_buttons = new JoystickButton[12];
-        drive_buttons[INTAKE_WHEELS_IN_BTN] = new JoystickButton(drive_stick, INTAKE_WHEELS_IN_BTN);
-        drive_buttons[INTAKE_WHEELS_IN_BTN].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In));
-        drive_buttons[INTAKE_WHEELS_IN_BTN].whenReleased(new StopIntakeWheelsCmd());
 
-        drive_buttons[INTAKE_WHEELS_OUT_BTN] = new JoystickButton(drive_stick, INTAKE_WHEELS_OUT_BTN);
-        drive_buttons[INTAKE_WHEELS_OUT_BTN].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out));
-        drive_buttons[INTAKE_WHEELS_OUT_BTN].whenReleased(new StopIntakeWheelsCmd());
+        drive_buttons[DRIVE_TEST] = new JoystickButton(drive_stick, DRIVE_TEST);
+        drive_buttons[DRIVE_TEST].whenPressed(new TestDriveForward());
+
+//        drive_buttons[INTAKE_WHEELS_IN_BTN] = new JoystickButton(drive_stick, INTAKE_WHEELS_IN_BTN);
+//        drive_buttons[INTAKE_WHEELS_IN_BTN].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In));
+//        drive_buttons[INTAKE_WHEELS_IN_BTN].whenReleased(new StopIntakeWheelsCmd());
+//
+//        drive_buttons[INTAKE_WHEELS_OUT_BTN] = new JoystickButton(drive_stick, INTAKE_WHEELS_OUT_BTN);
+//        drive_buttons[INTAKE_WHEELS_OUT_BTN].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out));
+//        drive_buttons[INTAKE_WHEELS_OUT_BTN].whenReleased(new StopIntakeWheelsCmd());
 
         // control systems using usb1
         control_stick = new Joystick(CONTROL_USB_PORT);

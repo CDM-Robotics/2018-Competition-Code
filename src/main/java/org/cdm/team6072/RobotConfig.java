@@ -15,7 +15,7 @@ public class RobotConfig {
      */
 
     // Drive Talons
-    public static int DRIVE_LEFT_MASTER = 13;
+    public static int DRIVE_LEFT_MASTER = 15;
     public static int DRIVE_LEFT_SLAVE0 = 14;
 
     public static int DRIVE_RIGHT_MASTER = 30;        // changed 2018-01-13

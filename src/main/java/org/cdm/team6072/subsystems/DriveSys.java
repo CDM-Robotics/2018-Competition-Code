@@ -1,5 +1,6 @@
 package org.cdm.team6072.subsystems;
 
+import java.util.ArrayList;
 
 import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -8,6 +9,11 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
+
+import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.wpilibj.SPI;
+
+
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import org.cdm.team6072.RobotConfig;
@@ -15,29 +21,18 @@ import org.cdm.team6072.profiles.Constants;
 import org.cdm.team6072.autonomous.MotionProfileManager;
 import org.cdm.team6072.profiles.drive.DrivetrainProfile;
 
-import java.util.ArrayList;
 
 /**
  * Implement a drive subsystem for the 2018 robot
- * Three motors per side, driving a single shaft per side
+ * Two motors per side, driving a single shaft per side
  * Each motor controlled by a CANTalon on the CAN bus
  *
  * To configure Talon Device Ids, need to use the NI web browser RoboRio config
  * Requires IE and Silverlight
  * Connect to robot wifi, then browse to http://roborio-6072-frc.local
  *
- * As at 2017-12-17, the Talons have been given device IDs that match the PDP port they are connected to
- * The configuration is
- *      Motor           Talon ID
- *      Left Top        13
- *      Left Front      14
- *      Left Rear       12
- *
- *      Right Top        30     // changed 2018-01-13  0 -> 30
- *      Right Front      1
- *      Right Rear      15
- *
- *      We set to top motor on each side as the master for the side, then the other motors as slaves
+ * As at 2018-02-10, the Talons have been given device IDs that match the PDP port they are connected to
+ *      See RobotConfig for details
  */
 public class DriveSys extends Subsystem {
 
@@ -69,14 +64,14 @@ public class DriveSys extends Subsystem {
 
             mLeft_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE0);
             mLeft_Slave0.set(ControlMode.Follower, RobotConfig.DRIVE_LEFT_MASTER);
-            mLeft_Slave0.setInverted(true);
+            mLeft_Slave0.setInverted(false);
 
             mRightMaster = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_MASTER);
             mRightMaster.configOpenloopRamp(0.7, 0);
 
             mRight_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_SLAVE0);
             mRight_Slave0.set(ControlMode.Follower, RobotConfig.DRIVE_RIGHT_MASTER);
-            mRight_Slave0.setInverted(true);
+            mRight_Slave0.setInverted(false);
 
             mRoboDrive = new DifferentialDrive(mLeftMaster, mRightMaster);
 
@@ -104,6 +99,26 @@ public class DriveSys extends Subsystem {
         System.out.println("DriveSys: init default command");
     }
 
+
+    /**
+     * Implement the tank drive method for the RobotDrive
+     * Allows external access for commands without exposing the RobotDrive object
+     * @param left
+     * @param right
+     */
+    public void tankDrive(double left, double right) {
+        //System.out.println("Drivetrain.tankDrive: " + left + "      " + right);
+        mRoboDrive.tankDrive(left, right);
+    }
+
+    public void arcadeDrive(double mag, double turn) {
+        mRoboDrive.arcadeDrive(-mag, -turn, true);
+        //System.out.println("Drivetrain.arcadeDrive: " + mag + "      " + turn);
+    }
+
+
+
+    // motion profile code
 
 
     public void setupProfile() {
@@ -138,21 +153,6 @@ public class DriveSys extends Subsystem {
 
 
 
-    /**
-     * Implement the tank drive method for the RobotDrive
-     * Allows external access for commands without exposing the RobotDrive object
-     * @param left
-     * @param right
-     */
-    public void tankDrive(double left, double right) {
-        //System.out.println("Drivetrain.tankDrive: " + left + "      " + right);
-        mRoboDrive.tankDrive(left, right);
-    }
-
-    public void arcadeDrive(double mag, double turn) {
-        mRoboDrive.arcadeDrive(-mag, -turn, true);
-        //System.out.println("Drivetrain.arcadeDrive: " + mag + "      " + turn);
-    }
 
     public MotionProfileManager getMotionProfileManager() {
         return this.mMotionProfileManager;

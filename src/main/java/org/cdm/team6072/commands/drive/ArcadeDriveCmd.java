@@ -29,13 +29,10 @@ public class ArcadeDriveCmd extends Command {
      * or the OI stops requesting - for example if the whileHeld() button command is used
      */
     protected void execute() {
-        //System.out.println("6072: execute called");
         DriveSys driveSys = DriveSys.getInstance();
         //driveSys.tankDrive(mStick.getRawAxis(1), mStick.getRawAxis(0));
         //driveSys.tankDrive(mStick, 0, mStick, 1);
 
-        // gamepad
-        //ControlBoard.getInstance().drive_stick.
         driveSys.arcadeDrive(ControlBoard.getInstance().drive_stick.getY(), ControlBoard.getInstance().drive_stick.getZ());
         //driveSys.tankDrive(ControlBoard.getInstance().drive_stick.getY(GenericHID.Hand.kLeft), ControlBoard.getInstance().drive_stick.getY(GenericHID.Hand.kRight));
         // 3D Pro Joystick

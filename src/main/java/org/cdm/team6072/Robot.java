@@ -57,7 +57,6 @@ public class Robot extends IterativeRobot {
         mDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(mDriveCmd);
-
        //DriveSys.getInstance().getMotionProfileManager().startMotionProfile();
     }
 
@@ -79,8 +78,6 @@ public class Robot extends IterativeRobot {
         // MOTION PROFILING
 //        mElevatorSys.updateTalonRequiredMPState();
 //        mElevatorSys.getMPController().control();
-
-
 //        DriveSys.getInstance().updateTalonRequiredMPState();
 //        DriveSys.getInstance().getMotionProfileManager().control();
 
@@ -94,7 +91,7 @@ public class Robot extends IterativeRobot {
     public void autonomousInit() {
         //super.autonomousInit();
         System.out.println("auto init (6072)");
-        /*AutoDriveForward cmd = new AutoDriveForward();
+        /*TestDriveForward cmd = new TestDriveForward();
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(cmd);*/
     }
