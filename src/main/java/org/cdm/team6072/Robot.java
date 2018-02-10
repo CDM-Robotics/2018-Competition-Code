@@ -3,21 +3,20 @@ package org.cdm.team6072;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import org.cdm.team6072.profiles.drive.DrivetrainProfile;
 import org.cdm.team6072.commands.drive.ArcadeDriveCmd;
-import org.cdm.team6072.subsystems.DriveTrain;
-import org.cdm.team6072.subsystems.Elevator;
+import org.cdm.team6072.subsystems.DriveSys;
+import org.cdm.team6072.subsystems.ElevatorSys;
 import org.cdm.team6072.subsystems.Navigator;
 //import org.cdm.team6072.subsystems.GearSlider;
 
 public class Robot extends IterativeRobot {
 
 
-    private DriveTrain mDriveTrain = DriveTrain.getInstance();
+    private DriveSys mDriveSys = DriveSys.getInstance();
     private Navigator mNavx = Navigator.getInstance();
-    private Elevator mElevator = Elevator.getInstance();
+    private ElevatorSys mElevatorSys = ElevatorSys.getInstance();
 
-    //private MotionProfileManager profile = new MotionProfileManager(DriveTrain.getInstance().getmLeftMaster());
+    //private MotionProfileManager profile = new MotionProfileManager(DriveSys.getInstance().getmLeftMaster());
 
 
     // ControlBoard holds the operator interface code such as JoyStick
@@ -28,12 +27,12 @@ public class Robot extends IterativeRobot {
     public void robotInit() {
         System.out.println("6072: robotInit");
         mControlBoard = ControlBoard.getInstance();
-        mDriveTrain = DriveTrain.getInstance();
+        mDriveSys = DriveSys.getInstance();
     }
 
     @Override
     public void disabledInit() {
-        //DriveTrain.getInstance().setupProfile();
+        //DriveSys.getInstance().setupProfile();
     }
 
 
@@ -43,8 +42,8 @@ public class Robot extends IterativeRobot {
      */
 //    @Override
 //    public void disabledPeriodic() {
-//        if (mDriveTrain != null) {
-//            mDriveTrain.disabledPeriodic();
+//        if (mDriveSys != null) {
+//            mDriveSys.disabledPeriodic();
 //        }
 //    }
 
@@ -55,15 +54,15 @@ public class Robot extends IterativeRobot {
     @Override
     public void teleopInit() {
         System.out.println("6072: teleop init");
-        mDriveCmd = new ArcadeDriveCmd(mControlBoard.usb0_stick);
+        mDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(mDriveCmd);
 
-       //DriveTrain.getInstance().getMotionProfileManager().startMotionProfile();
+       //DriveSys.getInstance().getMotionProfileManager().startMotionProfile();
     }
 
 //    public void disabledPeriodic() {
-//        mDriveTrain.arcadeDrive(0,0);
+//        mDriveSys.arcadeDrive(0,0);
 //    }
 
     /**
@@ -78,14 +77,14 @@ public class Robot extends IterativeRobot {
         Scheduler.getInstance().run();
 
         // MOTION PROFILING
-//        mElevator.updateTalonRequiredMPState();
-//        mElevator.getMPController().control();
+//        mElevatorSys.updateTalonRequiredMPState();
+//        mElevatorSys.getMPController().control();
 
 
-//        DriveTrain.getInstance().updateTalonRequiredMPState();
-//        DriveTrain.getInstance().getMotionProfileManager().control();
+//        DriveSys.getInstance().updateTalonRequiredMPState();
+//        DriveSys.getInstance().getMotionProfileManager().control();
 
-//        Elevator.getInstance().masterTalonTest();
+//        ElevatorSys.getInstance().masterTalonTest();
     }
 
     //  AUTONOMOUS MODE  ---------------------------------------------------------------
@@ -115,8 +114,8 @@ public class Robot extends IterativeRobot {
     public void testInit() {
         System.out.println("testInit: --------------------");
         mCounter = 0;
-        LiveWindow.add(DriveTrain.getInstance());
-        mDriveCmd = new ArcadeDriveCmd(mControlBoard.usb0_stick);
+        LiveWindow.add(DriveSys.getInstance());
+        mDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(mDriveCmd);
     }
@@ -125,10 +124,10 @@ public class Robot extends IterativeRobot {
         System.out.println("test periodic called");
         /*if (mCounter < 500) {
             mCounter++;
-            mDriveTrain.arcadeDrive(-0.4,0);
+            mDriveSys.arcadeDrive(-0.4,0);
         }
         if (mCounter%5==0 && mCounter<500) {
-            System.out.println(ControlBoard.getInstance().usb0_stick.getY() + "       " + ControlBoard.getInstance().usb0_stick.getZ());
+            System.out.println(ControlBoard.getInstance().drive_stick.getY() + "       " + ControlBoard.getInstance().drive_stick.getZ());
             SmartDashboard.putNumber("Counter: ", mCounter);
         }*/
         /*if (mCounter==500) {

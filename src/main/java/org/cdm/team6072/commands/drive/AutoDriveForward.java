@@ -1,19 +1,19 @@
 package org.cdm.team6072.commands.drive;
 
 import edu.wpi.first.wpilibj.command.Command;
-import org.cdm.team6072.subsystems.DriveTrain;
+import org.cdm.team6072.subsystems.DriveSys;
 
 public class AutoDriveForward extends Command {
 
     public AutoDriveForward() {
-        requires(DriveTrain.getInstance());
+        requires(DriveSys.getInstance());
     }
 
     @Override
     protected void execute() {
         System.out.println("auto drive forward execute");
-        DriveTrain driveTrain = DriveTrain.getInstance();
-        driveTrain.arcadeDrive(10,0);
+        DriveSys driveSys = DriveSys.getInstance();
+        driveSys.arcadeDrive(10,0);
     }
 
     @Override

@@ -16,7 +16,9 @@ import org.cdm.team6072.profiles.MotionProfileController;
 import org.cdm.team6072.profiles.PIDConfig;
 import util.CrashTracker;
 
-public class Elevator extends Subsystem {
+
+
+public class ElevatorSys extends Subsystem {
 
     /**
      * Specify the direction the elevator should move
@@ -43,16 +45,16 @@ public class Elevator extends Subsystem {
 
     // singleton constructor  -------------------------------------------------
 
-    private static Elevator mInstance;
-    public static Elevator getInstance() {
+    private static ElevatorSys mInstance;
+    public static ElevatorSys getInstance() {
         if (mInstance == null) {
-            mInstance = new Elevator();
+            mInstance = new ElevatorSys();
         }
         return mInstance;
     }
 
-    private Elevator() {
-        CrashTracker.logMessage("Elevator Subsystem initializing");
+    private ElevatorSys() {
+        CrashTracker.logMessage("ElevatorSys Subsystem initializing");
         try {
             mElevatorTalon = new WPI_TalonSRX(RobotConfig.ELEVATOR_TALON);
             mElevatorTalon.getSensorCollection().setQuadraturePosition(0, 10);
@@ -61,9 +63,9 @@ public class Elevator extends Subsystem {
             mElevatorTalon.configNeutralDeadband(Constants.kNeutralDeadband, Constants.kTimeoutMs);
 
             // test  --------------
-            System.out.println("Elevator.setMPProfile:  setting Talon control mode to MotionProfile ");
+            System.out.println("ElevatorSys.setMPProfile:  setting Talon control mode to MotionProfile ");
             mElevatorTalon.set(ControlMode.MotionProfile, SetValueMotionProfile.Disable.value);
-            System.out.println("Elevator.setMPProfile:  back from setting Talon ");
+            System.out.println("ElevatorSys.setMPProfile:  back from setting Talon ");
 
             //mElevatorTalon.set(ControlMode.IMotionProfile, 1);
 
@@ -90,12 +92,12 @@ public class Elevator extends Subsystem {
      * @param profile
      */
     public void setMPProfile(IMotionProfile profile) {
-        System.out.println("Elevator.setMPProfile:  setting up ");
+        System.out.println("ElevatorSys.setMPProfile:  setting up ");
 
         mMPController = new MotionProfileController("ElevatorMP", mElevatorTalon, profile, MotionProfileController.MPDirection.Positive);
         mPIDConfig = profile.getPIDConfig();
 
-        //this.masters.get(i).setControlFramePeriod(10, Constants.kTimeoutMs);
+        //this.mMasterTalons.get(i).setControlFramePeriod(10, Constants.kTimeoutMs);
         mElevatorTalon.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, Constants.kTimeoutMs);
     }
 
@@ -103,7 +105,7 @@ public class Elevator extends Subsystem {
      * Start the motion profile running
      */
     public void startMotionProfile() {
-        CrashTracker.logMessage("Elevator.startMotionProfile  ");
+        CrashTracker.logMessage("ElevatorSys.startMotionProfile  ");
         mMPController.startMotionProfile();
     }
 
@@ -118,8 +120,8 @@ public class Elevator extends Subsystem {
 
 //    public void updateTalonRequiredMPState() {
 //        SetValueMotionProfile setOutput = this.mMPController.getRequiredTalonMPState();
-//        //System.out.println("Elevator.updateTalonRequiredMPState: elevator val: " + setOutput.value);
-//        mElevatorTalon.set(ControlMode.MotionProfile, setOutput.value);
+//        //System.out.println("ElevatorSys.updateTalonRequiredMPState: elevator val: " + setOutput.value);
+//        mElevatorTalon.vv
 //    }
 
 

@@ -27,7 +27,7 @@ public class DrivetrainProfile implements IMotionProfile {
     public int getBaseTPDurationMs() {
         return mBaseDurationMs;
     }
-    
+
 
     @Override
     public double getUnitsPerRotation() {
