@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.SPI;
 public class TestDriveForward extends Command {
 
     // 5 seconds - assumes execute is called every 20 mSec
-    private static int KTIMETORUN = 50 * 5;
+    private static int KTIMETORUN = 50 * 8;
 
 
     public TestDriveForward() {
@@ -31,8 +31,10 @@ public class TestDriveForward extends Command {
         try {
             mCounter = 0;
             mDriveSys = DriveSys.getInstance();
-            mAhrs = new AHRS(SPI.Port.kMXP);
-            mAhrs.reset();
+            byte updateHz = 64;
+            mAhrs = new AHRS(SPI.Port.kMXP, 100000, updateHz);
+            //mAhrs.reset();
+            mAhrs.enableLogging(true);
         }
         catch (Exception ex) {
             System.out.println("*********************  TestDriveForward: Ex initializing: " + ex.getMessage());
@@ -44,12 +46,18 @@ public class TestDriveForward extends Command {
     protected void execute() {
         mCounter++;
         double angle = mAhrs.getAngle();
+        double yaw = mAhrs.getYaw();
+        boolean isMoving = mAhrs.isMoving();
+        boolean isConnected = mAhrs.isConnected();
         if (mCounter % 5 == 0) {
-            System.out.println("TestDriveFwd.execute: angle = " + angle);
+            System.out.println("TestDriveFwd.execute: angle = " + angle + "  yaw: " + yaw + "  isMoving: " + isMoving + "  isConn: " + isConnected);
         }
-        mDriveSys.arcadeDrive(0.2,0);
+        if (mCounter == 20) {
+            mAhrs.enableLogging(false);
+        }
+        mDriveSys.arcadeDrive(-0.4,0);
     }
-    
+
 
     @Override
     protected boolean isFinished() {

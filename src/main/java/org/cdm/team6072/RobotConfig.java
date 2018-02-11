@@ -22,7 +22,7 @@ public class RobotConfig {
     public static int DRIVE_RIGHT_SLAVE0 = 1;
 
     // ELEVATOR
-    public static int ELEVATOR_TALON = 2;
+    public static int ELEVATOR_TALON = 13;
 
 
     // GRABBER

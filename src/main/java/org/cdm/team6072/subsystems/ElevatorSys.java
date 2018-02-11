@@ -53,25 +53,32 @@ public class ElevatorSys extends Subsystem {
         return mInstance;
     }
 
+
+    /**
+     * The CTRE Magnetic Encoder is actually two sensor interfaces packaged into one (pulse width
+     and quadrature encoder). Therefore the sensor provides two modes of use: absolute and relative.
+     The advantage of absolute mode is having a solid reference to where a mechanism is without
+     re-tare-ing or re-zero-ing the robot. The advantage of the relative mode is the faster update
+     rate. However both values can be read/written at the same time. So a combined strategy of
+     seeding the relative position based on the absolute position can be used to benefit from the
+     higher sampling rate of the relative mode and still have an absolute sensor position
+     */
     private ElevatorSys() {
         CrashTracker.logMessage("ElevatorSys Subsystem initializing");
         try {
             mElevatorTalon = new WPI_TalonSRX(RobotConfig.ELEVATOR_TALON);
             mElevatorTalon.getSensorCollection().setQuadraturePosition(0, 10);
-            mElevatorTalon.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 10);
+            mElevatorTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 10);
             mElevatorTalon.setSensorPhase(true);
             mElevatorTalon.configNeutralDeadband(Constants.kNeutralDeadband, Constants.kTimeoutMs);
 
-            // test  --------------
-            System.out.println("ElevatorSys.setMPProfile:  setting Talon control mode to MotionProfile ");
-            mElevatorTalon.set(ControlMode.MotionProfile, SetValueMotionProfile.Disable.value);
-            System.out.println("ElevatorSys.setMPProfile:  back from setting Talon ");
+            // test  motion profile --------------
+//            System.out.println("ElevatorSys.setMPProfile:  setting Talon control mode to MotionProfile ");
+//            mElevatorTalon.set(ControlMode.MotionProfile, SetValueMotionProfile.Disable.value);
+//            System.out.println("ElevatorSys.setMPProfile:  back from setting Talon ");
 
-            //mElevatorTalon.set(ControlMode.IMotionProfile, 1);
+            // test magic motion
 
-           //mElevatorTalon.set(ControlMode.Current, ControlMode.Current.value);
-            /*mElevatorTalon.set(ControlMode.IMotionProfile, ControlMode.IMotionProfile.value);
-            mElevatorTalon.configOpenloopRamp(2, 0);*/
         } catch (Exception ex) {
             System.out.println(ex.getStackTrace());
         }

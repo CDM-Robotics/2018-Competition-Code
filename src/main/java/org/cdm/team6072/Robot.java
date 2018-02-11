@@ -3,11 +3,12 @@ package org.cdm.team6072;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
-import org.cdm.team6072.commands.drive.ArcadeDriveCmd;
+import org.cdm.team6072.commands.drive.*;
 import org.cdm.team6072.subsystems.DriveSys;
 import org.cdm.team6072.subsystems.ElevatorSys;
 import org.cdm.team6072.subsystems.Navigator;
-//import org.cdm.team6072.subsystems.GearSlider;
+import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.wpilibj.SPI;
 
 public class Robot extends IterativeRobot {
 
@@ -15,6 +16,8 @@ public class Robot extends IterativeRobot {
     private DriveSys mDriveSys = DriveSys.getInstance();
     private Navigator mNavx = Navigator.getInstance();
     private ElevatorSys mElevatorSys = ElevatorSys.getInstance();
+
+    public static AHRS mAhrs;
 
     //private MotionProfileManager profile = new MotionProfileManager(DriveSys.getInstance().getmLeftMaster());
 
@@ -28,6 +31,10 @@ public class Robot extends IterativeRobot {
         System.out.println("6072: robotInit");
         mControlBoard = ControlBoard.getInstance();
         mDriveSys = DriveSys.getInstance();
+        byte updateHz = 64;
+        mAhrs = new AHRS(SPI.Port.kMXP, 100000, updateHz);
+        mAhrs.reset();
+        System.out.println("Robot.init  navX yaw axis:" + mAhrs.getBoardYawAxis().board_axis + "  isCalibrating: " + mAhrs.isCalibrating());
     }
 
     @Override
@@ -54,9 +61,9 @@ public class Robot extends IterativeRobot {
     @Override
     public void teleopInit() {
         System.out.println("6072: teleop init");
-        mDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
-        Scheduler.getInstance().removeAll();
-        Scheduler.getInstance().add(mDriveCmd);
+//        mDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
+//        Scheduler.getInstance().removeAll();
+//        Scheduler.getInstance().add(mDriveCmd);
        //DriveSys.getInstance().getMotionProfileManager().startMotionProfile();
     }
 
@@ -105,6 +112,9 @@ public class Robot extends IterativeRobot {
     //  TEST MODE  ---------------------------------------------------------------
 
     private int mCounter;
+
+    private TestDriveForward mTestFwdCmd;
+    private TestDriveGyro mTestDriveGyro;
 
 
     @Override

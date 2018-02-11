@@ -1,6 +1,7 @@
 package org.cdm.team6072.commands.drive;
 
 import edu.wpi.first.wpilibj.command.Command;
+import org.cdm.team6072.Robot;
 import org.cdm.team6072.subsystems.DriveSys;
 
 
@@ -11,7 +12,7 @@ import edu.wpi.first.wpilibj.SPI;
 public class TestDriveGyro extends Command {
 
     // 5 seconds - assumes execute is called every 20 mSec
-    private static int KTIMETORUN = 50 * 5;
+    private static int KTIMETORUN = 50 * 8;
 
 
     public TestDriveGyro() {
@@ -24,14 +25,20 @@ public class TestDriveGyro extends Command {
     private DriveSys mDriveSys;
     private AHRS mAhrs;
 
+    private double mStartAngle;
 
     @Override
     protected void initialize() {
         try {
-            mCounter = 0;
             mDriveSys = DriveSys.getInstance();
-            mAhrs = new AHRS(SPI.Port.kMXP);
-            mAhrs.reset();
+//            byte updateHz = 64;
+//            mAhrs = new AHRS(SPI.Port.kMXP, 100000, updateHz);
+            //mAhrs.reset();
+            mAhrs = Robot.mAhrs;
+            mStartAngle = mAhrs.getAngle();
+            mAhrs.enableLogging(false);
+            mAhrs.getBoardYawAxis();
+            System.out.println("TestDriveGyro.init  navX yaw axis:" + mAhrs.getBoardYawAxis().board_axis.toString() + "  isCalibrating: " + mAhrs.isCalibrating());
         }
         catch (Exception ex) {
             System.out.println("*********************  TestDriveGyro: Ex initializing: " + ex.getMessage());
@@ -43,10 +50,17 @@ public class TestDriveGyro extends Command {
     protected void execute() {
         mCounter++;
         double angle = mAhrs.getAngle();
+        double yaw = mAhrs.getYaw();
+        boolean isMoving = mAhrs.isMoving();
+        boolean isConnected = mAhrs.isConnected();
+        double correct = mStartAngle - angle;
         if (mCounter % 5 == 0) {
-            System.out.println("TestDriveGyro.execute: angle = " + angle);
+            System.out.println("TestDriveFwd.execute: startAngle: " + mStartAngle + "  curAngle = " + angle + "  correct: " + correct + "  isMoving: " + isMoving + "  isConn: " + isConnected);
         }
-        mDriveSys.arcadeDrive(0.2, -angle);
+        if (mCounter == 20) {
+            mAhrs.enableLogging(false);
+        }
+        mDriveSys.arcadeDrive(-0.4,-correct / 180);
     }
 
     @Override

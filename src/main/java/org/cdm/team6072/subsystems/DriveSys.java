@@ -10,9 +10,6 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
-import com.kauailabs.navx.frc.AHRS;
-import edu.wpi.first.wpilibj.SPI;
-
 
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -36,9 +33,9 @@ import org.cdm.team6072.profiles.drive.DrivetrainProfile;
  */
 public class DriveSys extends Subsystem {
 
-    private WPI_TalonSRX mLeftMaster;
+    private WPI_TalonSRX mLeft_Master;
     private WPI_TalonSRX mLeft_Slave0;
-    private WPI_TalonSRX mRightMaster;
+    private WPI_TalonSRX mRight_Master;
     private WPI_TalonSRX mRight_Slave0;
 
     ArrayList<TalonSRX> mMasterTalons = new ArrayList<TalonSRX>();
@@ -59,24 +56,24 @@ public class DriveSys extends Subsystem {
         System.out.println("6072: DriveSys constructor");
 
         try {
-            mLeftMaster = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_MASTER);
-            mLeftMaster.configOpenloopRamp(0.7 , 0);
+            mLeft_Master = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_MASTER);
+            mLeft_Master.configOpenloopRamp(0.7 , 0);
 
             mLeft_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE0);
             mLeft_Slave0.set(ControlMode.Follower, RobotConfig.DRIVE_LEFT_MASTER);
             mLeft_Slave0.setInverted(false);
 
-            mRightMaster = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_MASTER);
-            mRightMaster.configOpenloopRamp(0.7, 0);
+            mRight_Master = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_MASTER);
+            mRight_Master.configOpenloopRamp(0.7, 0);
 
             mRight_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_SLAVE0);
             mRight_Slave0.set(ControlMode.Follower, RobotConfig.DRIVE_RIGHT_MASTER);
             mRight_Slave0.setInverted(false);
 
-            mRoboDrive = new DifferentialDrive(mLeftMaster, mRightMaster);
+            mRoboDrive = new DifferentialDrive(mLeft_Master, mRight_Master);
 
-            mMasterTalons.add(mRightMaster);
-            mMasterTalons.add(mLeftMaster);
+            mMasterTalons.add(mRight_Master);
+            mMasterTalons.add(mLeft_Master);
             // used for motion profiling and autonomous management
             mMotionProfileManager = new MotionProfileManager(mMasterTalons);
         }
@@ -113,7 +110,7 @@ public class DriveSys extends Subsystem {
 
     public void arcadeDrive(double mag, double turn) {
         mRoboDrive.arcadeDrive(-mag, -turn, true);
-        //System.out.println("Drivetrain.arcadeDrive: " + mag + "      " + turn);
+        //System.out.println("DriveSys.arcadeDrive: " + mag + "      " + turn);
     }
 
 
