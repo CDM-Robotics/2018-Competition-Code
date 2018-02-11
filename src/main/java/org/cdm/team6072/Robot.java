@@ -33,11 +33,7 @@ public class Robot extends IterativeRobot {
         mControlBoard = ControlBoard.getInstance();
         mDriveTrain = DriveTrain.getInstance();
 
-        Thread camThread = new Thread(() -> {
-            cam = CameraServer.getInstance().startAutomaticCapture();
-            cam.setResolution(640, 480);
-        });
-        camThread.start();
+
 
     }
 
