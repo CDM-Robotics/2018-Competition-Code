@@ -6,7 +6,8 @@ import util.CrashTracker;
 
 
 
-public class MoveElevatorCmd extends Command {
+public class ElvMoveToBaseCmd extends Command {
+
 
     private ElevatorSys.Direction mDirection;
     private double mSpeed = 0.5;
@@ -15,38 +16,25 @@ public class MoveElevatorCmd extends Command {
     private ElevatorSys mElevatorSys;
 
 
-    public MoveElevatorCmd(ElevatorSys.Direction dir, double target) {
+    public ElvMoveToBaseCmd(ElevatorSys.Direction dir, double target) {
         CrashTracker.logMessage("MoveElevatorCmd: direction: " + dir);
-        requires(ElevatorSys.getInstance());
-        mDirection = dir;
-        mTarget = target;
+        requires(ElevatorSys.getInstance());;
     }
 
     @Override
     protected void initialize() {
         mElevatorSys = ElevatorSys.getInstance();
-        mElevatorSys.initForMove();
     }
 
     @Override
     protected void execute() {
+        CrashTracker.logMessage("ElvMoveToBaseCmd.execute");
         mElevatorSys.move(mDirection, mSpeed);
     }
 
     @Override
     protected boolean isFinished() {
         return mElevatorSys.targetReached();
-    }
-
-
-    protected void end() {
-        CrashTracker.logMessage("MoveElevatorCmd.end");
-        mElevatorSys.stop();
-    }
-
-    protected void interrupted() {
-        CrashTracker.logMessage("MoveElevatorCmd.interrupted");
-        mElevatorSys.stop();
     }
 
 }
