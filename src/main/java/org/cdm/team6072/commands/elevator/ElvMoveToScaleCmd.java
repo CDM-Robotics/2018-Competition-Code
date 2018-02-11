@@ -33,7 +33,7 @@ public class ElvMoveToScaleCmd extends Command {
 
     @Override
     protected boolean isFinished() {
-        return mElevatorSys.targetReached();
+        return mElevatorSys.moveDeltaComplete();
     }
 
 }

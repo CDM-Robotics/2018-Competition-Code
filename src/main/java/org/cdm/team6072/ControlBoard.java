@@ -4,10 +4,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import org.cdm.team6072.commands.drive.TestDriveForward;
 import org.cdm.team6072.commands.drive.TestDriveGyro;
-import org.cdm.team6072.commands.elevator.ElvMoveToBaseCmd;
-import org.cdm.team6072.commands.elevator.ElvMoveToScaleCmd;
-import org.cdm.team6072.commands.elevator.MoveElevatorCmd;
-import org.cdm.team6072.commands.elevator.StopElevatorCmd;
+import org.cdm.team6072.commands.elevator.*;
 import org.cdm.team6072.commands.intake.CloseIntakeCmd;
 import org.cdm.team6072.commands.intake.RunIntakeWheelsCmd;
 import org.cdm.team6072.commands.intake.StopIntakeWheelsCmd;
@@ -59,6 +56,7 @@ public class ControlBoard {
     //      Move to fixed positions using buttons on base - trigger MotionProfiles based on current position
     public static int ELEVATOR_MOVE_UP = EXTREME_BUT_LEFT_TOP; //EXTREME_BUT_12;
     public static int ELEVATOR_MOVE_DOWN = EXTREME_BUT_LEFT_BOT; //EXTREME_BUT_11;
+    public static int ELEVATOR_MOVE_DELTA = EXTREME_BUT_7;
     public static int ELEVATOR_MOVETO_BASE = EXTREME_BUT_7;
     public static int ELEVATOR_MOVETO_SCALE = EXTREME_BUT_8;
     public static int ELEVATOR_MOVETO_SWITCH_LO = EXTREME_BUT_9;
@@ -122,6 +120,10 @@ public class ControlBoard {
         control_buttons[ELEVATOR_MOVE_DOWN-1] = new JoystickButton(control_stick, ELEVATOR_MOVE_DOWN);
         control_buttons[ELEVATOR_MOVE_DOWN-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Down, 0.5));
         control_buttons[ELEVATOR_MOVE_DOWN-1].whenReleased(new StopElevatorCmd());
+
+        control_buttons[ELEVATOR_MOVE_DELTA-1] = new JoystickButton(control_stick, ELEVATOR_MOVE_DELTA);
+        control_buttons[ELEVATOR_MOVE_DELTA-1].whenPressed(new ElvMoveDeltaCmd(ElevatorSys.Direction.Down, 0.5));
+        control_buttons[ELEVATOR_MOVE_DELTA-1].whenReleased(new StopElevatorCmd());
 //
 //        control_buttons[ELEVATOR_MOVETO_BASE-1] = new JoystickButton(control_stick, ELEVATOR_MOVETO_BASE);
 //        control_buttons[ELEVATOR_MOVETO_BASE-1].whenPressed(new ElvMoveToBaseCmd(ElevatorSys.Direction.Up, 0.5));

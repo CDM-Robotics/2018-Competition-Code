@@ -34,7 +34,7 @@ public class ElvMoveToBaseCmd extends Command {
 
     @Override
     protected boolean isFinished() {
-        return mElevatorSys.targetReached();
+        return mElevatorSys.moveDeltaComplete();
     }
 
 }

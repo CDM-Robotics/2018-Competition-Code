@@ -107,6 +107,11 @@ public class ElevatorSys extends Subsystem {
      * rate. However both values can be read/written at the same time. So a combined strategy of
      * seeding the relative position based on the absolute position can be used to benefit from the
      * higher sampling rate of the relative mode and still have an absolute sensor position
+     *
+     * All config* routines in the C++/Java require a timeoutMs parameter. When set to a non-zero value,
+     * the config routine will wait for an acknowledgement from the device before returning.
+     * If the timeout is exceeded, an error code is generated and a Driver Station message is produced.
+     * When set to zero, no checking is performed (identical behavior to the CTRE v4 Toolsute).
      */
     private ElevatorSys() {
         CrashTracker.logMessage("ElevatorSys Subsystem initializing");
@@ -115,7 +120,7 @@ public class ElevatorSys extends Subsystem {
 //            mTalon.getSensorCollection().setQuadraturePosition(0, 10);
             mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
             mTalon.setSensorPhase(true);
-            mTalon.setSelectedSensorPosition(0, 0, 10);
+            //mTalon.setSelectedSensorPosition(0, 0, 10);
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
 
             // set slot zero for position hold closed loop
@@ -132,7 +137,7 @@ public class ElevatorSys extends Subsystem {
 
 		    /* set closed loop gains in slot0, typically kF stays zero. */
             mTalon.config_kF(kPIDLoopIdx, 0.0, kTimeoutMs);
-            mTalon.config_kP(kPIDLoopIdx, 0.2, kTimeoutMs);
+            mTalon.config_kP(kPIDLoopIdx, 0.4, kTimeoutMs);
             mTalon.config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
             mTalon.config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
 
@@ -148,8 +153,7 @@ public class ElevatorSys extends Subsystem {
                 absolutePosition *= -1;
 		    /* set the quadrature (relative) sensor to match absolute */
             mTalon.setSelectedSensorPosition(absolutePosition, kPIDLoopIdx, kTimeoutMs);
-            double curPosn = mTalon.getSelectedSensorPosition(0);
-            System.out.println("ElevatorSys.ctor: sensor abs posn: " + absolutePosition  +  "  sensor rel posn: " + curPosn);
+            printPosn("ctor");
 
             // test  motion profile --------------
 //            System.out.println("ElevatorSys.setMPProfile:  setting Talon control mode to MotionProfile ");
@@ -161,6 +165,22 @@ public class ElevatorSys extends Subsystem {
         } catch (Exception ex) {
             System.out.println(ex.getStackTrace());
         }
+    }
+
+
+    private double mLastRelPosn;
+    private double mLastQuadPosn;
+
+    private void printPosn(String caller) {
+        double curPosn = mTalon.getSelectedSensorPosition(0);
+        double quadPosn = mTalon.getSensorCollection().getQuadraturePosition();
+        double pwPosn = mTalon.getSensorCollection().getPulseWidthPosition();
+        double relDelta = curPosn - mLastRelPosn;
+        double quadDelta = quadPosn - mLastQuadPosn;
+        mLastRelPosn = curPosn;
+        mLastQuadPosn = quadPosn;
+        System.out.println("ElevatorSys." + caller + ":  relPosn: " + curPosn + "  relDelta: " + relDelta
+                + "  quadPosn: " + quadPosn  + "  quadDelta: " + quadDelta + "  pwPosn: " + pwPosn);
     }
 
 
@@ -184,21 +204,20 @@ public class ElevatorSys extends Subsystem {
      *
      * @return
      */
-    public boolean targetReached() {
-        return false;
-    }
+
 
     public void resetSystemState() {
         mTalon.setInverted(false);
     }
 
     private int mCounter = 0;
-    private double mLastPosn;
+
 
     public void initForMove() {
         mCounter = 0;
-        mLastPosn = mTalon.getSelectedSensorPosition(0);
-        System.out.println("ElevatorSys.initForMove: cur posn: " + mLastPosn + "   ----------------------" );
+        mLastRelPosn = mTalon.getSelectedSensorPosition(0);
+        mLastQuadPosn = mTalon.getSensorCollection().getQuadraturePosition();
+        printPosn("initForMove");
     }
 
     public void move(Direction dir, double speed) {
@@ -208,11 +227,8 @@ public class ElevatorSys extends Subsystem {
             mTalon.setInverted(true);
         }
         mTalon.set(ControlMode.PercentOutput, speed);
-        if (++mCounter % 10 == 0) {
-            double curPosn = mTalon.getSelectedSensorPosition(0);
-            double delta = curPosn - mLastPosn;
-            mLastPosn = curPosn;
-            System.out.println("ElevatorSys.move: cur posn: " + curPosn + "   delta: "  + delta);
+        if (++mCounter % 5 == 0) {
+            printPosn("move");
         }
     }
 
@@ -231,7 +247,43 @@ public class ElevatorSys extends Subsystem {
         double curPosn = mTalon.getSelectedSensorPosition(0);
         // In Position mode, output value is in encoder ticks or an analog value, depending on the sensor.
         mTalon.set(ControlMode.Position, curPosn);
-        System.out.println("ElevatorSys.holdPosn: cur posn: " + mTalon.getSelectedSensorPosition(0) + "   ----------------------" );
+        printPosn("holdPosn");
+    }
+
+
+    //  ocde for fixed move  -----------------------------------------------------------------------
+
+    private boolean mMoveDeltaComplete = false;
+
+    public void moveDelta(Direction dir, double speed, double delta) {
+
+        mMoveDeltaComplete = false;
+        if (dir == Direction.Up) {
+            mTalon.setInverted(false);
+        } else {
+            mTalon.setInverted(true);
+        }
+        double startPosn = mTalon.getSelectedSensorPosition(0);
+        double topEndPosn = startPosn + delta;
+        double botEndPosn = startPosn - delta;
+        mTalon.set(ControlMode.PercentOutput, speed);
+        boolean complete = false;
+        while (!complete) {
+            try {
+                Thread.sleep(1);
+            } catch (Exception ex) {
+            }
+            double curPosn = mTalon.getSelectedSensorPosition(0);
+            complete = (curPosn > botEndPosn) && (curPosn < topEndPosn);
+            if (++mCounter % 5 == 0) {
+                printPosn("moveDelta");
+            }
+        }
+        mMoveDeltaComplete = true;
+    }
+
+    public boolean moveDeltaComplete() {
+        return mMoveDeltaComplete;
     }
 
 

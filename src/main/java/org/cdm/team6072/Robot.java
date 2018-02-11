@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import org.cdm.team6072.commands.drive.*;
 import org.cdm.team6072.subsystems.DriveSys;
 import org.cdm.team6072.subsystems.ElevatorSys;
+import org.cdm.team6072.subsystems.IntakePneumaticsSys;
 import org.cdm.team6072.subsystems.Navigator;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
@@ -18,6 +19,7 @@ public class Robot extends IterativeRobot {
     private DriveSys mDriveSys = DriveSys.getInstance();
     private Navigator mNavx = Navigator.getInstance();
     private ElevatorSys mElevatorSys = ElevatorSys.getInstance();
+    private IntakePneumaticsSys mPneuSys = IntakePneumaticsSys.getInstance();
 
     public static AHRS mAhrs;
 

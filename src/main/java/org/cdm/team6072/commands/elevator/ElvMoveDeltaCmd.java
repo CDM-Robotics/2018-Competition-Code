@@ -1,25 +1,25 @@
 package org.cdm.team6072.commands.elevator;
 
+
 import edu.wpi.first.wpilibj.command.Command;
 import org.cdm.team6072.subsystems.ElevatorSys;
 import util.CrashTracker;
 
+public class ElvMoveDeltaCmd extends Command {
 
-
-public class MoveElevatorCmd extends Command {
 
     private ElevatorSys.Direction mDirection;
     private double mSpeed = 0.5;
-    private double mTarget;
+    private double mDelta;
 
     private ElevatorSys mElevatorSys;
 
 
-    public MoveElevatorCmd(ElevatorSys.Direction dir, double target) {
-        CrashTracker.logMessage("MoveElevatorCmd: direction: " + dir);
+    public ElvMoveDeltaCmd(ElevatorSys.Direction dir, double speed) {
+        CrashTracker.logMessage("ElvMoveDeltaCmd: direction: " + dir);
         requires(ElevatorSys.getInstance());
         mDirection = dir;
-        mTarget = target;
+        mDelta = 100;
     }
 
     @Override
@@ -30,7 +30,7 @@ public class MoveElevatorCmd extends Command {
 
     @Override
     protected void execute() {
-        mElevatorSys.move(mDirection, mSpeed);
+        mElevatorSys.moveDelta(mDirection, mSpeed, mDelta);
     }
 
     @Override
@@ -40,12 +40,12 @@ public class MoveElevatorCmd extends Command {
 
 
     protected void end() {
-        CrashTracker.logMessage("MoveElevatorCmd.end");
+        CrashTracker.logMessage("ElvMoveDeltaCmd.end");
         mElevatorSys.stop();
     }
 
     protected void interrupted() {
-        CrashTracker.logMessage("MoveElevatorCmd.interrupted");
+        CrashTracker.logMessage("ElvMoveDeltaCmd.interrupted");
         mElevatorSys.stop();
     }
 

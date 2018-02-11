@@ -28,7 +28,6 @@ public class RunIntakeWheelsCmd extends Command {
 
     @Override
     protected void execute() {
-        CrashTracker.logMessage("RunIntakeWheelsCmd.execute");
         mGrabber.runWheels(mRunDirn);
     }
 
