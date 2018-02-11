@@ -26,7 +26,7 @@ public class RobotConfig {
 
 
     // GRABBER
-    public static int INTAKE_TALON_LEFT = 7;
+    public static int INTAKE_TALON_LEFT = 12;
     public static int INTAKE_TALON_RIGHT = 8;
 
 

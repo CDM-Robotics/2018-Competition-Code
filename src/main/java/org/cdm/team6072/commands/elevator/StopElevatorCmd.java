@@ -15,7 +15,13 @@ public class StopElevatorCmd extends Command {
     }
 
     protected void execute() {
+        System.out.println("StopElevatorCmd: ---------------------------------------");
         ElevatorSys.getInstance().stop();
+        ElevatorSys.getInstance().stop();
+        ElevatorSys.getInstance().stop();
+        ElevatorSys.getInstance().stop();
+        ElevatorSys.getInstance().stop();
+        System.out.println("StopElevatorCmd end: ---------------------------------------");
     }
 
     @Override

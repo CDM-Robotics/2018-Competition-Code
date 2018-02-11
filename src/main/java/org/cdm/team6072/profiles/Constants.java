@@ -42,4 +42,12 @@ public class Constants {
      * Motor deadband, set to 1%.
      */
     public static final double kNeutralDeadband  = 0.01;
+
+
+    /* choose so that Talon does not report sensor out of phase */
+    public static boolean kSensorPhase = true;
+
+    /* choose based on what direction you want to be positive,
+        this does not affect motor invert. */
+    public static boolean kMotorInvert = false;
 }

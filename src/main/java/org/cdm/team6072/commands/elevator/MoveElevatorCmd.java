@@ -25,11 +25,11 @@ public class MoveElevatorCmd extends Command {
     @Override
     protected void initialize() {
         mElevatorSys = ElevatorSys.getInstance();
+        mElevatorSys.initForMove();
     }
 
     @Override
     protected void execute() {
-        CrashTracker.logMessage("MoveElevatorCmd.execute");
         mElevatorSys.move(mDirection, mSpeed);
     }
 

@@ -79,7 +79,7 @@ public class ControlBoard {
     private JoystickButton[] drive_buttons;
 
     // control stick is used for elevator, intake
-    private static int CONTROL_USB_PORT = 0;
+    private static int CONTROL_USB_PORT = 1;
     public Joystick control_stick;
     private JoystickButton[] control_buttons;
 
@@ -129,13 +129,13 @@ public class ControlBoard {
 //        control_buttons[ELEVATOR_MOVETO_SCALE-1] = new JoystickButton(control_stick, ELEVATOR_MOVETO_SCALE);
 //        control_buttons[ELEVATOR_MOVETO_SCALE-1].whenPressed(new ElvMoveToScaleCmd(ElevatorSys.Direction.Down, 0.5));
 //
-//        control_buttons[INTAKE_WHEELS_IN_BTN-1] = new JoystickButton(control_stick, INTAKE_WHEELS_IN_BTN);
-//        control_buttons[INTAKE_WHEELS_IN_BTN-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In));
-//        control_buttons[INTAKE_WHEELS_IN_BTN-1].whenReleased(new StopIntakeWheelsCmd());
-//
-//        control_buttons[INTAKE_WHEELS_OUT_BTN-1] = new JoystickButton(control_stick, INTAKE_WHEELS_OUT_BTN);
-//        control_buttons[INTAKE_WHEELS_OUT_BTN-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out));
-//        control_buttons[INTAKE_WHEELS_OUT_BTN-1].whenReleased(new StopIntakeWheelsCmd());
+        control_buttons[INTAKE_WHEELS_IN_BTN-1] = new JoystickButton(control_stick, INTAKE_WHEELS_IN_BTN);
+        control_buttons[INTAKE_WHEELS_IN_BTN-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In));
+        control_buttons[INTAKE_WHEELS_IN_BTN-1].whenReleased(new StopIntakeWheelsCmd());
+
+        control_buttons[INTAKE_WHEELS_OUT_BTN-1] = new JoystickButton(control_stick, INTAKE_WHEELS_OUT_BTN);
+        control_buttons[INTAKE_WHEELS_OUT_BTN-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out));
+        control_buttons[INTAKE_WHEELS_OUT_BTN-1].whenReleased(new StopIntakeWheelsCmd());
 //
 //        control_buttons[INTAKE_OPEN_BTN-1] = new JoystickButton(control_stick, INTAKE_OPEN_BTN);
 //        control_buttons[INTAKE_OPEN_BTN-1].whenPressed(new OpenIntakeCmd());
