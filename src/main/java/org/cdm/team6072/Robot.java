@@ -10,6 +10,7 @@ import org.cdm.team6072.subsystems.Navigator;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
 
+
 public class Robot extends IterativeRobot {
 
 
@@ -20,6 +21,7 @@ public class Robot extends IterativeRobot {
     public static AHRS mAhrs;
 
     //private MotionProfileManager profile = new MotionProfileManager(DriveSys.getInstance().getmLeftMaster());
+
 
 
     // ControlBoard holds the operator interface code such as JoyStick
@@ -132,12 +134,14 @@ public class Robot extends IterativeRobot {
         /*if (mCounter < 500) {
             mCounter++;
             mDriveSys.arcadeDrive(-0.4,0);
+
         }
         if (mCounter%5==0 && mCounter<500) {
             System.out.println(ControlBoard.getInstance().drive_stick.getY() + "       " + ControlBoard.getInstance().drive_stick.getZ());
             SmartDashboard.putNumber("Counter: ", mCounter);
         }*/
         /*if (mCounter==500) {
+
             disabledPeriodic();
         }*/
 
