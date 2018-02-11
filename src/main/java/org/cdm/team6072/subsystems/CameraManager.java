@@ -45,8 +45,9 @@ public class CameraManager {
     public void runFilter() {
 
         Thread filterThread = new Thread(() -> {
+            CameraServer.getInstance().startAutomaticCapture();
             CvSink cvSink = CameraServer.getInstance().getVideo();
-            CvSource outputStream = CameraServer.getInstance().putVideo("Blurr", 640, 480);
+            CvSource outputStream = CameraServer.getInstance().putVideo("Test", 640, 480);
 
             Mat source = new Mat();
             Mat output = new Mat();

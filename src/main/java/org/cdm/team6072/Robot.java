@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import org.cdm.team6072.commands.drive.*;
+import org.cdm.team6072.subsystems.CameraManager;
 import org.cdm.team6072.subsystems.DriveSys;
 import org.cdm.team6072.subsystems.ElevatorSys;
 import org.cdm.team6072.subsystems.Navigator;
@@ -40,6 +41,7 @@ public class Robot extends IterativeRobot {
         mAhrs = new AHRS(SPI.Port.kMXP, 100000, updateHz);
         mAhrs.reset();
         System.out.println("Robot.init  navX yaw axis:" + mAhrs.getBoardYawAxis().board_axis + "  isCalibrating: " + mAhrs.isCalibrating());
+        CameraManager.getInstance().runFilter();
     }
 
     @Override
