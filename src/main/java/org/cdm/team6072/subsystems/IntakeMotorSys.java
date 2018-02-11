@@ -3,15 +3,14 @@ package org.cdm.team6072.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import org.cdm.team6072.RobotConfig;
 import util.CrashTracker;
 
-public class Grabber extends Subsystem {
+public class IntakeMotorSys extends Subsystem {
 
     /**
-     * Set direction wheels on grabber are to run
+     * Set direction wheels on intake are to run
      */
     public static enum WheelDirn {
         In,
@@ -27,20 +26,20 @@ public class Grabber extends Subsystem {
     private WPI_TalonSRX mTalonLeft;
     private WPI_TalonSRX mTalonRight;
 
-    private static Grabber mInstance;
-    public static Grabber getInstance() {
+    private static IntakeMotorSys mInstance;
+    public static IntakeMotorSys getInstance() {
         if (mInstance == null) {
-            mInstance = new Grabber();
+            mInstance = new IntakeMotorSys();
         }
         return mInstance;
     }
 
-    private Grabber() {
-        CrashTracker.logMessage("Grabber subsystem initialized");
+    private IntakeMotorSys() {
+        CrashTracker.logMessage("IntakeMotorSys subsystem initialized");
 
-        mTalonLeft = new WPI_TalonSRX(RobotConfig.GRABBER_TALON_LEFT);
+        mTalonLeft = new WPI_TalonSRX(RobotConfig.INTAKE_TALON_LEFT);
         mTalonLeft.setNeutralMode(NeutralMode.Brake);
-        mTalonRight = new WPI_TalonSRX(RobotConfig.GRABBER_TALON_RIGHT);
+        mTalonRight = new WPI_TalonSRX(RobotConfig.INTAKE_TALON_RIGHT);
         mTalonRight.setNeutralMode(NeutralMode.Brake);
     }
 
@@ -74,18 +73,18 @@ public class Grabber extends Subsystem {
 
     //-----------------------------------------------------------------------------------
     //
-    //  Opening and closing the grabber is actually controlled by the pneumatic system
+    //  Opening and closing the intake is actually controlled by the pneumatic system
 
 
     public void OpenGrabber() {
-        System.out.println("Grabber.OpenGrabber: exec");
-       PneumaticsControl.getInstance().turnSolenoidOff(PneumaticsControl.SolenoidType.GRABBER);
+        System.out.println("IntakeMotorSys.OpenGrabber: exec");
+       IntakePneumaticsSys.getInstance().turnSolenoidOff(IntakePneumaticsSys.SolenoidType.GRABBER);
     }
 
 
     public void CloseGrabber() {
-        System.out.println("Grabber.CloseGrabber: exec");
-       PneumaticsControl.getInstance().turnSolenoidOn(PneumaticsControl.SolenoidType.GRABBER);
+        System.out.println("IntakeMotorSys.CloseGrabber: exec");
+       IntakePneumaticsSys.getInstance().turnSolenoidOn(IntakePneumaticsSys.SolenoidType.GRABBER);
     }
 
 

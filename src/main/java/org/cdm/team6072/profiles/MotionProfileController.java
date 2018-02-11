@@ -40,18 +40,20 @@ public class MotionProfileController {
      * The status of the motion profile executer and buffer inside the Talon.
      * Instead of creating a new one every time we call getMotionProfileStatus
      */
-    private MotionProfileStatus _status = new MotionProfileStatus();
+    private MotionProfileStatus mMPStatus = new MotionProfileStatus();
 
 
     /** additional cache for holding the active trajectory point */
-    double _pos=0,_vel=0,_heading=0;
+    private double mATP_Pos =0;
+    private double mATP_Vel =0;
+    private double mATP_Heading =0;
 
     /**
      * reference to the talon we plan on manipulating. We will not changeMode()
      * or call set(), just get motion profile status and make decisions based on
      * motion profile.
      */
-    private TalonSRX _talon;
+    private TalonSRX mTalon;
 
 
 
@@ -68,7 +70,7 @@ public class MotionProfileController {
      * State machine to make sure we let enough of the motion profile stream to
      * talon before we fire it.
      */
-    private ControlState _state = ControlState.STOPPED;
+    private ControlState mControlState = ControlState.STOPPED;
 
 
     /**
@@ -91,7 +93,7 @@ public class MotionProfileController {
      * If start() gets called, this flag is set and in the control() we will
      * service it.
      */
-    private boolean _bStart = false;
+    private boolean mStartRequested = false;
 
     /**
      * Since the CANTalon.set() routine is mode specific, deduce what we want
@@ -99,36 +101,27 @@ public class MotionProfileController {
      * decide to switch to MP mode.
      */
     private SetValueMotionProfile _requiredTalonMPState = SetValueMotionProfile.Disable;
+
     /**
-     * How many trajectory points do we wait for before firing the motion
-     * profile.
+     * How many trajectory points do we wait for before firing the motion profile.
      */
     private static final int kMinPointsInTalon = 5;
 
 
     /**
-     * Lets create a periodic task to funnel our trajectory points into our talon.
-     * It doesn't need to be very accurate, just needs to keep pace with the motion
-     * profiler executer.  Now if you're trajectory points are slow, there is no need
-     * to do this, just call _talon.processMotionProfileBuffer() in your teleop loop.
-     * Generally speaking you want to call it at least twice as fast as the duration
-     * of your trajectory points.  So if they are firing every 20ms, you should call
-     * every 10ms.
+     * Profile of points we want to push to Talon
      */
-    class PeriodicRunnable implements java.lang.Runnable {
-        public void run() {  _talon.processMotionProfileBuffer();    }
-    }
-    Notifier _notifer = new Notifier(new PeriodicRunnable());
+    private IMotionProfile mProfile;
 
-
-    private MotionProfileBase _profile;
-
+    /**
+     * PIConfig loaded from profile passed in
+     */
     private PIDConfig mPIDConfig;
 
     /**
      * Name of this instance for display on ShuffleBoard
      */
-    private String _name;
+    private String mInstanceName;
 
     /**
      * Define the set of keys we are going to display in ShuffleBoard
@@ -142,57 +135,77 @@ public class MotionProfileController {
         IsLast,
         Velocity,
         Position,
+        StartPosition,
         Heading,
         EncoderVal,
+        PID_kF,
+        PID_kP,
+        PID_kI,
+        PID_kD,
     };
 
+
+
+    public static enum MPDirection {
+        Positive,
+        Negative,
+    }
+
+    private MPDirection mDirn = MPDirection.Positive;
+
+    private double mStartPosn = -1;
 
 
     /**
      * @param controllerName - define the display name for this instance
      * @param talon  -  reference to Talon object to control.
      * @param motionProfile - the motion profile that we want to run on the talon
+     * @param dirn - direction the device is to move in
      */
-    public MotionProfileController(String controllerName, TalonSRX talon, MotionProfileBase motionProfile) {
-        _talon = talon;
-        _profile = motionProfile;
-        _name = controllerName + "_";
+    public MotionProfileController(String controllerName, TalonSRX talon, IMotionProfile motionProfile, MPDirection dirn) {
+        mTalon = talon;
+        mProfile = motionProfile;
+        mDirn = dirn;
+        mStartPosn = mTalon.getSelectedSensorPosition(0);
+        mInstanceName = controllerName + "_";
 
         // initialize the SmatDashboard display for this MP
-        SmartDashboard.putString(_name + Keys.HoldState, "NOT SET");
-        SmartDashboard.putNumber(_name + Keys.TopBufferCount, -1);
-        SmartDashboard.putNumber(_name + Keys.BottomBufferCount, -1);
-        SmartDashboard.putBoolean(_name + Keys.ActivePointValid, false);
-        SmartDashboard.putBoolean(_name + Keys.IsLast, false);
-        SmartDashboard.putNumber(_name + Keys.Velocity, -1);
-        SmartDashboard.putNumber(_name + Keys.Position, -1);
-        SmartDashboard.putNumber(_name + Keys.Heading, -1);
-        SmartDashboard.putNumber(_name + Keys.EncoderVal, -1);
+        SmartDashboard.putString(mInstanceName + Keys.HoldState, "NOT SET");
+        SmartDashboard.putNumber(mInstanceName + Keys.TopBufferCount, -1);
+        SmartDashboard.putNumber(mInstanceName + Keys.BottomBufferCount, -1);
+        SmartDashboard.putBoolean(mInstanceName + Keys.ActivePointValid, false);
+        SmartDashboard.putBoolean(mInstanceName + Keys.IsLast, false);
+        SmartDashboard.putNumber(mInstanceName + Keys.Velocity, -1);
+        SmartDashboard.putNumber(mInstanceName + Keys.Position, -1);
+        SmartDashboard.putNumber(mInstanceName + Keys.StartPosition, mStartPosn);
+        SmartDashboard.putNumber(mInstanceName + Keys.Heading, -1);
+        SmartDashboard.putNumber(mInstanceName + Keys.EncoderVal, -1);
 
         // configure the PID params from the profile
-        if (_profile.getPIDConfig() != null) {
-            mPIDConfig = _profile.getPIDConfig();
-            _talon.selectProfileSlot(mPIDConfig.SlotId, 0);
-            _talon.config_kF(mPIDConfig.SlotId, mPIDConfig.kF, Constants.kTimeoutMs);
-            _talon.config_kP(mPIDConfig.SlotId, mPIDConfig.kP, Constants.kTimeoutMs);
-            _talon.config_kI(mPIDConfig.SlotId, mPIDConfig.kI, Constants.kTimeoutMs);
-            _talon.config_kD(mPIDConfig.SlotId, mPIDConfig.kD, Constants.kTimeoutMs);
+        if (mProfile.getPIDConfig() != null) {
+            mPIDConfig = mProfile.getPIDConfig();
+            mTalon.selectProfileSlot(mPIDConfig.SlotId, 0);
+            mTalon.config_kF(mPIDConfig.SlotId, mPIDConfig.kF, Constants.kTimeoutMs);
+            mTalon.config_kP(mPIDConfig.SlotId, mPIDConfig.kP, Constants.kTimeoutMs);
+            mTalon.config_kI(mPIDConfig.SlotId, mPIDConfig.kI, Constants.kTimeoutMs);
+            mTalon.config_kD(mPIDConfig.SlotId, mPIDConfig.kD, Constants.kTimeoutMs);
+            SmartDashboard.putNumber(mInstanceName + Keys.PID_kF, mPIDConfig.kF);
+            SmartDashboard.putNumber(mInstanceName + Keys.PID_kP, mPIDConfig.kP);
+            SmartDashboard.putNumber(mInstanceName + Keys.PID_kI, mPIDConfig.kI);
+            SmartDashboard.putNumber(mInstanceName + Keys.PID_kD, mPIDConfig.kD);
         }
-
 		// set the control frame rate and the notifer to half the base TP duration in profile
-        _talon.changeMotionControlFramePeriod(_profile.getBaseTPDurationMs() / 2);
-        _notifer.startPeriodic(_profile.getBaseTPDurationMs() / 2 / 1000);
+        mTalon.changeMotionControlFramePeriod(mProfile.getBaseTPDurationMs() / 2);
+        mTalonPushPointsToBottomBuffer.startPeriodic(mProfile.getBaseTPDurationMs() / 2 / 1000);
     }
 
 
-
     /**
-     * Called by application to signal Talon to start the buffered MP (when it's
-     * able to).
+     * Called by application to signal Talon to start the buffered MP (when it's able to).
      */
     public void startMotionProfile() {
         CrashTracker.logMessage("MotionProfileController.startMotionProfile");
-        _bStart = true;
+        mStartRequested = true;
         mIsComplete = false;
     }
 
@@ -213,9 +226,9 @@ public class MotionProfileController {
      *         motion-profile output, 1 for enable motion-profile, 2 for hold
      *         current motion profile trajectory point.
      */
-    public SetValueMotionProfile getRequiredTalonMPState() {
-        return _requiredTalonMPState;
-    }
+//    public SetValueMotionProfile getRequiredTalonMPState() {
+//        return _requiredTalonMPState;
+//    }
 
 
     /**
@@ -228,18 +241,124 @@ public class MotionProfileController {
 		 * middle of an MP, and now we have the second half of a profile just
 		 * sitting in memory.
 		 */
-        _talon.clearMotionProfileTrajectories();
+        mTalon.clearMotionProfileTrajectories();
 		/* When we do re-enter motionProfile control mode, stay disabled. */
-        _requiredTalonMPState = SetValueMotionProfile.Disable;
+        //_requiredTalonMPState = SetValueMotionProfile.Disable;
+        mTalon.set(ControlMode.MotionProfile, SetValueMotionProfile.Disable.value);
 		/* When we do start running our state machine start at the beginning. */
-        _state = ControlState.STOPPED;
+        mControlState = ControlState.STOPPED;
         _loopTimeout = DISABLELOOP;
 		/*
 		 * If application wanted to start an MP before, ignore and wait for next button press
 		 */
-        _bStart = false;
+        mStartRequested = false;
         mIsComplete = false;
     }
+
+
+    // -------------------------  moving Points to Talon  -------------------------------------------
+
+
+    /**
+     * Lets create a periodic task to funnel our trajectory points into our talon.
+     * It doesn't need to be very accurate, just needs to keep pace with the motion
+     * profiler executer.  Now if you're trajectory points are slow, there is no need
+     * to do this, just call mTalon.processMotionProfileBuffer() in your teleop loop.
+     * Generally speaking you want to call it at least twice as fast as the duration
+     * of your trajectory points.  So if they are firing every 20ms, you should call
+     * every 10ms.
+     */
+    class PeriodicRunnable implements java.lang.Runnable {
+        public void run() {  mTalon.processMotionProfileBuffer();    }
+    }
+    Notifier mTalonPushPointsToBottomBuffer = new Notifier(new PeriodicRunnable());
+
+
+    /**
+     * Find enum value if supported.
+     * @param durationMs
+     * @return enum equivalent of durationMs
+     */
+    private TrajectoryDuration GetTrajectoryDuration(int durationMs) {
+		/* create return value */
+        TrajectoryDuration retval = TrajectoryDuration.Trajectory_Duration_0ms;
+		/* convert duration to supported type */
+        retval = retval.valueOf(durationMs);
+		/* check that it is valid */
+        if (retval.value != durationMs) {
+            CrashTracker.logMessage("Trajectory Duration not supported - use configMotionProfileTrajectoryPeriod instead");
+        }
+		/* pass to caller */
+        return retval;
+    }
+
+
+    /** Start filling the MPs to all of the involved Talons. */
+    private void startFilling() {
+		/* since this example only has one talon, just update that one */
+        startFilling(mProfile.getPoints(), mProfile.getPoints().length);
+    }
+
+
+    /**
+     * Profile is array
+     *      position   velocity     duration mSec
+     * @param profile
+     * @param totalCnt
+     */
+    private void startFilling(double[][] profile, int totalCnt) {
+
+		/* did we get an underrun condition since last time we checked ? */
+        if (mMPStatus.hasUnderrun) {
+			/* better log it so we know about it */
+            //Instrumentation.OnUnderrun();
+			/*
+			 * clear the error. This flag does not auto clear, this way we never miss logging it.
+			 */
+            System.out.println(mInstanceName + ": has underrrun");
+            mTalon.clearMotionProfileHasUnderrun(0);
+        }
+		/*
+		 * just in case we are interrupting another MP and there is still buffer points in memory, clear it.
+		 */
+        mTalon.clearMotionProfileTrajectories();
+
+		/* set the base trajectory period to zero, use the individual trajectory period below */
+        //mTalon.configMotionProfileTrajectoryPeriod(Constants.kBaseTrajPeriodMs, Constants.kTimeoutMs);
+
+        TrajectoryPoint point = new TrajectoryPoint();
+        for (int i = 0; i < totalCnt; ++i) {
+            double positionRot = profile[i][0];
+            double velocityRPM = profile[i][1];
+
+            if (mDirn == MPDirection.Positive) {
+                positionRot = mStartPosn + positionRot;
+            }
+            else {
+                positionRot = mStartPosn - positionRot;
+            }
+
+			/* for each point, fill our structure and pass it to API */
+            point.position = positionRot * mProfile.getUnitsPerRotation(); //Convert Revolutions to Units
+            point.velocity = velocityRPM * mProfile.getUnitsPerRotation() / 600.0; //Convert RPM to Units/100ms
+            point.headingDeg = 0; /* future feature - not used in this example*/
+            point.profileSlotSelect0 = mProfile.getPIDConfig().SlotId; /* which set of gains would you like to use [0,3]? */
+            point.profileSlotSelect1 = mProfile.getPIDConfig().SlotId; /* future feature  - not used in this example - cascaded PID [0,1], leave zero */
+            point.timeDur = GetTrajectoryDuration((int)profile[i][2]);
+            point.zeroPos = false;
+            point.zeroPos = (i == 0); /* set this to true on the first point */
+            point.isLastPoint = ((i + 1) >= totalCnt); /* set this to true on the last point  */
+
+            if ((i % 100 == 0) || point.isLastPoint) {
+                System.out.println(mInstanceName + "MPE:  push point i: " + i + "  pos: " + point.position + " vel:" + point.velocity + "  ISLAST: " + point.isLastPoint);
+            }
+            CrashTracker.logMessage("MotionProfileController.startFilling: (Buffer) pos rot: " + positionRot + ", velocity RPM: " + velocityRPM);
+            mTalon.pushMotionProfileTrajectory(point);
+        }
+    }
+
+
+    // -------------------------------------------------------
 
 
 
@@ -250,12 +369,12 @@ public class MotionProfileController {
     public void control() {
 
 		/* Get the motion profile status every loop */
-        _talon.getMotionProfileStatus(_status);
-        SmartDashboard.putNumber(_name + Keys.TopBufferCount, _status.topBufferCnt);
-        SmartDashboard.putNumber(_name + Keys.BottomBufferCount, _status.btmBufferCnt);
-        SmartDashboard.putBoolean(_name + Keys.ActivePointValid, _status.activePointValid);
-        SmartDashboard.putBoolean(_name + Keys.IsLast, _status.isLast);
-        if (_status.isLast == true) {
+        mTalon.getMotionProfileStatus(mMPStatus);
+        SmartDashboard.putNumber(mInstanceName + Keys.TopBufferCount, mMPStatus.topBufferCnt);
+        SmartDashboard.putNumber(mInstanceName + Keys.BottomBufferCount, mMPStatus.btmBufferCnt);
+        SmartDashboard.putBoolean(mInstanceName + Keys.ActivePointValid, mMPStatus.activePointValid);
+        SmartDashboard.putBoolean(mInstanceName + Keys.IsLast, mMPStatus.isLast);
+        if (mMPStatus.isLast == true) {
             System.out.println("******************************************************************* isLast ***************");
             SmartDashboard.putBoolean("isLast found", true);
         }
@@ -274,178 +393,92 @@ public class MotionProfileController {
         }
 
 		/* first check if we are in MotionProfileBase mode */
-        if (_talon.getControlMode() != ControlMode.MotionProfile) {
+        if (mTalon.getControlMode() != ControlMode.MotionProfile) {
 			/*
 			 * we are not in MP mode. We are probably driving the robot around
 			 * using gamepads or some other mode.
 			 */
-            _state = ControlState.STOPPED;
+            mControlState = ControlState.STOPPED;
             _loopTimeout = DISABLELOOP;
         } else {
 			/*
 			 * we are in MP control mode. That means: starting Mps, checking Mp
-			 * progress, and possibly interrupting MPs if thats what you want to
-			 * do.
+			 * progress, and possibly interrupting MPs if thats what you want to do.
 			 */
-			SmartDashboard.putString("Mode: ", "MotionProfileBase Control");
-            switch (_state) {
+            switch (mControlState) {
                 case STOPPED: /* wait for application to tell us to start an MP */
-                    if (_bStart) {
-                        _bStart = false;
+                    if (mStartRequested) {
+                        mStartRequested = false;
 
-                        _requiredTalonMPState = SetValueMotionProfile.Disable;
+                        //_requiredTalonMPState = SetValueMotionProfile.Disable;
+                        mTalon.set(ControlMode.MotionProfile, SetValueMotionProfile.Disable.value);
                         startFilling();
 						/*
 						 * MP is being sent to CAN bus, wait a small amount of time
 						 */
-                        _state = ControlState.STARTING;
+                        mControlState = ControlState.STARTING;
                         _loopTimeout = kNumLoopsTimeout;
                     }
                     break;
                 case STARTING:
                     /* wait for MP to stream to Talon, really just the first few points */
 					/* do we have a minimum number of points in Talon */
-                    if (_status.btmBufferCnt > kMinPointsInTalon) {
+                    if (mMPStatus.btmBufferCnt > kMinPointsInTalon) {
 						/* start (once) the motion profile */
-                        _requiredTalonMPState = SetValueMotionProfile.Enable;
+                        //_requiredTalonMPState = SetValueMotionProfile.Enable;
+                        mTalon.set(ControlMode.MotionProfile, SetValueMotionProfile.Enable.value);
 						/* MP will start once the control frame gets scheduled */
-                        _state = ControlState.RUNNING;
+                        mControlState = ControlState.RUNNING;
                         _loopTimeout = kNumLoopsTimeout;
                     }
                     break;
-                case RUNNING: /* check the status of the MP */
+                case RUNNING:
 					/*
 					 * if talon is reporting things are good, keep adding to our
 					 * timeout. Really this is so that you can unplug your talon in
 					 * the middle of an MP and react to it.
 					 */
-//					System.out.println("MotionProfileController.control: state RUNNING: _status.isUndern: " + _status.isUnderrun
-//                                + "  _status,active: " + _status.activePointValid
-//                                + "  _status.isLast: " + _status.isLast);
-                    if (_status.isUnderrun == false) {
+//					System.out.println("MotionProfileController.control: state RUNNING: mMPStatus.isUndern: " + mMPStatus.isUnderrun
+//                                + "  mMPStatus,active: " + mMPStatus.activePointValid
+//                                + "  mMPStatus.isLast: " + mMPStatus.isLast);
+                    if (mMPStatus.isUnderrun == false) {
                         _loopTimeout = kNumLoopsTimeout;
                     }
 
 					/*
 					 * If we are executing an MP and the MP finished, start loading
-					 * another. We will go into hold state so robot servo's
-					 * position.
+					 * another. We will go into hold state so robot servo's position.
 					 */
-                    if ((_status.isLast) && _status.activePointValid) { //_status.activePointValid && _status.isLast) {
+                    if ((mMPStatus.isLast) && mMPStatus.activePointValid) { //mMPStatus.activePointValid && mMPStatus.isLast) {
 						/*
 						 * because we set the last point's isLast to true, we will get here when the MP is done
 						 */
-                        _requiredTalonMPState = SetValueMotionProfile.Disable;
-                        _state = ControlState.STOPPED;;
+                        //_requiredTalonMPState = SetValueMotionProfile.Disable;
+                        mTalon.set(ControlMode.MotionProfile, SetValueMotionProfile.Disable.value);
+                        mControlState = ControlState.STOPPED;
                         _loopTimeout = DISABLELOOP;
                         mIsComplete = true;
                     }
                     break;
             }
 
-            _heading = _talon.getActiveTrajectoryHeading();
-            _pos = _talon.getActiveTrajectoryPosition();
-            _vel = _talon.getActiveTrajectoryVelocity();
+            mATP_Heading = mTalon.getActiveTrajectoryHeading();
+            mATP_Pos  = mTalon.getActiveTrajectoryPosition();
+            mATP_Vel = mTalon.getActiveTrajectoryVelocity();
 
-            //System.out.println("velocity: " + _vel + "  pos: " + _pos + " heading: " + _heading);
-            SmartDashboard.putNumber(_name + Keys.Velocity, _vel);
-            SmartDashboard.putNumber(_name + Keys.Position, _pos);
-            SmartDashboard.putNumber(_name + Keys.Heading, _heading);
-            SmartDashboard.putNumber(_name + Keys.EncoderVal, _talon.getSelectedSensorPosition(0));
-            //SmartDashboard.putString("Motion Profile Underrun" + _status.hasUnderrun);
+            //System.out.println("velocity: " + mATP_Vel + "  pos: " + _pos + " heading: " + mATP_Heading);
+            SmartDashboard.putNumber(mInstanceName + Keys.Velocity, mATP_Vel);
+            SmartDashboard.putNumber(mInstanceName + Keys.Position, mATP_Pos );
+            SmartDashboard.putNumber(mInstanceName + Keys.Heading, mATP_Heading);
+            SmartDashboard.putNumber(mInstanceName + Keys.EncoderVal, mTalon.getSelectedSensorPosition(0));
+            //SmartDashboard.putString("Motion Profile Underrun" + mMPStatus.hasUnderrun);
 
 			/* printfs and/or logging */
-            //Instrumentation.process(_status, _pos, _vel, _heading);
+            //Instrumentation.process(mMPStatus, _pos, mATP_Vel, mATP_Heading);
         }
     }
 
 
-
-    /**
-     * Find enum value if supported.
-     * @param durationMs
-     * @return enum equivalent of durationMs
-     */
-    private TrajectoryDuration GetTrajectoryDuration(int durationMs)
-    {
-		/* create return value */
-        TrajectoryDuration retval = TrajectoryDuration.Trajectory_Duration_0ms;
-		/* convert duration to supported type */
-        retval = retval.valueOf(durationMs);
-		/* check that it is valid */
-        if (retval.value != durationMs) {
-            CrashTracker.logMessage("Trajectory Duration not supported - use configMotionProfileTrajectoryPeriod instead");
-        }
-		/* pass to caller */
-        return retval;
-    }
-
-
-    /** Start filling the MPs to all of the involved Talons. */
-    private void startFilling() {
-		/* since this example only has one talon, just update that one */
-        startFilling(_profile.getPoints(), _profile.getPoints().length);
-    }
-
-
-    /**
-     * Profile is array
-     *      position   velocity     duration mSec
-     * @param profile
-     * @param totalCnt
-     */
-    private void startFilling(double[][] profile, int totalCnt) {
-
-		/* did we get an underrun condition since last time we checked ? */
-        if (_status.hasUnderrun) {
-			/* better log it so we know about it */
-            //Instrumentation.OnUnderrun();
-			/*
-			 * clear the error. This flag does not auto clear, this way we never miss logging it.
-			 */
-			System.out.println(_name + ": has underrrun");
-            _talon.clearMotionProfileHasUnderrun(0);
-        }
-		/*
-		 * just in case we are interrupting another MP and there is still buffer points in memory, clear it.
-		 */
-        _talon.clearMotionProfileTrajectories();
-
-		/* set the base trajectory period to zero, use the individual trajectory period below */
-        //_talon.configMotionProfileTrajectoryPeriod(Constants.kBaseTrajPeriodMs, Constants.kTimeoutMs);
-
-        /* create an empty point */
-        TrajectoryPoint point = new TrajectoryPoint();
-        for (int i = 0; i < totalCnt; ++i) {
-            double positionRot = profile[i][0];
-            double velocityRPM = profile[i][1];
-
-			/* for each point, fill our structure and pass it to API */
-            point.position = positionRot * Constants.kAndyMarkUnitsPerRotation; //Convert Revolutions to Units
-            point.velocity = velocityRPM * Constants.kAndyMarkUnitsPerRotation / 600.0; //Convert RPM to Units/100ms
-            point.headingDeg = 0; /* future feature - not used in this example*/
-            point.profileSlotSelect0 = _profile.getPIDConfig().SlotId; /* which set of gains would you like to use [0,3]? */
-            point.profileSlotSelect1 = _profile.getPIDConfig().SlotId; /* future feature  - not used in this example - cascaded PID [0,1], leave zero */
-            point.timeDur = GetTrajectoryDuration((int)profile[i][2]);
-            point.zeroPos = false;
-            if (i == 0) {
-                point.zeroPos = true; /* set this to true on the first point */
-            }
-
-            point.isLastPoint = false;
-            if ((i + 1) >= totalCnt) {
-                point.isLastPoint = true; /* set this to true on the last point  */
-                //_talon.set(ControlMode.Disabled, 1);
-            }
-
-            if ((i % 100 == 0) || point.isLastPoint) {
-                System.out.println(_name + "MPE:  push point i: " + i + "  pos: " + point.position + " vel:" + point.velocity + "  ISLAST: " + point.isLastPoint);
-            }
-
-            CrashTracker.logMessage("MotionProfileController.startFilling: (Buffer) pos rot: " + positionRot + ", velocity RPM: " + velocityRPM);
-            _talon.pushMotionProfileTrajectory(point);
-        }
-    }
 
 
 

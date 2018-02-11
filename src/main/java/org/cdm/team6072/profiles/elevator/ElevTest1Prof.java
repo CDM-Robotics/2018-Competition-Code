@@ -1,11 +1,11 @@
 package org.cdm.team6072.profiles.elevator;
 
-import org.cdm.team6072.profiles.MotionProfileBase;
+import org.cdm.team6072.profiles.Constants;
+import org.cdm.team6072.profiles.IMotionProfile;
 import org.cdm.team6072.profiles.PIDConfig;
-import org.cdm.team6072.profiles.drive.DrivetrainProfile;
 
 
-public class ElevTest1Prof implements MotionProfileBase {
+public class ElevTest1Prof implements IMotionProfile {
 
 
     // singleton constructor     -------------------------
@@ -32,6 +32,12 @@ public class ElevTest1Prof implements MotionProfileBase {
     @Override
     public PIDConfig getPIDConfig() {
         return mPIDConfig;
+    }
+
+
+    @Override
+    public double getUnitsPerRotation() {
+        return Constants.kAndyMarkUnitsPerRotation;
     }
 
 

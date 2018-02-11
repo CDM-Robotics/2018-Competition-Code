@@ -1,8 +1,7 @@
 package org.cdm.team6072.commands.elevator;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.command.Command;
-import org.cdm.team6072.subsystems.Elevator;
+import org.cdm.team6072.subsystems.ElevatorSys;
 
 public class StopElevatorCmd extends Command {
 
@@ -12,15 +11,23 @@ public class StopElevatorCmd extends Command {
      * on move which will cause it to stop anyway
      */
     public StopElevatorCmd() {
-        requires(Elevator.getInstance());
+        requires(ElevatorSys.getInstance());
     }
 
     protected void execute() {
-        Elevator.getInstance().stop();
+        System.out.println("StopElevatorCmd: ---------------------------------------");
+        ElevatorSys.getInstance().stop();
+        ElevatorSys.getInstance().stop();
+        ElevatorSys.getInstance().stop();
+        ElevatorSys.getInstance().stop();
+        ElevatorSys.getInstance().stop();
+        System.out.println("StopElevatorCmd end: ---------------------------------------");
     }
 
     @Override
     protected boolean isFinished() {
         return true;
     }
+
+
 }

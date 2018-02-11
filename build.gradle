@@ -28,8 +28,23 @@ repositories {
 }
 
 // specify specific library versions
+
 wpi {
     ctreVersion = '5.2.1.1'
+//    wpilibVersion = '...'
+//    ntcoreVersion = '...'
+//    opencvVersion = '...'
+//    cscoreVersion = '...'
+//    wpiutilVersion = '...'
+//
+//    ctreVersion = '...'
+//    ctreLegacyVersion = '...'   // NOTE: Legacy Toolsuite
+    navxVersion = '3.0.346'
+//
+//    smartDashboardVersion = '...'
+//    shuffleboardVersion = '...'
+//
+//    toolchainVersion = '...'
 }
 
 // Defining my dependencies. In this case, WPILib (+ friends), CTRE Toolsuite (Talon SRX)

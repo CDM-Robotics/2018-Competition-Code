@@ -7,7 +7,7 @@ import org.cdm.team6072.RobotConfig;
 
 
 
-public class PneumaticsControl extends Subsystem {
+public class IntakePneumaticsSys extends Subsystem {
 
 
     public static enum SolenoidType {
@@ -24,16 +24,16 @@ public class PneumaticsControl extends Subsystem {
     private Compressor mCompressor;
 
 
-    private static PneumaticsControl mInstance;
-    public static PneumaticsControl getInstance() {
+    private static IntakePneumaticsSys mInstance;
+    public static IntakePneumaticsSys getInstance() {
         if (mInstance == null) {
-            mInstance = new PneumaticsControl();
+            mInstance = new IntakePneumaticsSys();
         }
         return mInstance;
     }
 
-    private PneumaticsControl() {
-        mGrabberSolenoid = new DoubleSolenoid(RobotConfig.GRABBER_OPEN_SOLENOID_ON, RobotConfig.GRABBER_OPEN_SOLENOID_OFF);
+    private IntakePneumaticsSys() {
+        mGrabberSolenoid = new DoubleSolenoid(RobotConfig.INTAKE_OPEN_SOLENOID_ON, RobotConfig.INTAKE_OPEN_SOLENOID_OFF);
         // the compressor will automatically stop when the pressure gets too high
         mCompressor = new Compressor();
         mCompressor.start();
@@ -48,7 +48,7 @@ public class PneumaticsControl extends Subsystem {
 
     private void changeMode(SolenoidType type, Boolean on) {
         DoubleSolenoid.Value val;
-        System.out.println("PneumaticsControl.changeMode: exec");
+        System.out.println("IntakePneumaticsSys.changeMode: exec");
         if (on) {
             val = DoubleSolenoid.Value.kForward;
         } else {

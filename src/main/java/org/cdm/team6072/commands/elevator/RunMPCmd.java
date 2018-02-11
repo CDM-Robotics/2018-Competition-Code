@@ -1,10 +1,8 @@
 package org.cdm.team6072.commands.elevator;
 
 import edu.wpi.first.wpilibj.command.Command;
-import org.cdm.team6072.profiles.test.Rot5_Vel1_Dur50;
 import org.cdm.team6072.profiles.test.Rot5_Vel2_Dur10;
-import org.cdm.team6072.profiles.test.Rot_5_Vel_1;
-import org.cdm.team6072.subsystems.Elevator;
+import org.cdm.team6072.subsystems.ElevatorSys;
 import util.CrashTracker;
 
 /**
@@ -13,43 +11,42 @@ import util.CrashTracker;
 public class RunMPCmd  extends Command {
 
 
-    private Elevator mElevator;
+    private ElevatorSys mElevatorSys;
 
 
     public RunMPCmd() {
-        requires(Elevator.getInstance());
+        requires(ElevatorSys.getInstance());
     }
 
 
     @Override
     protected void initialize() {
         CrashTracker.logMessage("RunMPCmd.initialize");
-        mElevator = Elevator.getInstance();
-        mElevator.setMPProfile(Rot5_Vel2_Dur10.getInstance());
-        mElevator.resetSystemState();
-        mElevator.startMotionProfile();
-        CrashTracker.logMessage(mElevator.getSubsystem().toString());
+        mElevatorSys = ElevatorSys.getInstance();
+        mElevatorSys.setMPProfile(Rot5_Vel2_Dur10.getInstance());
+        mElevatorSys.resetSystemState();
+        mElevatorSys.startMotionProfile();
+        CrashTracker.logMessage(mElevatorSys.getSubsystem().toString());
     }
 
 
     @Override
     protected void execute() {
         //CrashTracker.logMessage("RunMPCmd.execute");
-        mElevator.updateTalonRequiredMPState();
-        mElevator.runProfile();
+//        mElevatorSys.updateTalonRequiredMPState();
+        mElevatorSys.runProfile();
 
-        if (mElevator.isProfileComplete()) {
-            //isFinished();
-            mElevator.stop();
-            mElevator.resetSystemState();
+        if (mElevatorSys.isProfileComplete()) {
+            mElevatorSys.stop();
+            mElevatorSys.resetSystemState();
         }
-       // CrashTracker.logMessage(String.valueOf(mElevator.isProfileComplete()));
+       // CrashTracker.logMessage(String.valueOf(mElevatorSys.isProfileComplete()));
     }
 
 
     @Override
     protected boolean isFinished() {
-        return mElevator.isProfileComplete();
+        return mElevatorSys.isProfileComplete();
     }
 
 

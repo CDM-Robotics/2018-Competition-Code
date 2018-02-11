@@ -1,10 +1,11 @@
 package org.cdm.team6072.profiles.test;
 
+import org.cdm.team6072.profiles.Constants;
 import org.cdm.team6072.profiles.PIDConfig;
-import org.cdm.team6072.profiles.MotionProfileBase;
+import org.cdm.team6072.profiles.IMotionProfile;
 
 
-public class Rot5_Vel1_Dur50 implements MotionProfileBase {
+public class Rot5_Vel1_Dur50 implements IMotionProfile {
 			
 /*			
 	Vprog(max speed)	1	rotations/sec
@@ -21,7 +22,7 @@ public class Rot5_Vel1_Dur50 implements MotionProfileBase {
     // kF is feed forward correction, For AnyMarkCIM, has 80 units per rev.		
     // Measured max for elevator motor was 820		
     // So  kF = 1023 / 820 = 1.24756		
-    private static PIDConfig mPIDConfig = new PIDConfig(0, 1.24756, 2.0, 0, 0);
+    private static PIDConfig mPIDConfig = new PIDConfig(0, 1.24756, 0.0, 0, 0);
 
 
     @Override
@@ -35,6 +36,11 @@ public class Rot5_Vel1_Dur50 implements MotionProfileBase {
     @Override
     public int getBaseTPDurationMs() {
         return mBaseDurationMs;
+    }
+
+    @Override
+    public double getUnitsPerRotation() {
+        return Constants.kAndyMarkUnitsPerRotation;
     }
 
 
