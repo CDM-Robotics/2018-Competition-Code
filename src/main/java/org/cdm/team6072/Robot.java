@@ -1,5 +1,6 @@
 package org.cdm.team6072;
 
+import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
@@ -22,6 +23,8 @@ public class Robot extends IterativeRobot {
 
     //private MotionProfileManager profile = new MotionProfileManager(DriveSys.getInstance().getmLeftMaster());
 
+    //private MotionProfileManager profile = new MotionProfileManager(DriveTrain.getInstance().getmLeftMaster());
+    private UsbCamera cam;
 
 
     // ControlBoard holds the operator interface code such as JoyStick
