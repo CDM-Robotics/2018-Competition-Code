@@ -4,27 +4,25 @@ import edu.wpi.first.wpilibj.command.Command;
 import org.cdm.team6072.subsystems.ElevatorSys;
 import util.CrashTracker;
 
-
-
-public class MoveElevatorCmd extends Command {
+public class ElvMoveToBottomCmd extends Command {
 
     private ElevatorSys.Direction mDirection;
-    private double mSpeed = 0.5;
+    private double mSpeed = 0.2;
     private double mTarget;
 
     private ElevatorSys mElevatorSys;
 
 
-    public MoveElevatorCmd(ElevatorSys.Direction dir, double speed) {
-        CrashTracker.logMessage("MoveElevatorCmd: direction: " + dir);
+    public ElvMoveToBottomCmd() {
+        CrashTracker.logMessage("ElvMoveToBottomCmd: ");
         requires(ElevatorSys.getInstance());
-        mDirection = dir;
-        mSpeed = speed;
+        mDirection = ElevatorSys.Direction.Down;
     }
 
     @Override
     protected void initialize() {
         mElevatorSys = ElevatorSys.getInstance();
+        mElevatorSys.initBotSwitch();
         mElevatorSys.initForMove();
     }
 
@@ -35,18 +33,23 @@ public class MoveElevatorCmd extends Command {
 
     @Override
     protected boolean isFinished() {
-        return mElevatorSys.moveDeltaComplete();
+        if (mElevatorSys.botSwitchSet()) {
+            mElevatorSys.stop();
+            mElevatorSys.setAtBottom();
+        }
+        return false;
     }
 
 
     protected void end() {
-        CrashTracker.logMessage("MoveElevatorCmd.end");
+        CrashTracker.logMessage("ElvMoveToBottomCmd.end");
         mElevatorSys.stop();
     }
 
     protected void interrupted() {
-        CrashTracker.logMessage("MoveElevatorCmd.interrupted");
+        CrashTracker.logMessage("ElvMoveToBottomCmd.interrupted");
         mElevatorSys.stop();
     }
+
 
 }

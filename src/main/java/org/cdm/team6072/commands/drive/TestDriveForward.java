@@ -55,7 +55,7 @@ public class TestDriveForward extends Command {
         if (mCounter == 20) {
             mAhrs.enableLogging(false);
         }
-        mDriveSys.arcadeDrive(-0.4,0);
+        mDriveSys.arcadeDrive(-0.6,0);
     }
 
 

@@ -33,9 +33,10 @@ public class IntakePneumaticsSys extends Subsystem {
     }
 
     private IntakePneumaticsSys() {
-        mGrabberSolenoid = new DoubleSolenoid(RobotConfig.INTAKE_OPEN_SOLENOID_ON, RobotConfig.INTAKE_OPEN_SOLENOID_OFF);
+        //mGrabberSolenoid = new DoubleSolenoid(RobotConfig.INTAKE_OPEN_SOLENOID_ON, RobotConfig.INTAKE_OPEN_SOLENOID_OFF);
         // the compressor will automatically stop when the pressure gets too high
-        mCompressor = new Compressor();
+        System.out.println("IntakePneumaticsSys.ctor  --------------------------------------------------------");
+        mCompressor = new Compressor(RobotConfig.PMC_ID);
         mCompressor.start();
     }
 
@@ -43,6 +44,29 @@ public class IntakePneumaticsSys extends Subsystem {
     @Override
     protected void initDefaultCommand() {
 
+    }
+
+
+
+    public void OpenIntake() {
+        System.out.println("IntakeMotorSys.OpenIntake: exec");
+        turnSolenoidOff(IntakePneumaticsSys.SolenoidType.GRABBER);
+    }
+
+
+    public void CloseIntake() {
+        System.out.println("IntakeMotorSys.CloseIntake: exec");
+        turnSolenoidOn(IntakePneumaticsSys.SolenoidType.GRABBER);
+    }
+
+
+    private void turnSolenoidOn(SolenoidType type) {
+        changeMode(type, true);
+    }
+
+
+    private void turnSolenoidOff(SolenoidType type) {
+        changeMode(type, false);
     }
 
 
@@ -61,14 +85,7 @@ public class IntakePneumaticsSys extends Subsystem {
     }
 
 
-    public void turnSolenoidOn(SolenoidType type) {
-        changeMode(type, true);
-    }
 
-
-    public void turnSolenoidOff(SolenoidType type) {
-        changeMode(type, false);
-    }
 
 
 }

@@ -43,6 +43,7 @@ public class IntakeMotorSys extends Subsystem {
         mTalonRight.setNeutralMode(NeutralMode.Brake);
     }
 
+
     @Override
     protected void initDefaultCommand() {
 
@@ -66,26 +67,19 @@ public class IntakeMotorSys extends Subsystem {
     public void stopWheels() {
         mTalonLeft.set(ControlMode.PercentOutput, 0);
         mTalonRight.set(ControlMode.PercentOutput, 0);
-        mTalonRight.setNeutralMode(NeutralMode.Brake);
-        mTalonLeft.setNeutralMode(NeutralMode.Brake);
+        // In Position mode, output value is in encoder ticks or an analog value, depending on the sensor.
+        double curPosnLeft = mTalonLeft.getSelectedSensorPosition(0);
+        mTalonLeft.set(ControlMode.Position, curPosnLeft);
+        double curPosnRight = mTalonRight.getSelectedSensorPosition(0);
+        mTalonRight.set(ControlMode.Position, curPosnRight);
     }
+
 
 
     //-----------------------------------------------------------------------------------
     //
     //  Opening and closing the intake is actually controlled by the pneumatic system
 
-
-    public void OpenGrabber() {
-        System.out.println("IntakeMotorSys.OpenGrabber: exec");
-       IntakePneumaticsSys.getInstance().turnSolenoidOff(IntakePneumaticsSys.SolenoidType.GRABBER);
-    }
-
-
-    public void CloseGrabber() {
-        System.out.println("IntakeMotorSys.CloseGrabber: exec");
-       IntakePneumaticsSys.getInstance().turnSolenoidOn(IntakePneumaticsSys.SolenoidType.GRABBER);
-    }
 
 
 
