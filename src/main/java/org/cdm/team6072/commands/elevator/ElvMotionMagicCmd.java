@@ -9,16 +9,16 @@ public class ElvMotionMagicCmd extends Command {
 
     private ElevatorSys.Direction mDirection;
     private double mSpeed = 0.5;
-    private double mTarget;
+    private double mRotations;
 
     private ElevatorSys mElevatorSys;
 
 
-    public ElvMotionMagicCmd(ElevatorSys.Direction dir, double target) {
+    public ElvMotionMagicCmd(ElevatorSys.Direction dir, double rotations) {
         CrashTracker.logMessage("ElvMotionMagicCmd: direction: " + dir);
         requires(ElevatorSys.getInstance());
         mDirection = dir;
-        mTarget = target;
+        mRotations = rotations;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class ElvMotionMagicCmd extends Command {
     @Override
     protected void execute() {
         // only want to send the move command to elevator once
-        mElevatorSys.magicMove(mDirection, mTarget);
+        mElevatorSys.magicMove(mDirection, mRotations);
     }
 
     @Override

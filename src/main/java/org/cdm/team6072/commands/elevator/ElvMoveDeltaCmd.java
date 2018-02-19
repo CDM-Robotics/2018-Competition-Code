@@ -10,16 +10,16 @@ public class ElvMoveDeltaCmd extends Command {
 
     private ElevatorSys.Direction mDirection;
     private double mSpeed = 0.5;
-    private double mDelta;
+    private double mRotations;
 
     private ElevatorSys mElevatorSys;
 
 
-    public ElvMoveDeltaCmd(ElevatorSys.Direction dir, double speed) {
+    public ElvMoveDeltaCmd(ElevatorSys.Direction dir, double rotations, double speed) {
         CrashTracker.logMessage("ElvMoveDeltaCmd: direction: " + dir);
         requires(ElevatorSys.getInstance());
         mDirection = dir;
-        mDelta = 100;
+        mRotations = rotations;
     }
 
     @Override
@@ -30,7 +30,7 @@ public class ElvMoveDeltaCmd extends Command {
 
     @Override
     protected void execute() {
-        mElevatorSys.moveDelta(mDirection, mSpeed, mDelta);
+        mElevatorSys.moveDelta(mDirection, mSpeed, mRotations);
     }
 
     @Override

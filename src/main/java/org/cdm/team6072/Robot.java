@@ -35,7 +35,7 @@ public class Robot extends IterativeRobot {
     public void robotInit() {
         System.out.println("6072: robotInit");
         mControlBoard = ControlBoard.getInstance();
-       // mDriveSys = DriveSys.getInstance();
+        mDriveSys = DriveSys.getInstance();
         byte updateHz = 64;
         mAhrs = new AHRS(SPI.Port.kMXP, 100000, updateHz);
         mAhrs.reset();
@@ -68,9 +68,9 @@ public class Robot extends IterativeRobot {
     public void teleopInit() {
         System.out.println("6072: teleop init");
         //mPneuSys = IntakePneumaticsSys.getInstance();
-//        mDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
-//        Scheduler.getInstance().removeAll();
-//        Scheduler.getInstance().add(mDriveCmd);
+        mDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
+        Scheduler.getInstance().removeAll();
+        Scheduler.getInstance().add(mDriveCmd);
        //DriveSys.getInstance().getMotionProfileManager().startMotionProfile();
     }
 

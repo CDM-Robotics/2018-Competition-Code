@@ -8,11 +8,10 @@ import edu.wpi.first.wpilibj.CounterBase;
 public class RobotConfig {
 
 
-    /**
-     *
-     * DRIVE TRAIN CONFIGURATION
-     *
-     */
+    // constants (units in inches)
+    public static double DRIVE_WHEEL_DIAMETER = 6.0;
+
+
 
     // Drive Talons
     public static int DRIVE_LEFT_MASTER = 15;
@@ -25,31 +24,42 @@ public class RobotConfig {
     public static int ELEVATOR_TALON = 12;
 
     public static int ELEVATOR_SWITCH_TOP = 1;
-    public static int ELEVATOR_SWITCH_BOT = 2;
+    public static int ELEVATOR_SWITCH_BOT = 0;
+
+    // ARM
+    public static int ARM_TALON = 13;
+
+    public static int ARM_SWITCH_TOP = 3;
+    public static int ARM_SWITCH_BOT = 2;
+    
 
 
     // GRABBER
     public static int INTAKE_TALON_LEFT = 2;
     public static int INTAKE_TALON_RIGHT = 4;
 
-
-
-    // constants (units in inches)
-    public static double DRIVE_WHEEL_DIAMETER = 6.0;
-
-
     // PNEUMATICS
 
-    public static int PMC_ID = 61;
+    public static int PCM_ID = 61;
 
-    public static int INTAKE_OPEN_SOLENOID_ON = 0;
-    public static int INTAKE_OPEN_SOLENOID_OFF = 1;
-    public static int GRABBER_CLOSE_LO_SOLENOID_ON = 2;
-    public static int GRABBER_CLOSE_LO_SOLENOID_OFF = 3;
-    public static int GRABBER_CLOSE_HI_SOLENOID_ON = 4;
-    public static int GRABBER_CLOSE_HI_SOLENOID_OFF = 5;
-    public static int COMPRESSOR = 0;
 
+    /**
+     * There are two double solenoids controlled by the PCM
+     *  solenoid 1 select open or close
+     *  solenoid 2 select close lo pressure
+     *                  or close high pressure
+     */
+
+    // open  =  0  +  2  on
+    // close lo =  0 off  1 on
+    // close hi =  3 on   1 on  2 off   0 off
+
+    // should transition from open - close lo - close hi
+
+    public static int INTAKE_SOL_1_FWD_OPEN = 0;
+    public static int INTAKE_SOL_1_REV_CLOSE = 1;
+    public static int INTAKE_SOL_2_FWD_LO = 2;  // 1 on 0 off  = lo pressure
+    public static int INTAKE_SOL_2_REV_HI = 3;
 
 
 }

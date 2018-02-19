@@ -24,17 +24,20 @@ public class ElvMoveToBaseCmd extends Command {
     @Override
     protected void initialize() {
         mElevatorSys = ElevatorSys.getInstance();
+        mElevatorSys.initBotSwitch();
+        // actually start the move here
+        mElevatorSys.moveToBase();
     }
 
     @Override
     protected void execute() {
-        CrashTracker.logMessage("ElvMoveToBaseCmd.execute");
-        mElevatorSys.move(mDirection, mSpeed);
+        // dont do anything in exec because move has been started
     }
 
     @Override
     protected boolean isFinished() {
-        return mElevatorSys.moveDeltaComplete();
+        return mElevatorSys.moveToBaseComplete();
     }
+
 
 }

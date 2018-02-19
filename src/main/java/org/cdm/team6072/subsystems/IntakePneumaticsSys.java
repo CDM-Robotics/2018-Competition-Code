@@ -10,14 +10,17 @@ import org.cdm.team6072.RobotConfig;
 public class IntakePneumaticsSys extends Subsystem {
 
 
-    public static enum SolenoidType {
-        GRABBER
-    }
-
-
     // IMPORTANT NOTE
     // DoubleSolenoid class abstracts away the PCM. It's being detected by WPILib
-    private DoubleSolenoid mGrabberSolenoid;
+
+    /**
+     * There are two double solenoids controlled by the PCM
+     *  solenoid 1 select open or close
+     *  solenoid 2 select close lo pressure
+     *                  or close high pressure
+     */
+    private DoubleSolenoid mSol_1;
+    private DoubleSolenoid mSol_2;
 
 
 
@@ -32,12 +35,14 @@ public class IntakePneumaticsSys extends Subsystem {
         return mInstance;
     }
 
+
     private IntakePneumaticsSys() {
-        //mGrabberSolenoid = new DoubleSolenoid(RobotConfig.INTAKE_OPEN_SOLENOID_ON, RobotConfig.INTAKE_OPEN_SOLENOID_OFF);
         // the compressor will automatically stop when the pressure gets too high
         System.out.println("IntakePneumaticsSys.ctor  --------------------------------------------------------");
-        mCompressor = new Compressor(RobotConfig.PMC_ID);
+        mCompressor = new Compressor(RobotConfig.PCM_ID);
         mCompressor.start();
+        mSol_1 = new DoubleSolenoid(RobotConfig.PCM_ID, RobotConfig.INTAKE_SOL_1_FWD_OPEN, RobotConfig.INTAKE_SOL_1_REV_CLOSE);
+        mSol_2 = new DoubleSolenoid(RobotConfig.PCM_ID, RobotConfig.INTAKE_SOL_2_FWD_LO, RobotConfig.INTAKE_SOL_2_REV_HI);
     }
 
 
@@ -47,44 +52,24 @@ public class IntakePneumaticsSys extends Subsystem {
     }
 
 
-
     public void OpenIntake() {
-        System.out.println("IntakeMotorSys.OpenIntake: exec");
-        turnSolenoidOff(IntakePneumaticsSys.SolenoidType.GRABBER);
+        System.out.println("IntakePneumaticsSys.OpenIntake: exec");
+        mSol_1.set(DoubleSolenoid.Value.kForward);
+        mSol_2.set(DoubleSolenoid.Value.kForward);
     }
 
 
-    public void CloseIntake() {
-        System.out.println("IntakeMotorSys.CloseIntake: exec");
-        turnSolenoidOn(IntakePneumaticsSys.SolenoidType.GRABBER);
+    public void CloseIntakeHi() {
+        System.out.println("IntakePneumaticsSys.CloseIntakeHi: exec");
+        mSol_1.set(DoubleSolenoid.Value.kReverse);
+        mSol_2.set(DoubleSolenoid.Value.kReverse);
     }
 
-
-    private void turnSolenoidOn(SolenoidType type) {
-        changeMode(type, true);
+    public void CloseIntakeLo() {
+        System.out.println("IntakePneumaticsSys.CloseIntakeLo: exec");
+        mSol_1.set(DoubleSolenoid.Value.kReverse);
+        mSol_2.set(DoubleSolenoid.Value.kForward);
     }
-
-
-    private void turnSolenoidOff(SolenoidType type) {
-        changeMode(type, false);
-    }
-
-
-    private void changeMode(SolenoidType type, Boolean on) {
-        DoubleSolenoid.Value val;
-        System.out.println("IntakePneumaticsSys.changeMode: exec");
-        if (on) {
-            val = DoubleSolenoid.Value.kForward;
-        } else {
-            val = DoubleSolenoid.Value.kReverse;
-        }
-
-        if (type == SolenoidType.GRABBER) {
-            mGrabberSolenoid.set(val);
-        }
-    }
-
-
 
 
 
