@@ -16,6 +16,8 @@ public class IntakePneumaticsSys extends Subsystem {
     /**
      * There are two double solenoids controlled by the PCM
      *  solenoid 1 select open or close
+     *          if open, set sol 2 off
+     *
      *  solenoid 2 select close lo pressure
      *                  or close high pressure
      */

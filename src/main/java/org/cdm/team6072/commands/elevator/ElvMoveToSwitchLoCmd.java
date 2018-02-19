@@ -5,21 +5,21 @@ import org.cdm.team6072.subsystems.ElevatorSys;
 import util.CrashTracker;
 
 
-public class ElvMoveToScaleCmd extends Command {
+public class ElvMoveToSwitchLoCmd extends Command {
 
 
     private ElevatorSys mElevatorSys;
 
 
-    public ElvMoveToScaleCmd() {
-        CrashTracker.logMessage("ElvMoveToScaleCmd: ");
+    public ElvMoveToSwitchLoCmd() {
+        CrashTracker.logMessage("ElvMoveToSwitchLoCmd: ");
         requires(ElevatorSys.getInstance());
         mElevatorSys = ElevatorSys.getInstance();
     }
 
     @Override
     protected void initialize() {
-        mElevatorSys.moveToScale();
+        mElevatorSys.moveToSwitchLo();
     }
 
     @Override
@@ -29,7 +29,7 @@ public class ElvMoveToScaleCmd extends Command {
 
     @Override
     protected boolean isFinished() {
-        return mElevatorSys.moveToScaleComplete();
+        return mElevatorSys.moveToSwitchLoComplete();
     }
 
 }

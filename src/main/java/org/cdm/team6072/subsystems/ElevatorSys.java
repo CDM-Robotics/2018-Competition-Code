@@ -357,6 +357,60 @@ public class ElevatorSys extends Subsystem {
         }
         printPosn("holdPosn.FINISH_" + curPosn +"_" + loopCnt );
     }
+    
+    
+    // move to the standard target positions  ---------------------------------------------------------------------
+
+    // scale height in native units from nominal base posn
+    private static int SCALE_POSN_UNITS = 2000;
+
+    private static int SWITCHLO_POSN_UNITS = 6000;
+    private static int SWITCHHI_POSN_UNITS = 7000;
+
+    /**
+     * Move to the scale height from whatever our current position is
+     */
+    public void moveToScale() {
+        moveToTarget(SCALE_POSN_UNITS);
+    }
+    public boolean moveToScaleComplete() {
+        return moveToTargetComplete();
+    }
+
+    public void moveToSwitchLo() {
+        moveToTarget(SWITCHLO_POSN_UNITS);
+    }
+    public boolean moveToSwitchLoComplete() {
+        return moveToTargetComplete();
+    }
+
+    public void moveToSwitchHi() {
+        moveToTarget(SWITCHHI_POSN_UNITS);
+    }
+    public boolean moveToSwitchHiComplete() {
+        return moveToTargetComplete();
+    }
+
+    //------------------------------------------
+    
+    private void moveToTarget(int targPosn) {
+        Direction dir;
+        
+        int curPosn = mTalon.getSelectedSensorPosition(0) - mSensPosn_Start;
+        int distToMove = targPosn - curPosn;
+        if (distToMove >= 0) {
+            dir = Direction.Up;
+        }
+        else {
+            dir = Direction.Down;
+        }
+        initForMagicMove();
+        magicMove(dir, Math.abs(distToMove));
+    }
+    
+    public boolean moveToTargetComplete() {
+        return magicMoveComplete();
+    }
 
 
     // code for motion magic move  -------------------------------------------------------------------

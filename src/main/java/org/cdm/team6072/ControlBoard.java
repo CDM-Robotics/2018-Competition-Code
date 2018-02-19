@@ -50,10 +50,7 @@ public class ControlBoard {
 
     // test buttons on drive stick  ----------------
 
-    public static int DRIVE_TESTGYRO = EXTREME_BUT_9;
-
-    public static int ELEVATOR_MOVE_DELTA = EXTREME_BUT_7;
-    public static int DRIVE_TEST = EXTREME_BUT_8;
+    public static int DRIVE_TEST = EXTREME_BUT_7;
 
     public static int ELEVATOR_MOVE_UP = EXTREME_BUT_LEFT_TOP;
     public static int ELEVATOR_MOVE_DOWN = EXTREME_BUT_LEFT_BOT;
@@ -61,7 +58,10 @@ public class ControlBoard {
     public static int ELEVATOR_MOVE_MM_DOWN = EXTREME_BUT_RIGHT_BOT;
     public static int ELEVATOR_MOVE_MM_UP = EXTREME_BUT_RIGHT_TOP;
 
-    public static int ELEVATOR_MOVETO_BASE = EXTREME_BUT_12;
+    public static int ELEVATOR_MOVETO_BASE = EXTREME_BUT_9;
+    public static int ELEVATOR_MOVETO_SCALE = EXTREME_BUT_10;
+    public static int ELEVATOR_MOVETO_SWITCHLO = EXTREME_BUT_11;
+    public static int ELEVATOR_MOVETO_SWITCHHI = EXTREME_BUT_12;
 
 
     // control stick  ----------------------------------------------------------
@@ -134,6 +134,15 @@ public class ControlBoard {
 
         drive_buttons[ELEVATOR_MOVETO_BASE-1] = new JoystickButton(drive_stick, ELEVATOR_MOVETO_BASE);
         drive_buttons[ELEVATOR_MOVETO_BASE-1].whenPressed(new ElvMoveToBaseCmd(ElevatorSys.Direction.Down, 1));
+
+        drive_buttons[ELEVATOR_MOVETO_SCALE-1] = new JoystickButton(drive_stick, ELEVATOR_MOVETO_SCALE);
+        drive_buttons[ELEVATOR_MOVETO_SCALE-1].whenPressed(new ElvMoveToScaleCmd());
+
+        drive_buttons[ELEVATOR_MOVETO_SWITCHLO-1] = new JoystickButton(drive_stick, ELEVATOR_MOVETO_SWITCHLO);
+        drive_buttons[ELEVATOR_MOVETO_SWITCHLO-1].whenPressed(new ElvMoveToSwitchLoCmd());
+
+        drive_buttons[ELEVATOR_MOVETO_SWITCHHI-1] = new JoystickButton(drive_stick, ELEVATOR_MOVETO_SWITCHHI);
+        drive_buttons[ELEVATOR_MOVETO_SWITCHHI-1].whenPressed(new ElvMoveToSwitchHiCmd());
 
 //        drive_buttons[ELEVATOR_MOVE_DELTA-1] = new JoystickButton(drive_stick, ELEVATOR_MOVE_DELTA);
 //        drive_buttons[ELEVATOR_MOVE_DELTA-1].whenPressed(new ElvMoveDeltaCmd(ElevatorSys.Direction.Up, 10, 0.5));

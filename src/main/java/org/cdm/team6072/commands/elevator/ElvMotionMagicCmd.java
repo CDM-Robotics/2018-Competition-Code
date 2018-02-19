@@ -25,19 +25,19 @@ public class ElvMotionMagicCmd extends Command {
     protected void initialize() {
         mElevatorSys = ElevatorSys.getInstance();
         mElevatorSys.initForMagicMove();
+        // only want to send the move command to elevator once
+        mElevatorSys.magicMove(mDirection, mRotations * 4096);
     }
 
 
     @Override
     protected void execute() {
         // only want to send the move command to elevator once
-        mElevatorSys.magicMove(mDirection, mRotations);
     }
 
     @Override
     protected boolean isFinished() {
-        return false;
-        //return mElevatorSys.magicMoveComplete();
+        return mElevatorSys.magicMoveComplete();
     }
 
 
