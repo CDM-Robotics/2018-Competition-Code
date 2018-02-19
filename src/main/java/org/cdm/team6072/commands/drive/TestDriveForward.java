@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.SPI;
 public class TestDriveForward extends Command {
 
     // 5 seconds - assumes execute is called every 20 mSec
-    private static int KTIMETORUN = 50 * 8;
+    private static int KTIMETORUN = 50 * 5;
 
 
     public TestDriveForward() {

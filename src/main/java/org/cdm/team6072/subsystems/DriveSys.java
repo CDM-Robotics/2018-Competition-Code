@@ -105,7 +105,7 @@ public class DriveSys extends Subsystem {
      */
     public void tankDrive(double left, double right) {
         //System.out.println("Drivetrain.tankDrive: " + left + "      " + right);
-        mRoboDrive.tankDrive(left, right);
+        mRoboDrive.tankDrive( -1.0*left, -1.0*right, true);
     }
 
     public void arcadeDrive(double mag, double turn) {

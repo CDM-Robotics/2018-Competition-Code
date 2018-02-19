@@ -62,15 +62,20 @@ public class Robot extends IterativeRobot {
 
 
     //  TELEOP MODE  ---------------------------------------------------------------
-    private ArcadeDriveCmd mDriveCmd;
+    private ArcadeDriveCmd mArcadeDriveCmd;
+    private TankDriveCmd mTankDriveCmd;
 
     @Override
     public void teleopInit() {
         System.out.println("6072: teleop init");
         //mPneuSys = IntakePneumaticsSys.getInstance();
-        mDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
         Scheduler.getInstance().removeAll();
-        Scheduler.getInstance().add(mDriveCmd);
+        mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
+        Scheduler.getInstance().add(mArcadeDriveCmd);
+//        mTankDriveCmd = new TankDriveCmd(mControlBoard.drive_stick);
+//        Scheduler.getInstance().add(mTankDriveCmd);
+
+        
        //DriveSys.getInstance().getMotionProfileManager().startMotionProfile();
     }
 
@@ -129,9 +134,9 @@ public class Robot extends IterativeRobot {
         System.out.println("testInit: --------------------");
         mCounter = 0;
         LiveWindow.add(DriveSys.getInstance());
-        mDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
+        mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
         Scheduler.getInstance().removeAll();
-        Scheduler.getInstance().add(mDriveCmd);
+        Scheduler.getInstance().add(mArcadeDriveCmd);
     }
 
     @Override public void testPeriodic() {
