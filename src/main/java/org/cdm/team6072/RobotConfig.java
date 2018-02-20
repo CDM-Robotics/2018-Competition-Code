@@ -24,6 +24,9 @@ public class RobotConfig {
     public static int DRIVE_RIGHT_SLAVE0 = 30;
     public static int DRIVE_RIGHT_SLAVE0_PDP = 0;       // yes really is different from the CAN ID
 
+    public static int DRIVE_GEAR_FWD_LO = 4;                // DIO for the gear shifting solenoid
+    public static int DRIVE_GEAR_REV_HI = 5;
+
     // ELEVATOR
     public static int ELEVATOR_TALON = 12;
     public static int ELEVATOR_TALON_PDP = 12;

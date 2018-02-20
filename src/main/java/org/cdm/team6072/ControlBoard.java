@@ -2,6 +2,7 @@ package org.cdm.team6072;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import org.cdm.team6072.commands.drive.DriveToggleGearCmd;
 import org.cdm.team6072.commands.drive.TestDriveForward;
 import org.cdm.team6072.commands.elevator.*;
 import org.cdm.team6072.commands.intake.*;
@@ -52,6 +53,8 @@ public class ControlBoard {
 
     public static int DRIVE_TEST = EXTREME_BUT_7;
 
+    public static final int DRIVE_TOGGLE_GEAR = 8;
+
     public static int ELEVATOR_MOVE_UP = EXTREME_BUT_LEFT_TOP;
     public static int ELEVATOR_MOVE_DOWN = EXTREME_BUT_LEFT_BOT;
 
@@ -62,6 +65,8 @@ public class ControlBoard {
     public static int ELEVATOR_MOVETO_SCALE = EXTREME_BUT_10;
     public static int ELEVATOR_MOVETO_SWITCHLO = EXTREME_BUT_11;
     public static int ELEVATOR_MOVETO_SWITCHHI = EXTREME_BUT_12;
+
+
 
 
     // control stick  ----------------------------------------------------------
@@ -112,6 +117,9 @@ public class ControlBoard {
     private ControlBoard () {
         drive_stick = new Joystick(DRIVE_USB_PORT);
         drive_buttons = new JoystickButton[12];
+
+        drive_buttons[DRIVE_TOGGLE_GEAR-1] = new JoystickButton(drive_stick, DRIVE_TOGGLE_GEAR);
+        drive_buttons[DRIVE_TOGGLE_GEAR-1].whenPressed(new DriveToggleGearCmd(drive_stick));
 
         drive_buttons[DRIVE_TEST-1] = new JoystickButton(drive_stick, DRIVE_TEST);
         drive_buttons[DRIVE_TEST-1].whenPressed(new TestDriveForward());

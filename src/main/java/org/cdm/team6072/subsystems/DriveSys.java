@@ -18,6 +18,8 @@ import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SendableBase;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.cdm.team6072.ControlBoard;
@@ -84,6 +86,11 @@ public class DriveSys extends Subsystem {
 
             mMasterTalons.add(mRight_Master);
             mMasterTalons.add(mLeft_Master);
+
+            setGearHi();
+
+            mSol_GearShift = new DoubleSolenoid(RobotConfig.PCM_ID, RobotConfig.DRIVE_GEAR_FWD_LO, RobotConfig.DRIVE_GEAR_REV_HI);
+
             // used for motion profiling and autonomous management
             mMotionProfileManager = new MotionProfileManager(mMasterTalons);
 
@@ -159,6 +166,40 @@ public class DriveSys extends Subsystem {
     public void initDefaultCommand() {
         System.out.println("DriveSys: init default command");
         setDefaultCommand(new ArcadeDriveCmd(ControlBoard.getInstance().drive_stick));
+    }
+
+    // gear shifting code  ----------------------------------------------------------------------------------
+
+    private DoubleSolenoid mSol_GearShift;
+
+    private boolean mIsHiGear = true;
+
+    /**
+     * Provide a command to toggle between lo and hi gear
+     *
+     * need to think about velocity check before shifting
+     */
+    public void toggleGear() {
+        if (mIsHiGear) {
+            setGearLo();
+        }
+        else {
+            setGearHi();
+        }
+    }
+
+
+    private void setGearLo() {
+        System.out.println("DriveSys.setGearLo  <<<<<");
+        mSol_GearShift.set(DoubleSolenoid.Value.kForward);
+        mIsHiGear = false;
+    }
+
+
+    private void setGearHi() {
+        System.out.println("DriveSys.setGearHi  >>>>>");
+        mSol_GearShift.set(DoubleSolenoid.Value.kReverse);
+        mIsHiGear = true;
     }
 
 
