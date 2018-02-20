@@ -119,17 +119,19 @@ public class Robot extends IterativeRobot {
         }
     }
 
-
+//
     private void Logging() {
 
         try {
-            Path logFile = FileSystems.getDefault().getPath("logs", "PDP_Log.csv");
+            Path logFile = FileSystems.getDefault().getPath("/home/lvuser/logs", "PDP_Log.csv");
+            System.out.println("-------  Logging: path: " + logFile.toString() + " : " + logFile.toAbsolutePath().toString());
             if (Files.notExists(logFile)) {
                 logFile = Files.createFile(logFile);
                 List<String> line = new ArrayList<String>();
                 line.add("time, DriveLeft, DriveRight, Elev, Arm");
                 Files.write(logFile, line, StandardCharsets.UTF_8);
             }
+
             double elvCurrent = mPDP.getCurrent(RobotConfig.ELEVATOR_TALON_PDP);
             double armCurrent = mPDP.getCurrent(RobotConfig.ARM_TALON_PDP);
             double driveLeftCurrent = mPDP.getCurrent(RobotConfig.DRIVE_LEFT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_LEFT_SLAVE0_PDP);
@@ -147,7 +149,7 @@ public class Robot extends IterativeRobot {
             SmartDashboard.putNumber("PDP.DriveRightCurrent", driveRightCurrent);
         }
         catch (Exception ex) {
-
+            System.out.println( "*******  Logging ex: "+ ex.getClass().getName() + "   msg: " + ex.getMessage() + " ");
         }
     }
 
