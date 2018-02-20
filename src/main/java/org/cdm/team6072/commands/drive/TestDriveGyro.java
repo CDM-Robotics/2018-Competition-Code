@@ -2,6 +2,7 @@ package org.cdm.team6072.commands.drive;
 
 import edu.wpi.first.wpilibj.command.Command;
 import org.cdm.team6072.Robot;
+import org.cdm.team6072.RobotConfig;
 import org.cdm.team6072.subsystems.DriveSys;
 
 
@@ -23,7 +24,7 @@ public class TestDriveGyro extends Command {
     private int mCounter = 0;
 
     private DriveSys mDriveSys;
-    private AHRS mAhrs;
+    private AHRS mAhrs = new AHRS(SPI.Port.kMXP);
 
     private double mStartAngle;
 
@@ -34,7 +35,6 @@ public class TestDriveGyro extends Command {
 //            byte updateHz = 64;
 //            mAhrs = new AHRS(SPI.Port.kMXP, 100000, updateHz);
             //mAhrs.reset();
-            mAhrs = Robot.mAhrs;
             mStartAngle = mAhrs.getAngle();
             mAhrs.enableLogging(false);
             mAhrs.getBoardYawAxis();

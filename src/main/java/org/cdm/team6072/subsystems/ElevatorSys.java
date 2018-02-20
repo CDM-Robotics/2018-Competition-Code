@@ -24,8 +24,16 @@ public class ElevatorSys extends Subsystem {
      * How many sensor units per rotation.
      * @link https://github.com/CrossTheRoadElec/Phoenix-Documentation#what-are-the-units-of-my-sensor
      */
-    public static final double kCTREUnitsPerRotation = 4096;
-    public static final double kAndyMarkUnitsPerRotation = 80;
+    public static final int kCTREUnitsPerRotation = 4096;
+    public static final int kAndyMarkUnitsPerRotation = 80;
+    
+    public static final int kUnitsPerRotation = kCTREUnitsPerRotation;
+    
+    // inches of elevator travel per complete rotation of encoder
+    // gear is 1 inch diameter
+    public static final double kDistancePerRotation = 1 * Math.PI;
+
+    public static final int kUnitsPerInch = (int)Math.round(kUnitsPerRotation / kDistancePerRotation);
 
     /**
      * Which PID slot to pull gains from.  Starting 2018, you can choose
@@ -362,10 +370,9 @@ public class ElevatorSys extends Subsystem {
     // move to the standard target positions  ---------------------------------------------------------------------
 
     // scale height in native units from nominal base posn
-    private static int SCALE_POSN_UNITS = 2000;
-
-    private static int SWITCHLO_POSN_UNITS = 6000;
-    private static int SWITCHHI_POSN_UNITS = 7000;
+    private static int SCALE_POSN_UNITS = 6 * kUnitsPerInch;
+    private static int SWITCHLO_POSN_UNITS = 18 * kUnitsPerInch;
+    private static int SWITCHHI_POSN_UNITS = 24 * kUnitsPerInch;
 
     /**
      * Move to the scale height from whatever our current position is
@@ -506,8 +513,8 @@ public class ElevatorSys extends Subsystem {
             mTalon.setInverted(true);
         }
         double startPosn = mTalon.getSelectedSensorPosition(0);
-        double topEndPosn = startPosn + (rotations * 4096);
-        double botEndPosn = startPosn - (rotations * 4096);
+        double topEndPosn = startPosn + (rotations * kUnitsPerRotation);
+        double botEndPosn = startPosn - (rotations * kUnitsPerRotation);
         mTalon.set(ControlMode.PercentOutput, speed);
         boolean complete = false;
         while (!complete) {

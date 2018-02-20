@@ -14,13 +14,16 @@ public class ArcadeDriveCmd extends Command {
 
     private Joystick mStick;
 
+    private DriveSys mDriveSys;
+
 
     /**
      * Specify the the command requires the DriveSys subsystem
      */
     public ArcadeDriveCmd(Joystick stick) {
-        mStick = stick;
         requires(DriveSys.getInstance());
+        mStick = stick;
+        mDriveSys = DriveSys.getInstance();
     }
 
 
@@ -29,17 +32,7 @@ public class ArcadeDriveCmd extends Command {
      * or the OI stops requesting - for example if the whileHeld() button command is used
      */
     protected void execute() {
-        DriveSys driveSys = DriveSys.getInstance();
-        //driveSys.tankDrive(mStick.getRawAxis(1), mStick.getRawAxis(0));
-        //driveSys.tankDrive(mStick, 0, mStick, 1);
-
-        driveSys.arcadeDrive(ControlBoard.getInstance().drive_stick.getY(), ControlBoard.getInstance().drive_stick.getZ());
-        //driveSys.tankDrive(ControlBoard.getInstance().drive_stick.getY(GenericHID.Hand.kLeft), ControlBoard.getInstance().drive_stick.getY(GenericHID.Hand.kRight));
-        // 3D Pro Joystick
-
-        //driveSys.tankDrive(ControlBoard.getInstance().drive_stick, 1, ControlBoard.getInstance().drive_stick, 0);
-        // Taranis
-        //driveSys.tankDrive(ControlBoard.getInstance().drive_stick, 1, ControlBoard.getInstance().drive_stick, 0);
+        mDriveSys.arcadeDrive(mStick.getY(), mStick.getZ());
     }
 
 

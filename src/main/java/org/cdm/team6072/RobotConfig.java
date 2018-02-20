@@ -14,20 +14,26 @@ public class RobotConfig {
 
 
     // Drive Talons
-    public static int DRIVE_LEFT_MASTER = 15;
-    public static int DRIVE_LEFT_SLAVE0 = 14;
+    public static int DRIVE_LEFT_MASTER = 14;
+    public static int DRIVE_LEFT_MASTER_PDP = 14;
+    public static int DRIVE_LEFT_SLAVE0 = 15;
+    public static int DRIVE_LEFT_SLAVE0_PDP = 15;
 
-    public static int DRIVE_RIGHT_MASTER = 30;        // changed 2018-01-13
-    public static int DRIVE_RIGHT_SLAVE0 = 1;
+    public static int DRIVE_RIGHT_MASTER = 1;
+    public static int DRIVE_RIGHT_MASTER_PDP = 1;
+    public static int DRIVE_RIGHT_SLAVE0 = 30;
+    public static int DRIVE_RIGHT_SLAVE0_PDP = 0;       // yes really is different from the CAN ID
 
     // ELEVATOR
     public static int ELEVATOR_TALON = 12;
+    public static int ELEVATOR_TALON_PDP = 12;
 
     public static int ELEVATOR_SWITCH_TOP = 1;
     public static int ELEVATOR_SWITCH_BOT = 0;
 
     // ARM
     public static int ARM_TALON = 13;
+    public static int ARM_TALON_PDP = 13;
 
     public static int ARM_SWITCH_TOP = 3;
     public static int ARM_SWITCH_BOT = 2;
@@ -36,10 +42,15 @@ public class RobotConfig {
 
     // INTAKE
     public static int INTAKE_TALON_LEFT = 2;
+    public static int INTAKE_TALON_LEFT_PDP = 2;
     public static int INTAKE_TALON_RIGHT = 4;
+    public static int INTAKE_TALON_RIGHT_PDP = 4;
 
     // PNEUMATICS
     public static int PCM_ID = 61;
+
+    // Power Distribution Panel - NOTE FRC says needs to be 0 for 2018 WPILib
+    public static int PDP_ID = 0;
 
     /**
      * There are two double solenoids controlled by the PCM

@@ -1,25 +1,40 @@
 package org.cdm.team6072;
 
+import java.nio.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.cdm.team6072.commands.drive.*;
 import org.cdm.team6072.subsystems.*;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 
 
 public class Robot extends IterativeRobot {
 
 
-    private DriveSys mDriveSys ;
+    private DriveSys mDriveSys = DriveSys.getInstance() ;
     private Navigator mNavx = Navigator.getInstance();
     private ElevatorSys mElevatorSys = ElevatorSys.getInstance();
     private IntakePneumaticsSys mPneuSys;
     private IntakeMotorSys mIntakeMotorSys = IntakeMotorSys.getInstance();
 
-    public static AHRS mAhrs;
+    PowerDistributionPanel mPDP = new PowerDistributionPanel(RobotConfig.PDP_ID);
+
+    // ControlBoard holds the operator interface code such as JoyStick
+    private ControlBoard mControlBoard  = ControlBoard.getInstance();
+
 
     //private MotionProfileManager profile = new MotionProfileManager(DriveSys.getInstance().getmLeftMaster());
 
@@ -27,19 +42,12 @@ public class Robot extends IterativeRobot {
     private UsbCamera cam;
 
 
-    // ControlBoard holds the operator interface code such as JoyStick
-    private ControlBoard mControlBoard  = ControlBoard.getInstance();;
+
 
 
     @Override
     public void robotInit() {
         System.out.println("6072: robotInit");
-        mControlBoard = ControlBoard.getInstance();
-        mDriveSys = DriveSys.getInstance();
-        byte updateHz = 64;
-        mAhrs = new AHRS(SPI.Port.kMXP, 100000, updateHz);
-        mAhrs.reset();
-        System.out.println("Robot.init  navX yaw axis:" + mAhrs.getBoardYawAxis().board_axis + "  isCalibrating: " + mAhrs.isCalibrating());
         //CameraManager.getInstance().runFilter();
     }
 
@@ -49,29 +57,23 @@ public class Robot extends IterativeRobot {
     }
 
 
-    /**
-     * The WPILib has a race condition that may lead to the Talons not being correctly
-     * configured. This is a work around noted in the TalonSRX software manual 21.18
-     */
-//    @Override
-//    public void disabledPeriodic() {
-//        if (mDriveSys != null) {
-//            mDriveSys.disabledPeriodic();
-//        }
-//    }
-
-
     //  TELEOP MODE  ---------------------------------------------------------------
     private ArcadeDriveCmd mArcadeDriveCmd;
     private TankDriveCmd mTankDriveCmd;
 
+
+    private int mTelopLoopCtr = 0;
+
     @Override
     public void teleopInit() {
         System.out.println("6072: teleop init");
+        mTelopLoopCtr = 0;
         //mPneuSys = IntakePneumaticsSys.getInstance();
-        Scheduler.getInstance().removeAll();
-        mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
-        Scheduler.getInstance().add(mArcadeDriveCmd);
+
+        // drivesys now has ArcadeCommand set as default cmd
+//        Scheduler.getInstance().removeAll();
+//        mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
+//        Scheduler.getInstance().add(mArcadeDriveCmd);
 //        mTankDriveCmd = new TankDriveCmd(mControlBoard.drive_stick);
 //        Scheduler.getInstance().add(mTankDriveCmd);
 
@@ -101,6 +103,52 @@ public class Robot extends IterativeRobot {
 //        DriveSys.getInstance().getMotionProfileManager().control();
 
 //        ElevatorSys.getInstance().masterTalonTest();
+
+        // update PDP stats every half second
+        if (++mTelopLoopCtr % 50 == 0) {
+            Logging();
+//            double elvCurrent = mPDP.getCurrent(RobotConfig.ELEVATOR_TALON_PDP);
+//            double armCurrent = mPDP.getCurrent(RobotConfig.ARM_TALON_PDP);
+//            double driveLeftCurrent = mPDP.getCurrent(RobotConfig.DRIVE_LEFT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_LEFT_SLAVE0_PDP);
+//            double driveRightCurrent = mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_SLAVE0_PDP);
+//
+//            SmartDashboard.putNumber("PDP.ElevCurrent", elvCurrent);
+//            SmartDashboard.putNumber("PDP.ArmElevCurrent", armCurrent);
+//            SmartDashboard.putNumber("PDP.DriveLeftCurrent", driveLeftCurrent);
+//            SmartDashboard.putNumber("PDP.DriveRightCurrent", driveRightCurrent);
+        }
+    }
+
+
+    private void Logging() {
+
+        try {
+            Path logFile = FileSystems.getDefault().getPath("logs", "PDP_Log.csv");
+            if (Files.notExists(logFile)) {
+                logFile = Files.createFile(logFile);
+                List<String> line = new ArrayList<String>();
+                line.add("time, DriveLeft, DriveRight, Elev, Arm");
+                Files.write(logFile, line, StandardCharsets.UTF_8);
+            }
+            double elvCurrent = mPDP.getCurrent(RobotConfig.ELEVATOR_TALON_PDP);
+            double armCurrent = mPDP.getCurrent(RobotConfig.ARM_TALON_PDP);
+            double driveLeftCurrent = mPDP.getCurrent(RobotConfig.DRIVE_LEFT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_LEFT_SLAVE0_PDP);
+            double driveRightCurrent = mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_SLAVE0_PDP);
+            //SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
+            Date now = new Date();
+            List<String> line = new ArrayList<String>();
+            String data = String.format("%tT, %f, %f, %f, %f", now, driveLeftCurrent, driveRightCurrent, elvCurrent, armCurrent);
+            line.add("time, DriveLeft, DriveRight, Elev, Arm");
+            Files.write(logFile, line, StandardCharsets.UTF_8);
+
+            SmartDashboard.putNumber("PDP.ElevCurrent", elvCurrent);
+            SmartDashboard.putNumber("PDP.ArmElevCurrent", armCurrent);
+            SmartDashboard.putNumber("PDP.DriveLeftCurrent", driveLeftCurrent);
+            SmartDashboard.putNumber("PDP.DriveRightCurrent", driveRightCurrent);
+        }
+        catch (Exception ex) {
+
+        }
     }
 
     //  AUTONOMOUS MODE  ---------------------------------------------------------------
@@ -133,14 +181,13 @@ public class Robot extends IterativeRobot {
     public void testInit() {
         System.out.println("testInit: --------------------");
         mCounter = 0;
-        LiveWindow.add(DriveSys.getInstance());
-        mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
-        Scheduler.getInstance().removeAll();
-        Scheduler.getInstance().add(mArcadeDriveCmd);
+//        mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
+//        Scheduler.getInstance().removeAll();
+//        Scheduler.getInstance().add(mArcadeDriveCmd);
     }
 
     @Override public void testPeriodic() {
-        System.out.println("test periodic called");
+        Scheduler.getInstance().run();
         /*if (mCounter < 500) {
             mCounter++;
             mDriveSys.arcadeDrive(-0.4,0);
@@ -155,7 +202,6 @@ public class Robot extends IterativeRobot {
             disabledPeriodic();
         }*/
 
-        LiveWindow.run();
     }
 
 

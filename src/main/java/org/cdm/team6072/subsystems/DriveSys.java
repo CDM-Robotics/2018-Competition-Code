@@ -6,14 +6,23 @@ import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
+import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDOutput;
+import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.SendableBase;
+import edu.wpi.first.wpilibj.DriverStation;
+
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import org.cdm.team6072.ControlBoard;
 import org.cdm.team6072.RobotConfig;
+import org.cdm.team6072.commands.drive.ArcadeDriveCmd;
 import org.cdm.team6072.profiles.Constants;
 import org.cdm.team6072.autonomous.MotionProfileManager;
 import org.cdm.team6072.profiles.drive.DrivetrainProfile;
@@ -76,10 +85,83 @@ public class DriveSys extends Subsystem {
             mMasterTalons.add(mLeft_Master);
             // used for motion profiling and autonomous management
             mMotionProfileManager = new MotionProfileManager(mMasterTalons);
+
+//            initAHRS();
+//
+//            initGyroPID();
+//            mGyroPID.setSetpoint(0);
+//            mGyroPID.enable();
+//            SmartDashboard.putData(mGyroPID);
         }
         catch (Exception ex) {
             System.out.println("Exception in DriveSys ctor: " + ex.getMessage() + "\r\n" + ex.getStackTrace());
         }
+    }
+
+
+    /*
+     * raise P constant until controller oscillates. If oscillation too much,
+     * lower constant a bit raise D constant to damp oscillation, causing it to
+     * converge. D also slows controller's approach to setpoint so will need to
+     * tweak balance of P and D if P + D are tuned and it oscillates +
+     * converges, but not to correct setpoint, increase I = steady-state error -
+     * positive, nonzero integral constant will cause controller to correct for
+     * it
+     */
+    static final double kP = 0.03;
+    static final double kI = 0.00;
+    static final double kD = 0.00;
+    static final double kF = 0.00;
+    /* This tuning parameter indicates how close to "on target" the    */
+    /* PID Controller will attempt to get.                             */
+    static final double kToleranceDegrees = 2.0f;
+
+
+    private AHRS  mAhrs;
+    private PIDController mGyroPID;
+    private PIDOutReceiver mGyroPIDOut;
+
+    private void initAHRS() {
+        try {
+          /* Communicate w/navX-MXP via the MXP SPI Bus.                                     */
+          /* Alternatively:  I2C.Port.kMXP, SerialPort.Port.kMXP or SerialPort.Port.kUSB     */
+          /* See http://navx-mxp.kauailabs.com/guidance/selecting-an-interface/ for details. */
+            mAhrs = new AHRS(SPI.Port.kMXP);
+            mAhrs.reset();
+            mAhrs.zeroYaw();
+        } catch (RuntimeException ex ) {
+            DriverStation.reportError("Error instantiating navX-MXP:  " + ex.getMessage(), true);
+        }
+        while (mAhrs.isCalibrating()) {
+            sleep(10);
+        }
+        System.out.println("DriveSys.initAHRS: YawAxis: " + mAhrs.getBoardYawAxis().board_axis.getValue()
+                + "  firmware: " + mAhrs.getFirmwareVersion()
+                + "  isConnected: " + mAhrs.isConnected()
+        );
+    }
+
+    private void initGyroPID() {
+        mGyroPIDOut = new PIDOutReceiver();
+        mGyroPID = new PIDController(kP, kI, kD, kF, mAhrs, mGyroPIDOut);
+        mGyroPID.setInputRange(-180.0f,  180.0f);
+        mGyroPID.setOutputRange(-1.0, 1.0);
+        // Makes PIDController.onTarget() return True when PIDInput is within the Setpoint +/- the absolute tolerance.
+        mGyroPID.setAbsoluteTolerance(kToleranceDegrees);
+        // Treats the input ranges as the same, continuous point rather than two boundaries, so it can calculate shorter routes.
+        // For example, in a gyro, 0 and 360 are the same point, and should be continuous.
+        // Needs setInputRanges.
+        mGyroPID.setContinuous(true);
+        mGyroPID.setName("DriveSys.GyroPID");
+        System.out.println("DriveSys.initGyroPID:  AHRS.SrcType: " + mAhrs.getPIDSourceType().name());
+    }
+
+
+
+    private void sleep(int milliSecs) {
+        try {
+            Thread.sleep(milliSecs);
+        } catch (Exception ex) {}
     }
 
 
@@ -94,6 +176,7 @@ public class DriveSys extends Subsystem {
      */
     public void initDefaultCommand() {
         System.out.println("DriveSys: init default command");
+        setDefaultCommand(new ArcadeDriveCmd(ControlBoard.getInstance().drive_stick));
     }
 
 
@@ -108,9 +191,25 @@ public class DriveSys extends Subsystem {
         mRoboDrive.tankDrive( -1.0*left, -1.0*right, true);
     }
 
-    public void arcadeDrive(double mag, double turn) {
-        mRoboDrive.arcadeDrive(-mag, -turn, true);
-        //System.out.println("DriveSys.arcadeDrive: " + mag + "      " + turn);
+    private int mLoopCnt = 0;
+    public void arcadeDrive(double mag, double yaw) {
+        mRoboDrive.arcadeDrive(-mag, -yaw, true);
+        if (mLoopCnt++ % 50 == 0) {
+            System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw );
+//                    + "  navAngle: " + mAhrs.getAngle() + "  navYaw: " + mAhrs.getYaw()
+//                    + "  PIDOut: " + mGyroPIDOut.getVal() + "  PID.kP: " + mGyroPID.getP());
+
+            SmartDashboard.putNumber("DriveSys.arc.mag", mag);
+            SmartDashboard.putNumber("DriveSys.arc.yaw", yaw);
+//            SmartDashboard.putNumber("DriveSys.arc.navAngle", mAhrs.getAngle());
+//            SmartDashboard.putNumber("DriveSys.arc.navYaw",  mAhrs.getYaw());
+//            SmartDashboard.putNumber("DriveSys.arc.PIDOut", mGyroPIDOut.getVal());
+//            SmartDashboard.putNumber("DriveSys.arc.PID_kP",  mGyroPID.getP());
+        }
+    }
+
+    private void printStatus() {
+
     }
 
 
