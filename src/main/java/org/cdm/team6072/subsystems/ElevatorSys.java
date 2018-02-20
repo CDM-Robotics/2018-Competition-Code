@@ -303,18 +303,27 @@ public class ElevatorSys extends Subsystem {
     public void initForMove() {
         mLastRelPosn = mTalon.getSelectedSensorPosition(0);
         mLastQuadPosn = mTalon.getSensorCollection().getQuadraturePosition();
+        mMoveLoopCtr = 0;
+        initBotSwitch();
+        initTopSwitch();
         printPosn("initForMove");
     }
 
+    private int mMoveLoopCtr  = 0;
+
     public void move(Direction dir, double speed) {
-        int loopCtr  = 0;
+        if (topSwitchSet() || botSwitchSet()) {
+            System.out.println("*****************  ElvSys.move:  switch hit  top:" + mTopCounter.get() + "  bot: " + mBotCounter.get());
+            stop();
+            return;
+        }
         if (dir == Direction.Up) {
             mTalon.setInverted(false);
         } else {
             mTalon.setInverted(true);
         }
         mTalon.set(ControlMode.PercentOutput, speed);
-        if (++loopCtr % 5 == 0) {
+        if (++mMoveLoopCtr % 5 == 0) {
             printPosn("move");
         }
     }
@@ -618,11 +627,11 @@ public class ElevatorSys extends Subsystem {
         double closedLoopErr = mTalon.getClosedLoopError(0);
 
         mLastQuadPosn = quadPosn;
-        //System.out.println("ElevatorSys." + caller + ":    topSwitch: " + mTopCounter.get() + "   botSwitch: " + mBotCounter.get());
-        System.out.println("ElevatorSys." + caller + ":    Vel: " + vel + "  pwVel: " + pwVel + "  MotorOut: " + mout  +  "  voltOut: " + voltOut);
-        System.out.println("ElevatorSys." + caller + ":    MMStart: " + mMMStartPosn + "  MMTarg: " + mMMTargetPosn + "   sensPosn: " + sensPosnSign + absSensPosn + "  relDelta: " + relDelta
-                + "  quadPosn: " + quadPosn  + "  quadDelta: " + quadDelta + "  pwPosn: " + pwPosn + "  clErr: " + closedLoopErr);
-        shuffleBd();
+        System.out.println("ElevatorSys." + caller + ":    topSwitch: " + mTopCounter.get() + "   botSwitch: " + mBotCounter.get());
+        System.out.println("ElevatorSys." + caller + "   sensPosn: " + sensPosnSign + absSensPosn + ":    Vel: " + vel + "  pwVel: " + pwVel + "  MotorOut: " + mout  +  "  voltOut: " + voltOut);
+//        System.out.println("ElevatorSys." + caller + ":    MMStart: " + mMMStartPosn + "  MMTarg: " + mMMTargetPosn + "   sensPosn: " + sensPosnSign + absSensPosn + "  relDelta: " + relDelta
+//                + "  quadPosn: " + quadPosn  + "  quadDelta: " + quadDelta + "  pwPosn: " + pwPosn + "  clErr: " + closedLoopErr);
+        //shuffleBd();
     }
 
 
@@ -637,15 +646,15 @@ public class ElevatorSys extends Subsystem {
         double voltOut = mTalon.getMotorOutputVoltage();
         double closedLoopErr = mTalon.getClosedLoopError(0);
 
-        SmartDashboard.putNumber("Elv_MotorOuput", motorOut);
-        SmartDashboard.putNumber("Elv_VoltOut", voltOut);
-        SmartDashboard.putNumber("Elv_SensorPosn", sensPosn);
-        SmartDashboard.putNumber("Elv_QuadPosn", quadPosn);
-        SmartDashboard.putNumber("Elv_QuadVel", quadVel);
-        SmartDashboard.putNumber("Elv_PulseWPosn", pwPosn);
-        SmartDashboard.putNumber("Elv_PulseWVel", pwVel);
-        SmartDashboard.putNumber("Elv_MotorOuput", motorOut);
-        SmartDashboard.putNumber("Elv_ClosedLoopErr", closedLoopErr);
+        SmartDashboard.putNumber("Elev/MotorOuput", motorOut);
+        SmartDashboard.putNumber("Elev/VoltOut", voltOut);
+        SmartDashboard.putNumber("Elev/SensorPosn", sensPosn);
+        SmartDashboard.putNumber("Elev/QuadPosn", quadPosn);
+        SmartDashboard.putNumber("Elev/QuadVel", quadVel);
+        SmartDashboard.putNumber("Elev/PulseWPosn", pwPosn);
+        SmartDashboard.putNumber("Elev/PulseWVel", pwVel);
+        SmartDashboard.putNumber("Elev/MotorOuput", motorOut);
+        SmartDashboard.putNumber("Elev/ClosedLoopErr", closedLoopErr);
     }
 
 }

@@ -151,6 +151,31 @@ public class ArmSys extends Subsystem {
     }
 
 
+
+    private void sleep(int milliSecs) {
+        try {
+            Thread.sleep(milliSecs);
+        } catch (Exception ex) {}
+    }
+
+
+    public void initTopSwitch() {
+        mTopCounter.reset();
+    }
+
+    public boolean topSwitchSet() {
+        return mTopCounter.get() > 0;
+    }
+
+    public void initBotSwitch() {
+        mBotCounter.reset();
+    }
+
+    public boolean botSwitchSet() {
+        return mBotCounter.get() > 0;
+    }
+
+
     @Override
     public void initDefaultCommand() {
 
@@ -164,10 +189,17 @@ public class ArmSys extends Subsystem {
         mCounter = 0;
         mLastRelPosn = mTalon.getSelectedSensorPosition(0);
         mLastQuadPosn = mTalon.getSensorCollection().getQuadraturePosition();
+        initBotSwitch();
+        initTopSwitch();
         printPosn("initForMove");
     }
 
     public void move(ArmSys.Direction dir, double speed) {
+        if (topSwitchSet() || botSwitchSet()) {
+            System.out.println("*****************  ArmSys.move:  switch hit  top:" + mTopCounter.get() + "  bot: " + mBotCounter.get());
+            stop();
+            return;
+        }
         if (dir == ArmSys.Direction.Up) {
             mTalon.setInverted(true);
         } else {
@@ -194,11 +226,8 @@ public class ArmSys extends Subsystem {
         mTalon.config_kP(0, 0.6, kTimeoutMs);             // 1023 / 400  * 0.1
         mTalon.config_kI(0, 0.0, kTimeoutMs);
         mTalon.config_kD(0, 0.0, kTimeoutMs);
-        try {
-            Thread.sleep(10);
-        }
-        catch (Exception ex) {
-        }
+        sleep(10);
+
         //double curPosn = mTalon.getSelectedSensorPosition(0);
         double curPosn = Math.abs(mTalon.getSelectedSensorPosition(0));
         printPosn("holdPosn.before");
@@ -228,28 +257,30 @@ public class ArmSys extends Subsystem {
     private double mMMTargetPosn;
 
     private void printPosn(String caller) {
-        double curRelPosn = Math.abs(mTalon.getSelectedSensorPosition(0));
-//        if (curRelPosn < 0) {
-//            // curRelPosn is negative if moving down
-//            curRelPosn = -1 * curRelPosn;
-//        }
+        double sensPosn = mTalon.getSelectedSensorPosition(0);
+        String sensPosnSign = "(+)";
+        double absSensPosn = Math.abs(sensPosn);
+
+        if (sensPosn < 0) {
+            // absSensPosn is negative if moving down
+            sensPosnSign = "(-)";
+        }
         double quadPosn = mTalon.getSensorCollection().getQuadraturePosition();
         double pwPosn = mTalon.getSensorCollection().getPulseWidthPosition();
         double pwVel = mTalon.getSensorCollection().getPulseWidthVelocity();
-        double relDelta = curRelPosn - mLastRelPosn;
+        double relDelta = absSensPosn - mLastRelPosn;
         double quadDelta = quadPosn - mLastQuadPosn;
         double vel = mTalon.getSensorCollection().getQuadratureVelocity();
         double mout = mTalon.getMotorOutputPercent();
         double voltOut = mTalon.getMotorOutputVoltage();
-        mLastRelPosn = curRelPosn;
+        mLastRelPosn = absSensPosn;
         double closedLoopErr = mTalon.getClosedLoopError(0);
 
         mLastQuadPosn = quadPosn;
-        //System.out.println("ArmSys." + caller + ":    topSwitch: " + mTopCounter.get() + "   botSwitch: " + mBotCounter.get());
-        System.out.println("ArmSys." + caller + ":    Vel: " + vel + "  pwVel: " + pwVel + "  MotorOut: " + mout  +  "  voltOut: " + voltOut);
-        System.out.println("ArmSys." + caller + ":    MMStart: " + mMMStartPosn + "  MMTarg: " + mMMTargetPosn + "   relPosn: " + curRelPosn + "  relDelta: " + relDelta
-                + "  quadPosn: " + quadPosn  + "  quadDelta: " + quadDelta + "  pwPosn: " + pwPosn + "  clErr: " + closedLoopErr);
-        shuffleBd();
+        System.out.println("ElevatorSys." + caller + ":    topSwitch: " + mTopCounter.get() + "   botSwitch: " + mBotCounter.get());
+        System.out.println("ElevatorSys." + caller + "   sensPosn: " + sensPosnSign + absSensPosn + ":    Vel: " + vel + "  pwVel: " + pwVel + "  MotorOut: " + mout  +  "  voltOut: " + voltOut);
+//        System.out.println("ElevatorSys." + caller + ":    MMStart: " + mMMStartPosn + "  MMTarg: " + mMMTargetPosn + "   sensPosn: " + sensPosnSign + absSensPosn + "  relDelta: " + relDelta
+//                + "  quadPosn: " + quadPosn  + "  quadDelta: " + quadDelta + "  pwPosn: " + pwPosn + "  clErr: " + closedLoopErr);        shuffleBd();
     }
 
 
@@ -264,15 +295,15 @@ public class ArmSys extends Subsystem {
         double voltOut = mTalon.getMotorOutputVoltage();
         double closedLoopErr = mTalon.getClosedLoopError(0);
 
-        SmartDashboard.putNumber("Arm_MotorOuput", mout);
-        SmartDashboard.putNumber("Arm_VoltOut", voltOut);
-        SmartDashboard.putNumber("Arm_SensorPosn", curRelPosn);
-        SmartDashboard.putNumber("Arm_QuadPosn", quadPosn);
-        SmartDashboard.putNumber("Arm_QuadVel", quadVel);
-        SmartDashboard.putNumber("Arm_PulseWPosn", pwPosn);
-        SmartDashboard.putNumber("Arm_PulseWVel", pwVel);
-        SmartDashboard.putNumber("Arm_MotorOuput", mout);
-        SmartDashboard.putNumber("Arm_ClosedLoopErr", closedLoopErr);
+        SmartDashboard.putNumber("Arm/MotorOuput", mout);
+        SmartDashboard.putNumber("Arm/VoltOut", voltOut);
+        SmartDashboard.putNumber("Arm/SensorPosn", curRelPosn);
+        SmartDashboard.putNumber("Arm/QuadPosn", quadPosn);
+        SmartDashboard.putNumber("Arm/QuadVel", quadVel);
+        SmartDashboard.putNumber("Arm/PulseWPosn", pwPosn);
+        SmartDashboard.putNumber("Arm/PulseWVel", pwVel);
+        SmartDashboard.putNumber("Arm/MotorOuput", mout);
+        SmartDashboard.putNumber("Arm/ClosedLoopErr", closedLoopErr);
     }
 
 

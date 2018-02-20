@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.cdm.team6072.ControlBoard;
+import org.cdm.team6072.Robot;
 import org.cdm.team6072.RobotConfig;
 import org.cdm.team6072.commands.drive.ArcadeDriveCmd;
 import org.cdm.team6072.profiles.Constants;
@@ -86,12 +87,12 @@ public class DriveSys extends Subsystem {
             // used for motion profiling and autonomous management
             mMotionProfileManager = new MotionProfileManager(mMasterTalons);
 
-//            initAHRS();
-//
-//            initGyroPID();
-//            mGyroPID.setSetpoint(0);
-//            mGyroPID.enable();
-//            SmartDashboard.putData(mGyroPID);
+            mAhrs = Robot.getAHRS();
+
+            initGyroPID();
+            mGyroPID.setSetpoint(0);
+            mGyroPID.enable();
+            SmartDashboard.putData(mGyroPID);
         }
         catch (Exception ex) {
             System.out.println("Exception in DriveSys ctor: " + ex.getMessage() + "\r\n" + ex.getStackTrace());
@@ -121,25 +122,6 @@ public class DriveSys extends Subsystem {
     private PIDController mGyroPID;
     private PIDOutReceiver mGyroPIDOut;
 
-    private void initAHRS() {
-        try {
-          /* Communicate w/navX-MXP via the MXP SPI Bus.                                     */
-          /* Alternatively:  I2C.Port.kMXP, SerialPort.Port.kMXP or SerialPort.Port.kUSB     */
-          /* See http://navx-mxp.kauailabs.com/guidance/selecting-an-interface/ for details. */
-            mAhrs = new AHRS(SPI.Port.kMXP);
-            mAhrs.reset();
-            mAhrs.zeroYaw();
-        } catch (RuntimeException ex ) {
-            DriverStation.reportError("Error instantiating navX-MXP:  " + ex.getMessage(), true);
-        }
-        while (mAhrs.isCalibrating()) {
-            sleep(10);
-        }
-        System.out.println("DriveSys.initAHRS: YawAxis: " + mAhrs.getBoardYawAxis().board_axis.getValue()
-                + "  firmware: " + mAhrs.getFirmwareVersion()
-                + "  isConnected: " + mAhrs.isConnected()
-        );
-    }
 
     private void initGyroPID() {
         mGyroPIDOut = new PIDOutReceiver();
@@ -194,13 +176,13 @@ public class DriveSys extends Subsystem {
     private int mLoopCnt = 0;
     public void arcadeDrive(double mag, double yaw) {
         mRoboDrive.arcadeDrive(-mag, -yaw, true);
-        if (mLoopCnt++ % 50 == 0) {
-            System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw );
+        if (mLoopCnt++ % 10 == 0) {
+           System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw  );
 //                    + "  navAngle: " + mAhrs.getAngle() + "  navYaw: " + mAhrs.getYaw()
 //                    + "  PIDOut: " + mGyroPIDOut.getVal() + "  PID.kP: " + mGyroPID.getP());
 
-            SmartDashboard.putNumber("DriveSys.arc.mag", mag);
-            SmartDashboard.putNumber("DriveSys.arc.yaw", yaw);
+//            SmartDashboard.putNumber("DriveSys.arc.mag", mag);
+//            SmartDashboard.putNumber("DriveSys.arc.yaw", yaw);
 //            SmartDashboard.putNumber("DriveSys.arc.navAngle", mAhrs.getAngle());
 //            SmartDashboard.putNumber("DriveSys.arc.navYaw",  mAhrs.getYaw());
 //            SmartDashboard.putNumber("DriveSys.arc.PIDOut", mGyroPIDOut.getVal());

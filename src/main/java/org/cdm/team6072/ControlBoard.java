@@ -117,11 +117,11 @@ public class ControlBoard {
         drive_buttons[DRIVE_TEST-1].whenPressed(new TestDriveForward());
 
         drive_buttons[ELEVATOR_MOVE_UP-1] = new JoystickButton(drive_stick, ELEVATOR_MOVE_UP);
-        drive_buttons[ELEVATOR_MOVE_UP-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Up, 0.5));
+        drive_buttons[ELEVATOR_MOVE_UP-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Up, 0.4));
         drive_buttons[ELEVATOR_MOVE_UP-1].whenReleased(new StopElevatorCmd());
 
         drive_buttons[ELEVATOR_MOVE_DOWN-1] = new JoystickButton(drive_stick, ELEVATOR_MOVE_DOWN);
-        drive_buttons[ELEVATOR_MOVE_DOWN-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Down, 0.5));
+        drive_buttons[ELEVATOR_MOVE_DOWN-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Down, 0.3));
         drive_buttons[ELEVATOR_MOVE_DOWN-1].whenReleased(new StopElevatorCmd());
 
 //        drive_buttons[ELEVATOR_MOVE_MM_UP-1] = new JoystickButton(drive_stick, ELEVATOR_MOVE_MM_UP);
