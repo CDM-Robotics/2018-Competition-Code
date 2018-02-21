@@ -31,7 +31,7 @@ public class Robot extends IterativeRobot {
     private IntakePneumaticsSys mPneuSys;
     private IntakeMotorSys mIntakeMotorSys = IntakeMotorSys.getInstance();
 
-    PowerDistributionPanel mPDP = new PowerDistributionPanel(RobotConfig.PDP_ID);
+   // PowerDistributionPanel mPDP = new PowerDistributionPanel(RobotConfig.PDP_ID);
 
     // ControlBoard holds the operator interface code such as JoyStick
     private ControlBoard mControlBoard  = ControlBoard.getInstance();
@@ -132,38 +132,38 @@ public class Robot extends IterativeRobot {
     }
 
 //
-    private void Logging() {
-
-        try {
-            Path logFile = FileSystems.getDefault().getPath("/home/lvuser/logs", "PDP_Log.csv");
-            System.out.println("-------  Logging: path: " + logFile.toString() + " : " + logFile.toAbsolutePath().toString());
-            if (Files.notExists(logFile)) {
-                logFile = Files.createFile(logFile);
-                List<String> line = new ArrayList<String>();
-                line.add("time, DriveLeft, DriveRight, Elev, Arm");
-                Files.write(logFile, line, StandardCharsets.UTF_8);
-            }
-
-            double elvCurrent = mPDP.getCurrent(RobotConfig.ELEVATOR_TALON_PDP);
-            double armCurrent = mPDP.getCurrent(RobotConfig.ARM_TALON_PDP);
-            double driveLeftCurrent = mPDP.getCurrent(RobotConfig.DRIVE_LEFT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_LEFT_SLAVE0_PDP);
-            double driveRightCurrent = mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_SLAVE0_PDP);
-            //SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
-            Date now = new Date();
-            List<String> line = new ArrayList<String>();
-            String data = String.format("%tT, %f, %f, %f, %f", now, driveLeftCurrent, driveRightCurrent, elvCurrent, armCurrent);
-            line.add("time, DriveLeft, DriveRight, Elev, Arm");
-            Files.write(logFile, line, StandardCharsets.UTF_8);
-
-            SmartDashboard.putNumber("PDP.ElevCurrent", elvCurrent);
-            SmartDashboard.putNumber("PDP.ArmElevCurrent", armCurrent);
-            SmartDashboard.putNumber("PDP.DriveLeftCurrent", driveLeftCurrent);
-            SmartDashboard.putNumber("PDP.DriveRightCurrent", driveRightCurrent);
-        }
-        catch (Exception ex) {
-            System.out.println( "*******  Logging ex: "+ ex.getClass().getName() + "   msg: " + ex.getMessage() + " ");
-        }
-    }
+//    private void Logging() {
+//
+//        try {
+//            Path logFile = FileSystems.getDefault().getPath("/home/lvuser/logs", "PDP_Log.csv");
+//            System.out.println("-------  Logging: path: " + logFile.toString() + " : " + logFile.toAbsolutePath().toString());
+//            if (Files.notExists(logFile)) {
+//                logFile = Files.createFile(logFile);
+//                List<String> line = new ArrayList<String>();
+//                line.add("time, DriveLeft, DriveRight, Elev, Arm");
+//                Files.write(logFile, line, StandardCharsets.UTF_8);
+//            }
+//
+//            double elvCurrent = mPDP.getCurrent(RobotConfig.ELEVATOR_TALON_PDP);
+//            double armCurrent = mPDP.getCurrent(RobotConfig.ARM_TALON_PDP);
+//            double driveLeftCurrent = mPDP.getCurrent(RobotConfig.DRIVE_LEFT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_LEFT_SLAVE0_PDP);
+//            double driveRightCurrent = mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_SLAVE0_PDP);
+//            //SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
+//            Date now = new Date();
+//            List<String> line = new ArrayList<String>();
+//            String data = String.format("%tT, %f, %f, %f, %f", now, driveLeftCurrent, driveRightCurrent, elvCurrent, armCurrent);
+//            line.add("time, DriveLeft, DriveRight, Elev, Arm");
+//            Files.write(logFile, line, StandardCharsets.UTF_8);
+//
+//            SmartDashboard.putNumber("PDP.ElevCurrent", elvCurrent);
+//            SmartDashboard.putNumber("PDP.ArmElevCurrent", armCurrent);
+//            SmartDashboard.putNumber("PDP.DriveLeftCurrent", driveLeftCurrent);
+//            SmartDashboard.putNumber("PDP.DriveRightCurrent", driveRightCurrent);
+//        }
+//        catch (Exception ex) {
+//            System.out.println( "*******  Logging ex: "+ ex.getClass().getName() + "   msg: " + ex.getMessage() + " ");
+//        }
+//    }
 
 
 

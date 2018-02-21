@@ -35,7 +35,7 @@ public class TankDriveCmd extends Command {
         //driveSys.tankDrive(mStick.getRawAxis(1), mStick.getRawAxis(0));
         //driveSys.tankDrive(mStick, 0, mStick, 1);
 
-        mDriveSys.tankDrive(ControlBoard.getInstance().drive_stick.getY(), ControlBoard.getInstance().drive_stick.getY());
+        mDriveSys.tankDrive(ControlBoard.getInstance().drive_stick.getY(), ControlBoard.getInstance().drive_stick.getX());
         //driveSys.tankDrive(ControlBoard.getInstance().drive_stick.getY(GenericHID.Hand.kLeft), ControlBoard.getInstance().drive_stick.getY(GenericHID.Hand.kRight));
         // 3D Pro Joystick
 

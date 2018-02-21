@@ -160,6 +160,8 @@ public class ElevatorSys extends Subsystem {
             mTalon.setSensorPhase(mSensorPhase);
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
 
+            mTalon.configOpenloopRamp(0.5, 10);
+
             // set slot zero for position hold closed loop
             mTalon.configNominalOutputForward(0, kTimeoutMs);
             mTalon.configNominalOutputReverse(0, kTimeoutMs);
@@ -312,11 +314,11 @@ public class ElevatorSys extends Subsystem {
     private int mMoveLoopCtr  = 0;
 
     public void move(Direction dir, double speed) {
-        if (topSwitchSet() || botSwitchSet()) {
-            System.out.println("*****************  ElvSys.move:  switch hit  top:" + mTopCounter.get() + "  bot: " + mBotCounter.get());
-            stop();
-            return;
-        }
+//        if (topSwitchSet() || botSwitchSet()) {
+//            System.out.println("*****************  ElvSys.move:  switch hit  top:" + mTopCounter.get() + "  bot: " + mBotCounter.get());
+//            stop();
+//            return;
+//        }
         if (dir == Direction.Up) {
             mTalon.setInverted(false);
         } else {

@@ -125,11 +125,11 @@ public class ControlBoard {
         drive_buttons[DRIVE_TEST-1].whenPressed(new TestDriveForward());
 
         drive_buttons[ELEVATOR_MOVE_UP-1] = new JoystickButton(drive_stick, ELEVATOR_MOVE_UP);
-        drive_buttons[ELEVATOR_MOVE_UP-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Up, 0.4));
+        drive_buttons[ELEVATOR_MOVE_UP-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Up, 1.0));
         drive_buttons[ELEVATOR_MOVE_UP-1].whenReleased(new StopElevatorCmd());
 
         drive_buttons[ELEVATOR_MOVE_DOWN-1] = new JoystickButton(drive_stick, ELEVATOR_MOVE_DOWN);
-        drive_buttons[ELEVATOR_MOVE_DOWN-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Down, 0.3));
+        drive_buttons[ELEVATOR_MOVE_DOWN-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Down, 0.2));
         drive_buttons[ELEVATOR_MOVE_DOWN-1].whenReleased(new StopElevatorCmd());
 
 //        drive_buttons[ELEVATOR_MOVE_MM_UP-1] = new JoystickButton(drive_stick, ELEVATOR_MOVE_MM_UP);
@@ -180,13 +180,13 @@ public class ControlBoard {
 //        control_buttons[ELEVATOR_MOVE_DOWN-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Down, 0.5));
 //        control_buttons[ELEVATOR_MOVE_DOWN-1].whenReleased(new StopElevatorCmd());
 
-//        control_buttons[ARM_MOVE_UP-1] = new JoystickButton(control_stick, ARM_MOVE_UP);
-//        control_buttons[ARM_MOVE_UP-1].whenPressed(new ArmMoveCmd(ArmSys.Direction.Up, 0.5));
-//        control_buttons[ARM_MOVE_UP-1].whenReleased(new ArmStopCmd());
-//
-//        control_buttons[ARM_MOVE_DOWN-1] = new JoystickButton(control_stick, ARM_MOVE_DOWN);
-//        control_buttons[ARM_MOVE_DOWN-1].whenPressed(new ArmMoveCmd(ArmSys.Direction.Down, 0.5));
-//        control_buttons[ARM_MOVE_DOWN-1].whenReleased(new ArmStopCmd());
+        control_buttons[ARM_MOVE_UP-1] = new JoystickButton(control_stick, ARM_MOVE_UP);
+        control_buttons[ARM_MOVE_UP-1].whenPressed(new ArmMoveCmd(ArmSys.Direction.Up, 0.5));
+        control_buttons[ARM_MOVE_UP-1].whenReleased(new ArmStopCmd());
+
+        control_buttons[ARM_MOVE_DOWN-1] = new JoystickButton(control_stick, ARM_MOVE_DOWN);
+        control_buttons[ARM_MOVE_DOWN-1].whenPressed(new ArmMoveCmd(ArmSys.Direction.Down, 0.5));
+        control_buttons[ARM_MOVE_DOWN-1].whenReleased(new ArmStopCmd());
 
 
 //        control_buttons[ELEVATOR_MOVETO_BASE-1] = new JoystickButton(control_stick, ELEVATOR_MOVETO_BASE);

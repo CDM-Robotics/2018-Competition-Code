@@ -32,7 +32,7 @@ public class ArcadeDriveCmd extends Command {
      * or the OI stops requesting - for example if the whileHeld() button command is used
      */
     protected void execute() {
-        mDriveSys.arcadeDrive(mStick.getY(), mStick.getZ());
+        mDriveSys.arcadeDrive(mStick.getY(), mStick.getX());
     }
 
 

@@ -26,6 +26,7 @@ import org.cdm.team6072.ControlBoard;
 import org.cdm.team6072.Robot;
 import org.cdm.team6072.RobotConfig;
 import org.cdm.team6072.commands.drive.ArcadeDriveCmd;
+import org.cdm.team6072.commands.drive.TankDriveCmd;
 import org.cdm.team6072.profiles.Constants;
 import org.cdm.team6072.autonomous.MotionProfileManager;
 import org.cdm.team6072.profiles.drive.DrivetrainProfile;
@@ -87,9 +88,8 @@ public class DriveSys extends Subsystem {
             mMasterTalons.add(mRight_Master);
             mMasterTalons.add(mLeft_Master);
 
-            setGearHi();
-
             mSol_GearShift = new DoubleSolenoid(RobotConfig.PCM_ID, RobotConfig.DRIVE_GEAR_FWD_LO, RobotConfig.DRIVE_GEAR_REV_HI);
+            setGearHi();
 
             // used for motion profiling and autonomous management
             mMotionProfileManager = new MotionProfileManager(mMasterTalons);
@@ -166,6 +166,7 @@ public class DriveSys extends Subsystem {
     public void initDefaultCommand() {
         System.out.println("DriveSys: init default command");
         setDefaultCommand(new ArcadeDriveCmd(ControlBoard.getInstance().drive_stick));
+//        setDefaultCommand(new TankDriveCmd(ControlBoard.getInstance().drive_stick));
     }
 
     // gear shifting code  ----------------------------------------------------------------------------------
@@ -216,9 +217,9 @@ public class DriveSys extends Subsystem {
 
     private int mLoopCnt = 0;
     public void arcadeDrive(double mag, double yaw) {
-        mRoboDrive.arcadeDrive(-mag, -yaw, true);
+        mRoboDrive.arcadeDrive(-mag, yaw, true);
         if (mLoopCnt++ % 10 == 0) {
-           System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw  );
+//           System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw  );
 //                    + "  navAngle: " + mAhrs.getAngle() + "  navYaw: " + mAhrs.getYaw()
 //                    + "  PIDOut: " + mGyroPIDOut.getVal() + "  PID.kP: " + mGyroPID.getP());
 
