@@ -95,6 +95,7 @@ public class DriveSys extends Subsystem {
             mMotionProfileManager = new MotionProfileManager(mMasterTalons);
 
             mAhrs = Robot.getAHRS();
+            mAdsState = AdsState.Straight;      // set arcadeDriveStraight to drive straight state
 
             initGyroPID();
             mGyroPID.setSetpoint(0);
@@ -104,6 +105,22 @@ public class DriveSys extends Subsystem {
         catch (Exception ex) {
             System.out.println("Exception in DriveSys ctor: " + ex.getMessage() + "\r\n" + ex.getStackTrace());
         }
+    }
+
+
+    /**
+     * Each subsystem may, but is not required to, have a default command
+     * which is scheduled whenever the subsystem is idle
+     * (the command currently requiring the system completes).
+     *  The most common example of a default command is a command for the drivetrain
+     *  that implements the normal joystick control. This command may be interrupted
+     *  by other commands for specific maneuvers ("precision mode", automatic alignment/targeting, etc.)
+     *  but after any command requiring the drivetrain completes the joystick command would be scheduled again.
+     */
+    public void initDefaultCommand() {
+        System.out.println("DriveSys: init default command");
+        setDefaultCommand(new ArcadeDriveCmd(ControlBoard.getInstance().drive_stick));
+//        setDefaultCommand(new TankDriveCmd(ControlBoard.getInstance().drive_stick));
     }
 
 
@@ -138,8 +155,7 @@ public class DriveSys extends Subsystem {
         // Makes PIDController.onTarget() return True when PIDInput is within the Setpoint +/- the absolute tolerance.
         mGyroPID.setAbsoluteTolerance(kToleranceDegrees);
         // Treats the input ranges as the same, continuous point rather than two boundaries, so it can calculate shorter routes.
-        // For example, in a gyro, 0 and 360 are the same point, and should be continuous.
-        // Needs setInputRanges.
+        // For example, in a gyro, 0 and 360 are the same point, and should be continuous. Needs setInputRanges.
         mGyroPID.setContinuous(true);
         mGyroPID.setName("DriveSys.GyroPID");
         System.out.println("DriveSys.initGyroPID:  AHRS.SrcType: " + mAhrs.getPIDSourceType().name());
@@ -154,20 +170,8 @@ public class DriveSys extends Subsystem {
     }
 
 
-    /**
-     * Each subsystem may, but is not required to, have a default command
-     * which is scheduled whenever the subsystem is idle
-     * (the command currently requiring the system completes).
-     *  The most common example of a default command is a command for the drivetrain
-     *  that implements the normal joystick control. This command may be interrupted
-     *  by other commands for specific maneuvers ("precision mode", automatic alignment/targeting, etc.)
-     *  but after any command requiring the drivetrain completes the joystick command would be scheduled again.
-     */
-    public void initDefaultCommand() {
-        System.out.println("DriveSys: init default command");
-        setDefaultCommand(new ArcadeDriveCmd(ControlBoard.getInstance().drive_stick));
-//        setDefaultCommand(new TankDriveCmd(ControlBoard.getInstance().drive_stick));
-    }
+
+
 
     // gear shifting code  ----------------------------------------------------------------------------------
 
@@ -204,6 +208,8 @@ public class DriveSys extends Subsystem {
     }
 
 
+    // driving  ---------------------------------------------------------------------------------------------
+
     /**
      * Implement the tank drive method for the RobotDrive
      * Allows external access for commands without exposing the RobotDrive object
@@ -218,6 +224,106 @@ public class DriveSys extends Subsystem {
     private int mLoopCnt = 0;
     public void arcadeDrive(double mag, double yaw) {
         mRoboDrive.arcadeDrive(-mag, yaw, true);
+        if (mLoopCnt++ % 10 == 0) {
+//           System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw  );
+//                    + "  navAngle: " + mAhrs.getAngle() + "  navYaw: " + mAhrs.getYaw()
+//                    + "  PIDOut: " + mGyroPIDOut.getVal() + "  PID.kP: " + mGyroPID.getP());
+
+//            SmartDashboard.putNumber("DriveSys.arc.mag", mag);
+//            SmartDashboard.putNumber("DriveSys.arc.yaw", yaw);
+//            SmartDashboard.putNumber("DriveSys.arc.navAngle", mAhrs.getAngle());
+//            SmartDashboard.putNumber("DriveSys.arc.navYaw",  mAhrs.getYaw());
+//            SmartDashboard.putNumber("DriveSys.arc.PIDOut", mGyroPIDOut.getVal());
+//            SmartDashboard.putNumber("DriveSys.arc.PID_kP",  mGyroPID.getP());
+        }
+    }
+
+
+    private int mStateTransitionCtr;
+
+    private enum AdsState {
+        Straight,
+        OperatorTurn
+    }
+    private AdsState mAdsState;
+
+    private static final int kAdsStateDriveToOpTurn = 5;     // roughly 100mS assuming called every 20 mS
+    private static final int kAdsStateOpTurnToDrive = 25;    // roughly 200mS assuming called every 20 mS
+
+    private int mAdsStateDriveToOpTurnCtr;
+    private int mAdsStateOpTurnToDriveCtr;
+
+    // hold the last n directions recorded, to be averaged on state transition
+    private double[] mAdsDirns = new double[kAdsStateOpTurnToDrive];
+    private int mAdsDirnsIndex = 0;
+
+    /**
+     * Use the gyro PID to assist in driving straight.
+     * Idea is
+     *      if in state drive
+     *          and operator does a firm yaw for a period,
+     *          then
+     *              treat as a normal turn (disable gyro)
+     *      If in state OpTurn
+     *          and yaw is inside deadband for a period,
+     *          then
+     *              average the direction over the period
+     *              treat that as the direction we want
+     *              use gyro to drive straight in that direction
+     * If yaw > kOperatorTurn for k
+     *
+     * mAhrs.getAngle() returns the accumulated yaw angle since yaw reset
+     * @param mag
+     * @param yaw
+     */
+    public void arcadeDriveStraight(double mag, double yaw) {
+
+        boolean inDeadband = yaw <= 0.05;
+        mAdsDirns[mAdsDirnsIndex] = mAhrs.getCompassHeading();
+        mAdsDirnsIndex = (mAdsDirnsIndex + 1) % kAdsStateOpTurnToDrive;
+        if (mAdsState == AdsState.Straight) {
+            if (inDeadband) {
+                // keep driving according to gyro - need to get PID correction
+                mAdsStateDriveToOpTurnCtr = 0;
+                yaw = mGyroPIDOut.getVal();
+            }
+            else {
+                // check how long, maybe transition to OpTurn
+                mAdsStateDriveToOpTurnCtr++;
+                if (mAdsStateDriveToOpTurnCtr == kAdsStateDriveToOpTurn) {
+                    mAdsStateOpTurnToDriveCtr++;
+                    mAdsState = AdsState.OperatorTurn;
+                    System.out.println("DriveSys: arcDrvSt: transition to operator turn");
+                }
+            }
+        }
+        else {
+            // we are in operator turn
+            if (inDeadband) {
+                // might have completed turn - check how long, maybe transition to drive straight
+                mAdsStateOpTurnToDriveCtr++;
+                if (mAdsStateOpTurnToDriveCtr == kAdsStateOpTurnToDrive) {
+                    // transition to drive straight - average the direction, set gyro
+                    // do not actually use the PID this iteration - give it time to settle
+                    double avgDirn = 0;
+                    for (int i = 0; i < kAdsStateOpTurnToDrive; i++) {
+                        avgDirn += mAdsDirns[i];
+                    }
+                    avgDirn = avgDirn / kAdsStateOpTurnToDrive;
+                    mGyroPID.setSetpoint(avgDirn);
+                    mAdsState = AdsState.Straight;
+                    System.out.println("DriveSys: arcDrvSt: transition to drive straight - angle: " + avgDirn);
+                }
+                else {
+                    // keep turning
+                }
+            }
+            else {
+                // not in deadband - keep turning
+            }
+        }
+
+        mRoboDrive.arcadeDrive(-mag, yaw, false);
         if (mLoopCnt++ % 10 == 0) {
 //           System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw  );
 //                    + "  navAngle: " + mAhrs.getAngle() + "  navYaw: " + mAhrs.getYaw()
