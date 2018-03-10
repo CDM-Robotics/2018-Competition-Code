@@ -137,9 +137,9 @@ public class AutoDriveSys extends Subsystem {
             double angleDifference = Pathfinder.boundHalfDegrees(desired_heading - gyro_heading);
             double turn = 0.8 * (-1.0/80.0) * angleDifference;
 
-
+            mLeft_Master.set(leftOutput);
+            mRight_Master.set(rightOutput);
        // }
-
     }
 
 }
