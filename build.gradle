@@ -54,6 +54,7 @@ dependencies {
     compile ctre()
     compile navx()
     compile openrio.powerup.matchData()
+    compile pathfinder()
     compile 'org.codehaus.groovy:groovy-all:2.4.10'
 }
 
