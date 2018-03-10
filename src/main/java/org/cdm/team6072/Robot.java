@@ -283,6 +283,8 @@ public class Robot extends IterativeRobot {
     public void autonomousInit() {
         //super.autonomousInit();
         System.out.println("auto init (6072)");
+
+        AutoDriveSys driveSys = AutoDriveSys.getInstance();
         /*TestDriveForward cmd = new TestDriveForward();
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(cmd);*/
