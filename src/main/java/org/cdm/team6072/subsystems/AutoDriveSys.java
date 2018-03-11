@@ -94,12 +94,12 @@ public class AutoDriveSys extends Subsystem {
 
         Trajectory left = modifier.getLeftTrajectory();
         this.leftFollower = new EncoderFollower(left);
-        this.leftFollower.configureEncoder(this.leftEncoderPos, 4096, wheelWidthMeters);
+        this.leftFollower.configureEncoder(this.leftEncoderPos, 1024, wheelWidthMeters);
         this.leftFollower.configurePIDVA(1.0, 0.0, 0.0, 1/3, 0);
 
         Trajectory right = modifier.getRightTrajectory();
         this.rightFollower = new EncoderFollower(right);
-        this.rightFollower.configureEncoder(this.rightEncodePos, 4096, wheelWidthMeters);
+        this.rightFollower.configureEncoder(this.rightEncodePos, 1024, wheelWidthMeters);
         this.rightFollower.configurePIDVA(1.0, 0.0, 0.0, 1/3, 0);
     }
 

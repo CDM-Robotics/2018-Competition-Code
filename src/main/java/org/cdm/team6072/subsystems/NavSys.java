@@ -56,6 +56,7 @@ public class NavSys implements PIDOutput {
 
     }
 
+    // getting the navX direction in degrees
     public double getHeading() {
         return this.navX.getAngle();
     }
