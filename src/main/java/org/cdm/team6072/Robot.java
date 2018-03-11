@@ -60,6 +60,7 @@ public class Robot extends IterativeRobot {
         // AHRS MUST BE INIT in RobotInit or you get bad results
         initAHRS();
         CameraManager.getInstance().runCameras();
+        CameraManager.getInstance().runFilter();
         //CameraManager.getInstance().runFilter();
     }
 

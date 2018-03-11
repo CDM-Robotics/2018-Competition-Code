@@ -46,9 +46,11 @@ public class CameraManager {
     public void runFilter() {
 
         Thread filterThread = new Thread(() -> {
-            CameraServer.getInstance().startAutomaticCapture();
+            CameraServer.getInstance().startAutomaticCapture().setVideoMode(VideoMode.PixelFormat.kYUYV, 320, 340, 30);
             CvSink cvSink = CameraServer.getInstance().getVideo();
-            CvSource outputStream = CameraServer.getInstance().putVideo("Test", 640, 480);
+
+            CvSource outputStream = CameraServer.getInstance().putVideo("runFilter Test", 320, 240);
+            outputStream.setFPS(30);
 
             Mat source = new Mat();
             Mat output = new Mat();
