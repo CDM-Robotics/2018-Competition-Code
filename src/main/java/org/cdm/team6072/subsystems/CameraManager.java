@@ -52,14 +52,14 @@ public class CameraManager {
             CvSource outputStream = CameraServer.getInstance().putVideo("runFilter Test", 320, 240);
             outputStream.setFPS(30);
 
-            Mat source = new Mat();
+            /*Mat source = new Mat();
             Mat output = new Mat();
 
             while (!Thread.interrupted()) {
                 cvSink.grabFrame(source);
                 Imgproc.cvtColor(source, output, Imgproc.COLOR_BGR2GRAY);
                 outputStream.putFrame(output);
-            }
+            }*/
         });
         filterThread.start();
 
