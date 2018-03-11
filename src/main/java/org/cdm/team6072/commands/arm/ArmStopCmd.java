@@ -15,14 +15,14 @@ public class ArmStopCmd extends Command {
     }
 
     protected void execute() {
-        System.out.println("ArmStopCmd: ---------------------------------------");
+//        System.out.println("ArmStopCmd: ---------------------------------------");
         ArmSys.getInstance().stop();
-        System.out.println("ArmStopCmd end: ---------------------------------------");
+//        System.out.println("ArmStopCmd end: ---------------------------------------");
     }
 
     @Override
     protected boolean isFinished() {
-        return true;
+        return ArmSys.getInstance().stopComplete();
     }
 
 

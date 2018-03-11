@@ -33,6 +33,7 @@ public class AutoDriveSys extends Subsystem {
     ArrayList<TalonSRX> mMasterTalons = new ArrayList<TalonSRX>();
 
     private DifferentialDrive mRoboDrive;
+
     private Waypoint[] points = new Waypoint[] {
       new Waypoint(-4, -1, Pathfinder.d2r(-45)),
       new Waypoint(-2 ,-2, 0),
@@ -69,14 +70,21 @@ public class AutoDriveSys extends Subsystem {
 
             mMasterTalons.add(mRight_Master);
             mMasterTalons.add(mLeft_Master);
+
+            initializeSystem();
         }
         catch (Exception ex) {
             System.out.println("Exception in AutoDriveSys ctor: " + ex.getMessage() + "\r\n" + ex.getStackTrace());
         }
     }
 
+
+    // 26 inches converted to meters
+    private static double WHEELWIDTH = 26 * 2.54 / 100;
+
+
     private void initializeSystem() {
-        double wheelWidthMeters = 0.5;
+        double wheelWidthMeters = WHEELWIDTH;
 
         TankModifier modifier = new TankModifier(this.getTrajectory());
         modifier.modify(wheelWidthMeters);
@@ -126,19 +134,20 @@ public class AutoDriveSys extends Subsystem {
     public void advanceTrajectory() {
        // boolean keepAlive = true;
        // while (keepAlive) {
-            double leftOutput = leftFollower.calculate(this.leftEncoderPos);
-            double rightOutput = rightFollower.calculate(this.rightEncodePos);
+        double leftOutput = leftFollower.calculate(this.leftEncoderPos);
+        double rightOutput = rightFollower.calculate(this.rightEncodePos);
 
-            System.out.println("AutoDriveSys.startControlLoop: left output -> " + leftOutput + ", right output -> " + rightOutput);
+        System.out.println("AutoDriveSys.startControlLoop: left output -> " + leftOutput + ", right output -> " + rightOutput);
 
-            double gyro_heading = 0.0;
-            double desired_heading = Pathfinder.r2d(leftFollower.getHeading());
+        double gyro_heading = 0.0;
+        double desired_heading = Pathfinder.r2d(leftFollower.getHeading());
 
-            double angleDifference = Pathfinder.boundHalfDegrees(desired_heading - gyro_heading);
-            double turn = 0.8 * (-1.0/80.0) * angleDifference;
+        double angleDifference = Pathfinder.boundHalfDegrees(desired_heading - gyro_heading);
+        double turn = 0.8 * (-1.0/80.0) * angleDifference;
 
-            mLeft_Master.set(leftOutput);
-            mRight_Master.set(rightOutput);
+//            mLeft_Master.set(leftOutput);
+//            mRight_Master.set(rightOutput);
+        mRoboDrive.tankDrive(leftOutput, rightOutput);
        // }
     }
 

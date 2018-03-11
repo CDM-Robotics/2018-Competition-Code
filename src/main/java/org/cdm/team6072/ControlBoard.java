@@ -124,13 +124,13 @@ public class ControlBoard {
         drive_buttons[DRIVE_TEST-1] = new JoystickButton(drive_stick, DRIVE_TEST);
         drive_buttons[DRIVE_TEST-1].whenPressed(new TestDriveForward());
 
-        drive_buttons[ELEVATOR_MOVE_UP-1] = new JoystickButton(drive_stick, ELEVATOR_MOVE_UP);
-        drive_buttons[ELEVATOR_MOVE_UP-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Up, 1.0));
-        drive_buttons[ELEVATOR_MOVE_UP-1].whenReleased(new StopElevatorCmd());
-
-        drive_buttons[ELEVATOR_MOVE_DOWN-1] = new JoystickButton(drive_stick, ELEVATOR_MOVE_DOWN);
-        drive_buttons[ELEVATOR_MOVE_DOWN-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Down, 0.2));
-        drive_buttons[ELEVATOR_MOVE_DOWN-1].whenReleased(new StopElevatorCmd());
+//        drive_buttons[ELEVATOR_MOVE_UP-1] = new JoystickButton(drive_stick, ELEVATOR_MOVE_UP);
+//        drive_buttons[ELEVATOR_MOVE_UP-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Up, 1.0));
+//        drive_buttons[ELEVATOR_MOVE_UP-1].whenReleased(new StopElevatorCmd());
+//
+//        drive_buttons[ELEVATOR_MOVE_DOWN-1] = new JoystickButton(drive_stick, ELEVATOR_MOVE_DOWN);
+//        drive_buttons[ELEVATOR_MOVE_DOWN-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Down, 0.2));
+//        drive_buttons[ELEVATOR_MOVE_DOWN-1].whenReleased(new StopElevatorCmd());
 
 //        drive_buttons[ELEVATOR_MOVE_MM_UP-1] = new JoystickButton(drive_stick, ELEVATOR_MOVE_MM_UP);
 //        drive_buttons[ELEVATOR_MOVE_MM_UP-1].whenPressed(new ElvMotionMagicCmd(ElevatorSys.Direction.Up, 1));
@@ -140,8 +140,8 @@ public class ControlBoard {
 //        drive_buttons[ELEVATOR_MOVE_MM_DOWN-1].whenPressed(new ElvMotionMagicCmd(ElevatorSys.Direction.Down, 1));
 //        drive_buttons[ELEVATOR_MOVE_MM_DOWN-1].whenReleased(new StopElevatorCmd());
 
-        drive_buttons[ELEVATOR_MOVETO_BASE-1] = new JoystickButton(drive_stick, ELEVATOR_MOVETO_BASE);
-        drive_buttons[ELEVATOR_MOVETO_BASE-1].whenPressed(new ElvMoveToBaseCmd(ElevatorSys.Direction.Down, 1));
+//        drive_buttons[ELEVATOR_MOVETO_BASE-1] = new JoystickButton(drive_stick, ELEVATOR_MOVETO_BASE);
+//        drive_buttons[ELEVATOR_MOVETO_BASE-1].whenPressed(new ElvMoveToBaseCmd(ElevatorSys.Direction.Down, 1));
 
 //        drive_buttons[ELEVATOR_MOVETO_SCALE-1] = new JoystickButton(drive_stick, ELEVATOR_MOVETO_SCALE);
 //        drive_buttons[ELEVATOR_MOVETO_SCALE-1].whenPressed(new ElvMoveToScaleCmd());
@@ -172,13 +172,13 @@ public class ControlBoard {
         control_buttons = new JoystickButton[12];
 
         // map buttons and actions
-//        control_buttons[ELEVATOR_MOVE_UP-1] = new JoystickButton(control_stick, ELEVATOR_MOVE_UP);
-//        control_buttons[ELEVATOR_MOVE_UP-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Up, 0.5));
-//        control_buttons[ELEVATOR_MOVE_UP-1].whenReleased(new StopElevatorCmd());
-//
-//        control_buttons[ELEVATOR_MOVE_DOWN-1] = new JoystickButton(control_stick, ELEVATOR_MOVE_DOWN);
-//        control_buttons[ELEVATOR_MOVE_DOWN-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Down, 0.5));
-//        control_buttons[ELEVATOR_MOVE_DOWN-1].whenReleased(new StopElevatorCmd());
+        control_buttons[ELEVATOR_MOVE_UP-1] = new JoystickButton(control_stick, ELEVATOR_MOVE_UP);
+        control_buttons[ELEVATOR_MOVE_UP-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Up, 1.0));
+        control_buttons[ELEVATOR_MOVE_UP-1].whenReleased(new StopElevatorCmd());
+
+        control_buttons[ELEVATOR_MOVE_DOWN-1] = new JoystickButton(control_stick, ELEVATOR_MOVE_DOWN);
+        control_buttons[ELEVATOR_MOVE_DOWN-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Down, 1.0));
+        control_buttons[ELEVATOR_MOVE_DOWN-1].whenReleased(new StopElevatorCmd());
 
         control_buttons[ARM_MOVE_UP-1] = new JoystickButton(control_stick, ARM_MOVE_UP);
         control_buttons[ARM_MOVE_UP-1].whenPressed(new ArmMoveCmd(ArmSys.Direction.Up, 0.5));
@@ -196,11 +196,11 @@ public class ControlBoard {
 //        control_buttons[ELEVATOR_MOVETO_SCALE-1].whenPressed(new ElvMoveToScaleCmd(ElevatorSys.Direction.Down, 0.5));
 
         control_buttons[INTAKE_WHEELS_IN_BTN-1] = new JoystickButton(control_stick, INTAKE_WHEELS_IN_BTN);
-        control_buttons[INTAKE_WHEELS_IN_BTN-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In));
+        control_buttons[INTAKE_WHEELS_IN_BTN-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In, 0.25));
         control_buttons[INTAKE_WHEELS_IN_BTN-1].whenReleased(new StopIntakeWheelsCmd());
 
         control_buttons[INTAKE_WHEELS_OUT_BTN-1] = new JoystickButton(control_stick, INTAKE_WHEELS_OUT_BTN);
-        control_buttons[INTAKE_WHEELS_OUT_BTN-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out));
+        control_buttons[INTAKE_WHEELS_OUT_BTN-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 0.5));
         control_buttons[INTAKE_WHEELS_OUT_BTN-1].whenReleased(new StopIntakeWheelsCmd());
 
         control_buttons[INTAKE_OPEN_BTN-1] = new JoystickButton(control_stick, INTAKE_OPEN_BTN);

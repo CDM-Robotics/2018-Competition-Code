@@ -50,7 +50,7 @@ public class IntakeMotorSys extends Subsystem {
     }
 
 
-    public void runWheels(WheelDirn dir) {
+    public void runWheels(WheelDirn dir, double speed) {
         if (dir == WheelDirn.In) {
             mTalonLeft.setInverted(false);
             mTalonRight.setInverted(true);
@@ -59,19 +59,24 @@ public class IntakeMotorSys extends Subsystem {
             mTalonLeft.setInverted(true);
             mTalonRight.setInverted(false);
         }
-        mTalonLeft.set(ControlMode.PercentOutput, 0.5);
-        mTalonRight.set(ControlMode.PercentOutput, 0.5);
+        mTalonLeft.set(ControlMode.PercentOutput, speed);
+        mTalonRight.set(ControlMode.PercentOutput, speed);
     }
 
 
+    /**
+     * On stop, set wheels in very slow
+     */
     public void stopWheels() {
-        mTalonLeft.set(ControlMode.PercentOutput, 0);
-        mTalonRight.set(ControlMode.PercentOutput, 0);
+        mTalonLeft.setInverted(false);
+        mTalonRight.setInverted(true);
+        mTalonLeft.set(ControlMode.PercentOutput, 0.05);
+        mTalonRight.set(ControlMode.PercentOutput, 0.05);
         // In Position mode, output value is in encoder ticks or an analog value, depending on the sensor.
-        double curPosnLeft = mTalonLeft.getSelectedSensorPosition(0);
-        mTalonLeft.set(ControlMode.Position, curPosnLeft);
-        double curPosnRight = mTalonRight.getSelectedSensorPosition(0);
-        mTalonRight.set(ControlMode.Position, curPosnRight);
+//        double curPosnLeft = mTalonLeft.getSelectedSensorPosition(0);
+//        mTalonLeft.set(ControlMode.Position, curPosnLeft);
+//        double curPosnRight = mTalonRight.getSelectedSensorPosition(0);
+//        mTalonRight.set(ControlMode.Position, curPosnRight);
     }
 
 

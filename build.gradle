@@ -56,6 +56,7 @@ dependencies {
     compile openrio.powerup.matchData()
     compile pathfinder()
     compile 'org.codehaus.groovy:groovy-all:2.4.10'
+    compile pathfinder()
 }
 
 // Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')

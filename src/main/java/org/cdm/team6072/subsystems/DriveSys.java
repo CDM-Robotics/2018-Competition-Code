@@ -223,7 +223,8 @@ public class DriveSys extends Subsystem {
 
     private int mLoopCnt = 0;
     public void arcadeDrive(double mag, double yaw) {
-        mRoboDrive.arcadeDrive(-mag, yaw, true);
+        yaw = yaw * 0.8;        // reduce sensitivity on turn
+        mRoboDrive.arcadeDrive(mag, yaw, true);
         if (mLoopCnt++ % 10 == 0) {
 //           System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw  );
 //                    + "  navAngle: " + mAhrs.getAngle() + "  navYaw: " + mAhrs.getYaw()

@@ -79,6 +79,8 @@ public class Robot extends IterativeRobot {
     public void teleopInit() {
         System.out.println("6072: teleop init");
         mTelopLoopCtr = 0;
+
+        mElevatorSys.setSensorStartPosn();
         //mPneuSys = IntakePneumaticsSys.getInstance();
 
         // drivesys now has ArcadeCommand set as default cmd

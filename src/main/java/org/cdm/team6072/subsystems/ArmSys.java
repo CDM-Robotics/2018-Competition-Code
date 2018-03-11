@@ -189,6 +189,7 @@ public class ArmSys extends Subsystem {
 
     public void initForMove() {
         mCounter = 0;
+        mStopMode = StopMode.Moving;
         mLastRelPosn = mTalon.getSelectedSensorPosition(0);
         mLastQuadPosn = mTalon.getSensorCollection().getQuadraturePosition();
         initBotSwitch();
@@ -213,47 +214,82 @@ public class ArmSys extends Subsystem {
         }
     }
 
+    private enum StopMode {
+        Moving,
+        Stopping,
+        StopComplete,
+    }
+
+    private StopMode mStopMode = StopMode.Moving;
+
+    private double mLastError = 0;
+    private int mStopCallCount = 0;
+
     /**
      * Stop movement and move to closed loop position hold
      */
     public void stop() {
-        mTalon.set(ControlMode.PercentOutput, 0);
-        holdPosn();
-    }
-    
-    
-    private void holdPosn() {
-                /* set closed loop gains in slot0, typically kF stays zero. */
-        mTalon.config_kF(0, 0.0, kTimeoutMs);             // 1023/1180
-        mTalon.config_kP(0, 2.0, kTimeoutMs);             // 1023 / 400  * 0.1
-        mTalon.config_kI(0, 0.0, kTimeoutMs);
-        mTalon.config_kD(0, 0.0, kTimeoutMs);
-        sleep(10);
+        boolean finished;
+        double curPosn;
 
-        double curPosn = mTalon.getSelectedSensorPosition(0);
-        //double curPosn = Math.abs(mTalon.getSelectedSensorPosition(0));
-        printPosn("holdPosn.before");
-        // In Position mode, output value is in encoder ticks or an analog value, depending on the sensor.
-        mTalon.set(ControlMode.Position, curPosn);
-        boolean notFinished = true;
-        double lastErr = -1;
-        int loopCnt = 0;
-        while (notFinished && loopCnt < 50) {
-            try {
-                Thread.sleep(50);
-                double curError = mTalon.getClosedLoopError(0);
-                if (lastErr != -1) {
-                    notFinished = (Math.abs(curError - lastErr) > 200);
-                }
-                lastErr = curError;
-                if (++loopCnt % 5 == 0) {
-                    printPosn("holdPosn.after_" + curPosn +"_" + loopCnt );
-                }
-            } catch (Exception ex) {
-            }
+        curPosn = mTalon.getSelectedSensorPosition(0);
+        if (mStopMode == StopMode.Moving) {
+            mTalon.set(ControlMode.PercentOutput, 0);
+            /* set closed loop gains in slot0, typically kF stays zero. */
+            mTalon.config_kF(0, 0.0, kTimeoutMs);             // 1023/1180
+            mTalon.config_kP(0, 2.0, kTimeoutMs);             // 1023 / 400  * 0.1
+            mTalon.config_kI(0, 0.0, kTimeoutMs);
+            mTalon.config_kD(0, 0.0, kTimeoutMs);
+            //double curPosn = Math.abs(mTalon.getSelectedSensorPosition(0));
+            printPosn("Arm.stop.before");
+            // In Position mode, output value is in encoder ticks or an analog value, depending on the sensor.
+            mTalon.set(ControlMode.Position, curPosn);
+            mLastError = -1;
+            mStopCallCount = 0;
+            mStopMode = StopMode.Stopping;
         }
-        printPosn("holdPosn.FINISH_" + curPosn +"_" + loopCnt );
+        else if (mStopMode == StopMode.Stopping) {
+            // see if the hold is complete
+            double curError = mTalon.getClosedLoopError(0);
+            if (mLastError != -1) {
+                finished = (Math.abs(curError - mLastError) < 200);
+                if (finished) {
+                    mStopMode = StopMode.StopComplete;
+                    printPosn("Arm.stop.StopComplete_" + mStopCallCount + "  curPosn: " + curPosn + "   curErr: " + curError + "   lastErr: " + mLastError );
+                }
+            }
+            if (++mStopCallCount % 5 == 0) {
+                printPosn("Arm.stop.after_" + mStopCallCount + "  curPosn: " + curPosn + "   curErr: " + curError + "   lastErr: " + mLastError );
+            }
+            mLastError = curError;
+        }
+        else {
+            printPosn("Arm.stop.  STOPPED  ----------------------------------------------" );
+        }
     }
+
+    public boolean stopComplete() {
+        return mStopMode == StopMode.StopComplete;
+    }
+    
+    
+//    private void holdPosn() {
+//
+//        sleep(10);
+//
+//
+//        boolean notFinished = true;
+//        double lastErr = -1;
+//        int loopCnt = 0;
+//        while (notFinished && loopCnt < 50) {
+//            try {
+//                Thread.sleep(50);
+//
+//            } catch (Exception ex) {
+//            }
+//        }
+//        printPosn("holdPosn.FINISH_" + curPosn +"_" + loopCnt );
+//    }
     
     
     

@@ -11,12 +11,14 @@ public class RunIntakeWheelsCmd extends Command {
 
     private IntakeMotorSys mGrabber;
     private IntakeMotorSys.WheelDirn mRunDirn;
+    private double mSpeed;
 
 
-    public RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn runDirn) {
+    public RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn runDirn, double speed) {
         CrashTracker.logMessage("RunIntakeWheelsCmd: direction: " + runDirn);
         requires(IntakeMotorSys.getInstance());
         mRunDirn = runDirn;
+        mSpeed = speed;
     }
 
 
@@ -28,7 +30,7 @@ public class RunIntakeWheelsCmd extends Command {
 
     @Override
     protected void execute() {
-        mGrabber.runWheels(mRunDirn);
+        mGrabber.runWheels(mRunDirn, mSpeed);
     }
 
     @Override

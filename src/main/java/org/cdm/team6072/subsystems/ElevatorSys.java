@@ -198,11 +198,13 @@ public class ElevatorSys extends Subsystem {
 
 
     //  grab the 360 degree position of the MagEncoder's absolute position, and set the relative sensor to match.
-    private void setSensorStartPosn() {
+    public void setSensorStartPosn() {
         mTalon.getSensorCollection().setPulseWidthPosition(0, 10);
         mSensPosn_Start = mTalon.getSelectedSensorPosition(0);
         mPWPosn_Start = mTalon.getSensorCollection().getPulseWidthPosition();
         int absolutePosition = mPWPosn_Start;
+
+        System.out.println("DriveSys.setSensPosn:  start: " + mPWPosn_Start + "    ------------------------------------------------------");
 
 		    /* mask out overflows, keep bottom 12 bits */
         absolutePosition &= 0xFFF;

@@ -7,7 +7,7 @@ import util.CrashTracker;
 public class ArmMoveCmd  extends Command {
 
     private ArmSys.Direction mDirection;
-    private double mSpeed = 0.5;
+    private double mSpeed = 0.3;
     private double mTarget;
 
     private ArmSys mArmSys;

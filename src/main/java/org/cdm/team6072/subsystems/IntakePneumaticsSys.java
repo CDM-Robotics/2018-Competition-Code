@@ -57,7 +57,7 @@ public class IntakePneumaticsSys extends Subsystem {
     public void OpenIntake() {
         System.out.println("IntakePneumaticsSys.OpenIntake: exec");
         mSol_1.set(DoubleSolenoid.Value.kForward);
-        mSol_2.set(DoubleSolenoid.Value.kForward);
+        mSol_2.set(DoubleSolenoid.Value.kReverse);
     }
 
 
@@ -65,7 +65,7 @@ public class IntakePneumaticsSys extends Subsystem {
     public void CloseIntakeLo() {
         System.out.println("IntakePneumaticsSys.CloseIntakeLo: exec");
         mSol_1.set(DoubleSolenoid.Value.kForward);
-        mSol_2.set(DoubleSolenoid.Value.kReverse);
+        mSol_2.set(DoubleSolenoid.Value.kForward);
     }
 
 
@@ -73,7 +73,7 @@ public class IntakePneumaticsSys extends Subsystem {
     public void CloseIntakeHi() {
         System.out.println("IntakePneumaticsSys.CloseIntakeHi: exec");
         mSol_1.set(DoubleSolenoid.Value.kReverse);
-        mSol_2.set(DoubleSolenoid.Value.kReverse);
+        mSol_2.set(DoubleSolenoid.Value.kForward);
     }
 
 
