@@ -36,6 +36,7 @@ public class AutoDriveSys extends Subsystem {
 
 
     // waypoint positions are in meters
+    // angles in degrees but d2r method converts to radians
     private Waypoint[] points = new Waypoint[] {
       new Waypoint(-1, -1, Pathfinder.d2r(-90)),
       new Waypoint(-1 ,-1, 0),
