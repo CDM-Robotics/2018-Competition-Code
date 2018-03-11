@@ -3,6 +3,7 @@ package org.cdm.team6072.subsystems;
 import edu.wpi.cscore.CvSink;
 import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
+import edu.wpi.cscore.VideoMode;
 import edu.wpi.first.wpilibj.CameraServer;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
@@ -31,7 +32,7 @@ public class CameraManager {
     private void initializeCameras() {
         camThreads.put("Cam0", new Thread(() -> {
             cam0 = CameraServer.getInstance().startAutomaticCapture(0);
-            cam0.setResolution(640, 480);
+            cam0.setVideoMode(VideoMode.PixelFormat.kYUYV, 640, 480, 30);
         }));
     }
 
