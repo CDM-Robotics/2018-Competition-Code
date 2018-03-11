@@ -38,10 +38,23 @@ public class AutoDriveSys extends Subsystem {
     // waypoint positions are in meters
     // angles in degrees but d2r method converts to radians
     private Waypoint[] points = new Waypoint[] {
-      new Waypoint(-1, -1, Pathfinder.d2r(-90)),
-      new Waypoint(-1 ,-1, 0),
+      new Waypoint(-4, -1, Pathfinder.d2r(-45)),
+      new Waypoint(-2 ,-2, 0),
       new Waypoint(0,0,0)
     };
+
+    private Waypoint[] sinewave = new Waypoint[] {
+            new Waypoint(2, 2, Pathfinder.d2r(0)),
+            new Waypoint(4, -2, Pathfinder.d2r(0)),
+            new Waypoint(6, 2, Pathfinder.d2r(0)),
+            new Waypoint(8, -2, Pathfinder.d2r(0)),
+    };
+
+    private Waypoint[] straightLine = new Waypoint[] {
+        new Waypoint(0, 0, 0),
+        new Waypoint(-28, 0, 0)
+    };
+
 
     private static AutoDriveSys mInstance;
     public static AutoDriveSys getInstance() {
@@ -89,23 +102,28 @@ public class AutoDriveSys extends Subsystem {
     private void initializeSystem() {
         double wheelWidthMeters = WHEELWIDTH;
 
-        TankModifier modifier = new TankModifier(this.getTrajectory());
+        Trajectory t = this.getTrajectory();
+        System.out.println("AutoDriveSys.initializeSystem trajectory " + t.toString());
+        TankModifier modifier = new TankModifier(t);
         modifier.modify(wheelWidthMeters);
 
         Trajectory left = modifier.getLeftTrajectory();
+
+        System.out.println("AutoDriveSys.initSys: left seg:" + left.segments[0].x + "  " + left.segments[0].y + "  " + left.segments[0].position);
         this.leftFollower = new EncoderFollower(left);
-        this.leftFollower.configureEncoder(this.leftEncoderPos, 1024, wheelWidthMeters);
-        this.leftFollower.configurePIDVA(1.0, 0.0, 0.0, 1/3, 0);
+        this.leftFollower.configureEncoder(mLeft_Master.getSelectedSensorPosition(0), 1024, wheelWidthMeters);
+        this.leftFollower.configurePIDVA(1.0, 0.0, 0.0, 1/1.7, 0);
 
         Trajectory right = modifier.getRightTrajectory();
+        System.out.println("AutoDriveSys.initSys: right seg:" + right.segments[0].x + "  " + right.segments[0].y + "  " + right.segments[0].position);
         this.rightFollower = new EncoderFollower(right);
-        this.rightFollower.configureEncoder(this.rightEncodePos, 1024, wheelWidthMeters);
-        this.rightFollower.configurePIDVA(1.0, 0.0, 0.0, 1/3, 0);
+        this.rightFollower.configureEncoder(mRight_Master.getSelectedSensorPosition(0), 1024, wheelWidthMeters);
+        this.rightFollower.configurePIDVA(1.0, 0.0, 0.0, 1/1.17, 0);
     }
 
     private Trajectory getTrajectory() {
         Trajectory.Config config = new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, 0.05, 1.7, 2.0, 60);
-        Trajectory trajectory = Pathfinder.generate(this.points, config);
+        Trajectory trajectory = Pathfinder.generate(this.straightLine, config);
         return trajectory;
     }
 
@@ -119,8 +137,13 @@ public class AutoDriveSys extends Subsystem {
      *  but after any command requiring the drivetrain completes the joystick command would be scheduled again.
      */
     public void initDefaultCommand() {
-        System.out.println("DriveSys: init default command");
-        setDefaultCommand(new Command() {
+        System.out.println("AutoDriveSys: init default command");
+        /*setDefaultCommand(new Command() {
+
+            public Command() {
+                requires(AutoDriveSys.getInstance());
+            }
+
             @Override
             protected void execute() {
                 advanceTrajectory();
@@ -131,21 +154,22 @@ public class AutoDriveSys extends Subsystem {
                 return false;
             }
         });
-//        setDefaultCommand(new TankDriveCmd(ControlBoard.getInstance().drive_stick));
+//        setDefaultCommand(new TankDriveCmd(ControlBoard.getInstance().drive_stick));*/
     }
 
     public void advanceTrajectory() {
        // boolean keepAlive = true;
        // while (keepAlive) {
-        double leftOutput = leftFollower.calculate(this.leftEncoderPos);
-        double rightOutput = rightFollower.calculate(this.rightEncodePos);
-
-        System.out.println("AutoDriveSys.startControlLoop: left output -> " + leftOutput + ", right output -> " + rightOutput);
+        int leftSensPosn = mLeft_Master.getSelectedSensorPosition(0);
+        int rightSensPosn = mRight_Master.getSelectedSensorPosition(0);
+        double leftOutput = leftFollower.calculate(leftSensPosn);
+        double rightOutput = rightFollower.calculate(rightSensPosn);
 
         double gyro_heading = NavSys.getInstance().getHeading();
         double desired_heading = Pathfinder.r2d(leftFollower.getHeading());
 
-        System.out.println("AutoDriveSys.startControlLop: heading -> " + gyro_heading + ", desired -> " + desired_heading);
+        //System.out.println("AutoDriveSys.advTraj: leftSensPosn: " + leftSensPosn + "  rightSensPosn: " + rightSensPosn + "  output -> " + leftOutput + ", right output -> " + rightOutput + "  heading -> " + gyro_heading + ", desired -> " + desired_heading);
+       //System.out.println("Encoder check; " + mLeft_Mas)
 
         double angleDifference = Pathfinder.boundHalfDegrees(desired_heading - gyro_heading);
         double turn = 0.8 * (-1.0/80.0) * angleDifference;

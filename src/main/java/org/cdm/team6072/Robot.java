@@ -58,9 +58,9 @@ public class Robot extends IterativeRobot {
     public void robotInit() {
         System.out.println("6072: robotInit");
         // AHRS MUST BE INIT in RobotInit or you get bad results
-        initAHRS();
-        CameraManager.getInstance().runCameras();
-        CameraManager.getInstance().runFilter();
+        //initAHRS();
+//        CameraManager.getInstance().runCameras();
+//        CameraManager.getInstance().runFilter();
 
         // must initialize nav system here for the navX-MXP
         NavSys.getInstance();
@@ -123,7 +123,7 @@ public class Robot extends IterativeRobot {
 
         // update PDP stats every half second
         if (++mTelopLoopCtr % 50 == 0) {
-            logNavX();
+            //logNavX();
 //            Logging();
 //            double elvCurrent = mPDP.getCurrent(RobotConfig.ELEVATOR_TALON_PDP);
 //            double armCurrent = mPDP.getCurrent(RobotConfig.ARM_TALON_PDP);
@@ -298,6 +298,7 @@ public class Robot extends IterativeRobot {
 
     @Override
     public void autonomousPeriodic() {
+        AutoDriveSys.getInstance().advanceTrajectory();
     }
 
 
