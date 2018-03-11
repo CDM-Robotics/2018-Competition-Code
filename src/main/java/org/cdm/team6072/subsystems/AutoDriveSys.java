@@ -34,9 +34,11 @@ public class AutoDriveSys extends Subsystem {
 
     private DifferentialDrive mRoboDrive;
 
+
+    // waypoint positions are in meters
     private Waypoint[] points = new Waypoint[] {
-      new Waypoint(-4, -1, Pathfinder.d2r(-45)),
-      new Waypoint(-2 ,-2, 0),
+      new Waypoint(-1, -1, Pathfinder.d2r(-90)),
+      new Waypoint(-1 ,-1, 0),
       new Waypoint(0,0,0)
     };
 
@@ -139,8 +141,10 @@ public class AutoDriveSys extends Subsystem {
 
         System.out.println("AutoDriveSys.startControlLoop: left output -> " + leftOutput + ", right output -> " + rightOutput);
 
-        double gyro_heading = 0.0;
+        double gyro_heading = NavSys.getInstance().getHeading();
         double desired_heading = Pathfinder.r2d(leftFollower.getHeading());
+
+        System.out.println("AutoDriveSys.startControlLop: heading -> " + gyro_heading + ", desired -> " + desired_heading);
 
         double angleDifference = Pathfinder.boundHalfDegrees(desired_heading - gyro_heading);
         double turn = 0.8 * (-1.0/80.0) * angleDifference;

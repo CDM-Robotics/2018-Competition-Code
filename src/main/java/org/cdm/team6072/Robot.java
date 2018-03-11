@@ -61,7 +61,9 @@ public class Robot extends IterativeRobot {
         initAHRS();
         CameraManager.getInstance().runCameras();
         CameraManager.getInstance().runFilter();
-        //CameraManager.getInstance().runFilter();
+
+        // must initialize nav system here for the navX-MXP
+        NavSys.getInstance();
     }
 
     @Override
