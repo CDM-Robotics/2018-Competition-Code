@@ -59,6 +59,7 @@ public class Robot extends IterativeRobot {
         System.out.println("6072: robotInit");
         // AHRS MUST BE INIT in RobotInit or you get bad results
         initAHRS();
+        CameraManager.getInstance().runCameras();
         //CameraManager.getInstance().runFilter();
     }
 
