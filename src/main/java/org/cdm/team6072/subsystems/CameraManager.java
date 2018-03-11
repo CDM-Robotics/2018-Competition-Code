@@ -32,7 +32,7 @@ public class CameraManager {
     private void initializeCameras() {
         camThreads.put("Cam0", new Thread(() -> {
             cam0 = CameraServer.getInstance().startAutomaticCapture(0);
-            cam0.setVideoMode(VideoMode.PixelFormat.kYUYV, 640, 480, 30);
+            cam0.setVideoMode(VideoMode.PixelFormat.kYUYV, 320, 240, 30);
         }));
     }
 
