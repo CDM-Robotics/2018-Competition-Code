@@ -74,6 +74,8 @@ public class ArmSys extends Subsystem {
     private DigitalInput mBotSwitch;
     private Counter mBotCounter;
 
+    private int mBasePosn;
+
 
     private static ArmSys mInstance = null;
     public static ArmSys getInstance() {
@@ -104,7 +106,7 @@ public class ArmSys extends Subsystem {
             mTalon.setSensorPhase(sensorPhase);
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
 
-            mTalon.configOpenloopRamp(1.5, 10);
+            mTalon.configOpenloopRamp(0.25, 10);
 
             // set slot zero for position hold closed loop
             mTalon.configNominalOutputForward(0, kTimeoutMs);
@@ -115,17 +117,18 @@ public class ArmSys extends Subsystem {
              * set the allowable closed-loop error, Closed-Loop output will be
              * neutral within this range. See Table in Section 17.2.1 for native units per rotation.
              */
-            mTalon.configAllowableClosedloopError(0, kPIDLoopIdx, kTimeoutMs);
+            mTalon.configAllowableClosedloopError(kPIDLoopIdx, 200, kTimeoutMs);
 
-		    /* set closed loop gains in slot0, typically kF stays zero. */
-            mTalon.config_kF(kPIDLoopIdx, 0.867, kTimeoutMs);             // 1023/1180
-            mTalon.config_kP(kPIDLoopIdx, 0.0, kTimeoutMs);             // 1023 / 400  * 0.1
-            mTalon.config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
-            mTalon.config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
+            // set PID values for postion hold closed loop
+            mTalon.config_kF(0, 0.0, kTimeoutMs);             // 1023/1180
+            mTalon.config_kP(0, 1.5, kTimeoutMs);             // 1023 / 400  * 0.1
+            mTalon.config_kI(0, 0.0, kTimeoutMs);
+            mTalon.config_kD(0, 1.0, kTimeoutMs);
 
             //  grab the 360 degree position of the MagEncoder's absolute position, and set the relative sensor to match.
             mTalon.getSensorCollection().setPulseWidthPosition(0, 10);
             int absolutePosition = mTalon.getSensorCollection().getPulseWidthPosition();
+            mBasePosn = absolutePosition;
 
 		    /* mask out overflows, keep bottom 12 bits */
             absolutePosition &= 0xFFF;
@@ -150,6 +153,12 @@ public class ArmSys extends Subsystem {
         } catch (Exception ex) {
             System.out.println("************************** ArmSys.ctor Ex: " + ex.getMessage());
         }
+    }
+
+
+    public void resetStart() {
+        int absolutePosition = mTalon.getSensorCollection().getPulseWidthPosition();
+        mBasePosn = absolutePosition;
     }
 
 
@@ -194,6 +203,11 @@ public class ArmSys extends Subsystem {
         mLastQuadPosn = mTalon.getSensorCollection().getQuadraturePosition();
         initBotSwitch();
         initTopSwitch();
+        		    /* set closed loop gains in slot0, typically kF stays zero. */
+//        mTalon.config_kF(kPIDLoopIdx, 0.867, kTimeoutMs);             // 1023/1180
+//        mTalon.config_kP(kPIDLoopIdx, 0.0, kTimeoutMs);             // 1023 / 400  * 0.1
+//        mTalon.config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
+//        mTalon.config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
         printPosn("initForMove");
     }
 
@@ -236,10 +250,10 @@ public class ArmSys extends Subsystem {
         if (mStopMode == StopMode.Moving) {
             mTalon.set(ControlMode.PercentOutput, 0);
             /* set closed loop gains in slot0, typically kF stays zero. */
-            mTalon.config_kF(0, 0.0, kTimeoutMs);             // 1023/1180
-            mTalon.config_kP(0, 2.0, kTimeoutMs);             // 1023 / 400  * 0.1
-            mTalon.config_kI(0, 0.0, kTimeoutMs);
-            mTalon.config_kD(0, 0.0, kTimeoutMs);
+//            mTalon.config_kF(0, 0.0, kTimeoutMs);             // 1023/1180
+//            mTalon.config_kP(0, 2.0, kTimeoutMs);             // 1023 / 400  * 0.1
+//            mTalon.config_kI(0, 0.0, kTimeoutMs);
+//            mTalon.config_kD(0, 0.5, kTimeoutMs);
             //double curPosn = Math.abs(mTalon.getSelectedSensorPosition(0));
             printPosn("Arm.stop.before");
             // In Position mode, output value is in encoder ticks or an analog value, depending on the sensor.
@@ -252,14 +266,15 @@ public class ArmSys extends Subsystem {
             // see if the hold is complete
             double curError = mTalon.getClosedLoopError(0);
             if (mLastError != -1) {
-                finished = (Math.abs(curError - mLastError) < 200);
+                finished = (Math.abs(curError - mLastError) < 100);
                 if (finished) {
                     mStopMode = StopMode.StopComplete;
-                    printPosn("Arm.stop.StopComplete_" + mStopCallCount + "  curPosn: " + curPosn + "   curErr: " + curError + "   lastErr: " + mLastError );
+                    //System.out.println("Arm.stop.StopComplete   curErr: " + curError + "   lastErr: " + mLastError );
+                    printPosn("Arm.stop.StopComplete_" + mStopCallCount);
                 }
             }
             if (++mStopCallCount % 5 == 0) {
-                printPosn("Arm.stop.after_" + mStopCallCount + "  curPosn: " + curPosn + "   curErr: " + curError + "   lastErr: " + mLastError );
+                printPosn("Arm.stop.after_" + mStopCallCount);
             }
             mLastError = curError;
         }
@@ -271,25 +286,15 @@ public class ArmSys extends Subsystem {
     public boolean stopComplete() {
         return mStopMode == StopMode.StopComplete;
     }
-    
-    
-//    private void holdPosn() {
-//
-//        sleep(10);
-//
-//
-//        boolean notFinished = true;
-//        double lastErr = -1;
-//        int loopCnt = 0;
-//        while (notFinished && loopCnt < 50) {
-//            try {
-//                Thread.sleep(50);
-//
-//            } catch (Exception ex) {
-//            }
-//        }
-//        printPosn("holdPosn.FINISH_" + curPosn +"_" + loopCnt );
-//    }
+
+
+    /**
+     * The position provided is a delta from the designated start posn
+     * @param posn
+     */
+    public void MoteToPosn(int posn) {
+
+    }
     
     
     
@@ -306,19 +311,20 @@ public class ArmSys extends Subsystem {
     private double mMMTargetPosn;
 
     private void printPosn(String caller) {
-        double sensPosn = mTalon.getSelectedSensorPosition(0);
+        int sensPosn = mTalon.getSelectedSensorPosition(0);
         String sensPosnSign = "(+)";
-        double absSensPosn = Math.abs(sensPosn);
+        int absSensPosn = Math.abs(sensPosn);
 
         if (sensPosn < 0) {
             // absSensPosn is negative if moving down
             sensPosnSign = "(-)";
         }
-        double quadPosn = mTalon.getSensorCollection().getQuadraturePosition();
-        double pwPosn = mTalon.getSensorCollection().getPulseWidthPosition();
+        int quadPosn = mTalon.getSensorCollection().getQuadraturePosition();
+        int pwPosn = mTalon.getSensorCollection().getPulseWidthPosition();
+        int pwDelta = pwPosn - mBasePosn;
         double pwVel = mTalon.getSensorCollection().getPulseWidthVelocity();
-        double relDelta = absSensPosn - mLastRelPosn;
-        double quadDelta = quadPosn - mLastQuadPosn;
+        int relDelta = absSensPosn - mBasePosn;
+        int quadDelta = quadPosn - mBasePosn;
         double vel = mTalon.getSensorCollection().getQuadratureVelocity();
         double mout = mTalon.getMotorOutputPercent();
         double voltOut = mTalon.getMotorOutputVoltage();
@@ -326,10 +332,11 @@ public class ArmSys extends Subsystem {
         double closedLoopErr = mTalon.getClosedLoopError(0);
 
         mLastQuadPosn = quadPosn;
-        System.out.println("ArmSys." + caller + ":    topSwitch: " + mTopCounter.get() + "   botSwitch: " + mBotCounter.get());
-        System.out.println("ArmSys." + caller + "   sensPosn: " + sensPosnSign + absSensPosn + ":    Vel: " + vel + "  pwVel: " + pwVel + "  MotorOut: " + mout  +  "  voltOut: " + voltOut+ "  clErr: " + closedLoopErr);
-//        System.out.println("ElevatorSys." + caller + ":    MMStart: " + mMMStartPosn + "  MMTarg: " + mMMTargetPosn + "   sensPosn: " + sensPosnSign + absSensPosn + "  relDelta: " + relDelta
-//                + "  quadPosn: " + quadPosn  + "  quadDelta: " + quadDelta + "  pwPosn: " + pwPosn + "  clErr: " + closedLoopErr);        shuffleBd();
+//        System.out.println("ArmSys." + caller + ":    topSwitch: " + mTopCounter.get() + "   botSwitch: " + mBotCounter.get());
+//        System.out.println("ArmSys." + caller + ":    Vel: " + vel + "  pwVel: " + pwVel + "  MotorOut: " + mout  +  "  voltOut: " + voltOut+ "  clErr: " + closedLoopErr);
+        System.out.println("ArmSys." + caller + ":   sensPosn: " + sensPosnSign + absSensPosn + "  relDelta: " + relDelta
+                + "  quadPosn: " + quadPosn  + "  quadDelta: " + quadDelta + "  pwPosn: " + pwPosn + "  clErr: " + closedLoopErr);
+        //shuffleBd();
     }
 
 

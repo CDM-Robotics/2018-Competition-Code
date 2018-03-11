@@ -5,31 +5,32 @@ import org.cdm.team6072.subsystems.ElevatorSys;
 import util.CrashTracker;
 
 
-public class ElvMoveToScaleCmd extends Command {
-
+public class ElvMoveToScaleHiCmd extends Command {
+    
 
     private ElevatorSys mElevatorSys;
 
 
-    public ElvMoveToScaleCmd() {
-        CrashTracker.logMessage("ElvMoveToScaleCmd: ");
+    public ElvMoveToScaleHiCmd() {
+        CrashTracker.logMessage("ElvMoveToScaleHiCmd: ");
         requires(ElevatorSys.getInstance());
         mElevatorSys = ElevatorSys.getInstance();
     }
 
     @Override
     protected void initialize() {
-        mElevatorSys.moveToScale();
+        mElevatorSys.moveToScaleHi();
     }
 
     @Override
     protected void execute() {
         // move is started in init
+        mElevatorSys.magicMoveStatus();
     }
 
     @Override
     protected boolean isFinished() {
-        return mElevatorSys.moveToScaleComplete();
+        return mElevatorSys.moveToScaleHiComplete();
     }
 
 }

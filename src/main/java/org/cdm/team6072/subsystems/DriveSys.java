@@ -70,14 +70,14 @@ public class DriveSys extends Subsystem {
 
         try {
             mLeft_Master = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_MASTER);
-            mLeft_Master.configOpenloopRamp(0.7 , 0);
+            mLeft_Master.configOpenloopRamp(0.25 , 0);
 
             mLeft_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE0);
             mLeft_Slave0.set(ControlMode.Follower, RobotConfig.DRIVE_LEFT_MASTER);
             mLeft_Slave0.setInverted(false);
 
             mRight_Master = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_MASTER);
-            mRight_Master.configOpenloopRamp(0.7, 0);
+            mRight_Master.configOpenloopRamp(0.25, 0);
 
             mRight_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_SLAVE0);
             mRight_Slave0.set(ControlMode.Follower, RobotConfig.DRIVE_RIGHT_MASTER);

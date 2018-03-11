@@ -70,8 +70,8 @@ public class IntakeMotorSys extends Subsystem {
     public void stopWheels() {
         mTalonLeft.setInverted(false);
         mTalonRight.setInverted(true);
-        mTalonLeft.set(ControlMode.PercentOutput, 0.05);
-        mTalonRight.set(ControlMode.PercentOutput, 0.05);
+        mTalonLeft.set(ControlMode.PercentOutput, 0.1);
+        mTalonRight.set(ControlMode.PercentOutput, 0.1);
         // In Position mode, output value is in encoder ticks or an analog value, depending on the sensor.
 //        double curPosnLeft = mTalonLeft.getSelectedSensorPosition(0);
 //        mTalonLeft.set(ControlMode.Position, curPosnLeft);

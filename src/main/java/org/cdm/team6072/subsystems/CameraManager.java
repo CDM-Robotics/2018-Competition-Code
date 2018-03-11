@@ -16,6 +16,8 @@ public class CameraManager {
     public static CameraManager mInstance;
 
     private UsbCamera cam0;
+    private UsbCamera cam1;
+
     private HashMap<String, Thread> camThreads;
 
     private CameraManager() {
@@ -30,17 +32,26 @@ public class CameraManager {
     }
 
     private void initializeCameras() {
-        camThreads.put("Cam0", new Thread(() -> {
+
+        /*camThreads.put("Cam0", new Thread(() -> {
             cam0 = CameraServer.getInstance().startAutomaticCapture(0);
             cam0.setVideoMode(VideoMode.PixelFormat.kYUYV, 320, 240, 30);
         }));
+
+        camThreads.put("Cam1", new Thread(() -> {
+            cam1 = CameraServer.getInstance().startAutomaticCapture();
+            cam1.setVideoMode(VideoMode.PixelFormat.kYUYV, 320, 240, 30);
+        }));*/
+        cam0 = CameraServer.getInstance().startAutomaticCapture();
+        cam0.setVideoMode(VideoMode.PixelFormat.kYUYV, 320, 240, 30);
     }
 
     public void runCameras() {
+        this.initializeCameras();
         // start each camera thread
-        for (String id: camThreads.keySet()) {
+        /*for (String id: camThreads.keySet()) {
             this.camThreads.get(id).start();
-        }
+        }*/
     }
 
     public void runFilter() {
