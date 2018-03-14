@@ -26,7 +26,7 @@ public class Robot extends IterativeRobot {
 
 
     private DriveSys mDriveSys = DriveSys.getInstance() ;
-    private Navigator mNavx = Navigator.getInstance();
+    //private Navigator mNavx = Navigator.getInstance();
     private ElevatorSys mElevatorSys = ElevatorSys.getInstance();
     private IntakePneumaticsSys mPneuSys;
     private IntakeMotorSys mIntakeMotorSys = IntakeMotorSys.getInstance();
@@ -290,7 +290,7 @@ public class Robot extends IterativeRobot {
         //super.autonomousInit();
         System.out.println("auto init (6072)");
 
-        AutoDriveSys driveSys = AutoDriveSys.getInstance();
+        //AutoDriveSys driveSys = AutoDriveSys.getInstance();
         /*TestDriveForward cmd = new TestDriveForward();
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(cmd);*/
@@ -298,7 +298,7 @@ public class Robot extends IterativeRobot {
 
     @Override
     public void autonomousPeriodic() {
-        AutoDriveSys.getInstance().advanceTrajectory();
+        //AutoDriveSys.getInstance().advanceTrajectory();
     }
 
 

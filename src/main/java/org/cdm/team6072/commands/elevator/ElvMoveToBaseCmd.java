@@ -16,15 +16,14 @@ public class ElvMoveToBaseCmd extends Command {
     private ElevatorSys mElevatorSys;
 
 
-    public ElvMoveToBaseCmd(ElevatorSys.Direction dir, double target) {
-        CrashTracker.logMessage("MoveElevatorCmd: direction: " + dir);
-        requires(ElevatorSys.getInstance());;
+    public ElvMoveToBaseCmd() {
+        CrashTracker.logMessage("ElvMoveToBaseCmd  -------------");
+        requires(ElevatorSys.getInstance());
+        mElevatorSys = ElevatorSys.getInstance();
     }
 
     @Override
     protected void initialize() {
-        mElevatorSys = ElevatorSys.getInstance();
-        mElevatorSys.initBotSwitch();
         // actually start the move here
         mElevatorSys.moveToBase();
     }
@@ -32,10 +31,12 @@ public class ElvMoveToBaseCmd extends Command {
     @Override
     protected void execute() {
         // dont do anything in exec because move has been started
+        mElevatorSys.magicMoveStatus();
     }
 
     @Override
     protected boolean isFinished() {
+
         return mElevatorSys.moveToBaseComplete();
     }
 
