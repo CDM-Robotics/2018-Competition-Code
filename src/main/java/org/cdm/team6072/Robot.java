@@ -284,11 +284,15 @@ public class Robot extends IterativeRobot {
 
     //  AUTONOMOUS MODE  ---------------------------------------------------------------
 
-    @Override
 
+    private AutoDriveSys mAutoDriveSys;
+
+    @Override
     public void autonomousInit() {
-        //super.autonomousInit();
-        System.out.println("auto init (6072)");
+        super.autonomousInit();
+        System.out.println("auto init (6072)  ------------------------------------------------------------");
+        mAutoDriveSys = AutoDriveSys.getInstance();
+        mAutoDriveSys.prepareSystem();
 
         //AutoDriveSys driveSys = AutoDriveSys.getInstance();
         /*TestDriveForward cmd = new TestDriveForward();
@@ -298,7 +302,7 @@ public class Robot extends IterativeRobot {
 
     @Override
     public void autonomousPeriodic() {
-        //AutoDriveSys.getInstance().advanceTrajectory();
+        mAutoDriveSys.advanceTrajectory();
     }
 
 

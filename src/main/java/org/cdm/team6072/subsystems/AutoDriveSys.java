@@ -1,6 +1,7 @@
 package org.cdm.team6072.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import edu.wpi.first.wpilibj.command.Command;
@@ -83,7 +84,13 @@ public class AutoDriveSys extends Subsystem {
 
     private Waypoint[] straightLine = new Waypoint[] {
         new Waypoint(0, 0, 0),
-        new Waypoint(2, 0, 0)
+        new Waypoint(1, 0, 0)
+    };
+
+    private Waypoint[] straightBend = new Waypoint[] {
+            new Waypoint(0, 0, 0),
+            new Waypoint(1, 0, 45),
+            new Waypoint(2, 1,45)
     };
 
 
@@ -100,14 +107,16 @@ public class AutoDriveSys extends Subsystem {
 
         try {
             mLeft_Master = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_MASTER);
-            mLeft_Master.configOpenloopRamp(0.7 , 0);
+            mLeft_Master.configOpenloopRamp(0 , 0);
+            mLeft_Master.setNeutralMode(NeutralMode.Brake);
 
             mLeft_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE0);
             mLeft_Slave0.set(ControlMode.Follower, RobotConfig.DRIVE_LEFT_MASTER);
             mLeft_Slave0.setInverted(false);
 
             mRight_Master = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_MASTER);
-            mRight_Master.configOpenloopRamp(0.7, 0);
+            mRight_Master.configOpenloopRamp(0, 0);
+            mLeft_Master.setNeutralMode(NeutralMode.Brake);
 
             mRight_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_SLAVE0);
             mRight_Slave0.set(ControlMode.Follower, RobotConfig.DRIVE_RIGHT_MASTER);
@@ -118,7 +127,6 @@ public class AutoDriveSys extends Subsystem {
             mMasterTalons.add(mRight_Master);
             mMasterTalons.add(mLeft_Master);
 
-            initializeSystem();
         }
         catch (Exception ex) {
             System.out.println("Exception in AutoDriveSys ctor: " + ex.getMessage() + "\r\n" + ex.getStackTrace());
@@ -130,12 +138,12 @@ public class AutoDriveSys extends Subsystem {
     private static double WHEELWIDTH = 26 * 2.54 / 100;
 
 
-    private void initializeSystem() {
+    public void prepareSystem() {
         double wheelWidthMeters = WHEELWIDTH;
 
         Trajectory t = this.getTrajectory();
         System.out.println("AutoDriveSys.initializeSystem trajectory " + t.toString());
-        this.saveTrajectory("/home/lvuser/profiles/testTraj.traj", t); // save to a file so we can reuse this
+        //this.saveTrajectory("/home/lvuser/profiles/testTraj.traj", t); // save to a file so we can reuse this
 
         TankModifier modifier = new TankModifier(t);
         modifier.modify(wheelWidthMeters);
@@ -146,7 +154,7 @@ public class AutoDriveSys extends Subsystem {
             System.out.println("AutoDriveSys.initSys: left seg:" + left.segments[i].x + "  " + left.segments[i].y + "  " + left.segments[i].position + "  " + left.segments[i].heading);
         }
         this.leftFollower = new EncoderFollower(left);
-        this.leftFollower.configureEncoder(getLeftSens(), 1024, wheelWidthMeters);
+        this.leftFollower.configureEncoder(getLeftSens(), 1024, 0.1524);
         this.leftFollower.configurePIDVA(1.0, 0.0, 0.0, 1/1.7, 0);
 
         Trajectory right = modifier.getRightTrajectory();
@@ -159,11 +167,11 @@ public class AutoDriveSys extends Subsystem {
     }
 
     public Trajectory getTrajectory() {
-        File myFile = new File("/home/lvuser/profiles/testTraj.traj");
-        Trajectory trajectory = Pathfinder.readFromFile(myFile);
+        //File myFile = new File("/home/lvuser/profiles/testTraj.traj");
+        Trajectory trajectory = null; //Pathfinder.readFromFile(myFile);
         if (trajectory == null) {
             Trajectory.Config config = new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, 0.05, 1.7, 2.0, 60);
-            trajectory = Pathfinder.generate(this.straightLine, config);
+            trajectory = Pathfinder.generate(this.straightBend, config);
         }
         return trajectory;
     }
@@ -235,6 +243,9 @@ public class AutoDriveSys extends Subsystem {
     }
 
     public void advanceTrajectory() {
+        if (leftFollower.isFinished()) {
+            return;
+        }
        // boolean keepAlive = true;
        // while (keepAlive) {
         int leftSensPosn = getLeftSens();
