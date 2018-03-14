@@ -14,7 +14,9 @@ import org.cdm.team6072.ControlBoard;
 import org.cdm.team6072.RobotConfig;
 import org.cdm.team6072.commands.drive.ArcadeDriveCmd;
 import jaci.pathfinder.followers.EncoderFollower;
+import java.io.File;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 public class AutoDriveSys extends Subsystem {
@@ -133,6 +135,8 @@ public class AutoDriveSys extends Subsystem {
 
         Trajectory t = this.getTrajectory();
         System.out.println("AutoDriveSys.initializeSystem trajectory " + t.toString());
+        this.saveTrajectory("testTraj.traj", t); // save to a file so we can reuse this
+
         TankModifier modifier = new TankModifier(t);
         modifier.modify(wheelWidthMeters);
 
@@ -154,10 +158,20 @@ public class AutoDriveSys extends Subsystem {
         this.rightFollower.configurePIDVA(1.0, 0.0, 0.0, 1/1.17, 0);
     }
 
-    private Trajectory getTrajectory() {
-        Trajectory.Config config = new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, 0.05, 1.7, 2.0, 60);
-        Trajectory trajectory = Pathfinder.generate(this.straightLine, config);
+    public Trajectory getTrajectory() {
+        File myFile = new File("testTraj.traj");
+        Trajectory trajectory = Pathfinder.readFromFile(myFile);
+        if (trajectory == null) {
+            Trajectory.Config config = new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, 0.05, 1.7, 2.0, 60);
+            trajectory = Pathfinder.generate(this.straightLine, config);
+        }
         return trajectory;
+    }
+
+    // filename extension should be .trah
+    public void saveTrajectory(String filename, Trajectory traj) {
+        File file = new File(filename);
+        Pathfinder.writeToFile(file, traj);
     }
 
     /**
