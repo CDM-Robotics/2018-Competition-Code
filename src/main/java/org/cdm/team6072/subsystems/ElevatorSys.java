@@ -171,7 +171,7 @@ public class ElevatorSys extends Subsystem {
             mTalon.configContinuousCurrentLimit(10, 0);
             mTalon.configPeakCurrentLimit(15, 0);
             mTalon.configPeakCurrentDuration(100, 0);
-            mTalon.enableCurrentLimit(true);
+            //mTalon.enableCurrentLimit(true);
 
             mTalon.configOpenloopRamp(0.25, 10);
 
@@ -679,14 +679,16 @@ public class ElevatorSys extends Subsystem {
         double vel = mTalon.getSensorCollection().getQuadratureVelocity();
         double mout = mTalon.getMotorOutputPercent();
         double voltOut = mTalon.getMotorOutputVoltage();
+        double curOut = mTalon.getOutputCurrent();
         mLastRelPosn = absSensPosn;
         double closedLoopErr = mTalon.getClosedLoopError(0);
 
         mLastQuadPosn = quadPosn;
 //        System.out.println("ArmSys." + caller + ":    topSwitch: " + mTopCounter.get() + "   botSwitch: " + mBotCounter.get());
 //        System.out.println("ArmSys." + caller + ":    Vel: " + vel + "  pwVel: " + pwVel + "  MotorOut: " + mout  +  "  voltOut: " + voltOut+ "  clErr: " + closedLoopErr);
-        System.out.println("ElvSys." + caller + ":  base: " + mBasePosn + "   sensPosn: " + sensPosnSign + absSensPosn + "  relDelta: " + relDelta
-                + "  quadPosn: " + quadPosn  + "  quadDelta: " + quadDelta + "  pwPosn: " + pwPosn + "  clErr: " + closedLoopErr);
+//        System.out.println("ElvSys." + caller + ":  base: " + mBasePosn + "   sensPosn: " + sensPosnSign + absSensPosn + "  relDelta: " + relDelta
+//                + "  quadPosn: " + quadPosn  + "  quadDelta: " + quadDelta + "  pwPosn: " + pwPosn + "  clErr: " + closedLoopErr);
+        System.out.println("  out%: " + mout + "   volt: " + voltOut + "   curOut: " + curOut);
         //shuffleBd();
     }
 

@@ -5,7 +5,11 @@ import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.SPI;
 
-public class NavSys implements PIDOutput {
+
+/**
+ * Implement a PID controller using the NavX
+ */
+public class NavxPID implements PIDOutput {
 
     /* The following PID Controller coefficients will need to be tuned */
     /* to match the dynamics of your drive system.  Note that the      */
@@ -24,27 +28,22 @@ public class NavSys implements PIDOutput {
     private AHRS navX;
     private PIDController turnController;
 
-    public static NavSys mInstance;
+    private static NavxPID mInstance;
 
-
-    public static NavSys getInstance() {
+    public static NavxPID getInstance() {
         if (mInstance == null) {
-            mInstance = new NavSys();
+            mInstance = new NavxPID();
         }
         return mInstance;
     }
 
-    private NavSys() {
+    private NavxPID() {
         // communicative with the naxX MXP
         try {
-            this.navX = new AHRS(SPI.Port.kMXP);
-            this.navX.zeroYaw();
-
-
+            this.navX = NavXSys.getInstance().getAHRS();
             this.turnController = new PIDController(kP, kI, kD, kF, this.navX, (PIDOutput) this);
-
         } catch (Exception ex ) {
-            System.out.println("NavSys: error in constructor");
+            System.out.println("NavxPID: error in constructor");
         }
 
         this.turnController.setInputRange(-180.0f,  180.0f);
@@ -59,8 +58,5 @@ public class NavSys implements PIDOutput {
 
     }
 
-    // getting the navX direction in degrees
-    public double getHeading() {
-        return this.navX.getYaw();
-    }
+
 }

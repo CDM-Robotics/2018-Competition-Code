@@ -4,20 +4,16 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import jaci.pathfinder.Pathfinder;
 import jaci.pathfinder.Trajectory;
 import jaci.pathfinder.Waypoint;
 import jaci.pathfinder.modifiers.TankModifier;
-import org.cdm.team6072.ControlBoard;
 import org.cdm.team6072.RobotConfig;
-import org.cdm.team6072.commands.drive.ArcadeDriveCmd;
 import jaci.pathfinder.followers.EncoderFollower;
 import java.io.File;
 
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 public class AutoDriveSys extends Subsystem {
@@ -82,16 +78,7 @@ public class AutoDriveSys extends Subsystem {
             new Waypoint(8, -2, Pathfinder.d2r(0)),
     };
 
-    private Waypoint[] straightLine = new Waypoint[] {
-        new Waypoint(0, 0, 0),
-        new Waypoint(1, 0, 0)
-    };
 
-    private Waypoint[] straightBend = new Waypoint[] {
-            new Waypoint(0, 0, 0),
-            new Waypoint(1, 0, 45),
-            new Waypoint(2, 1,45)
-    };
 
 
     private static AutoDriveSys mInstance;
@@ -135,46 +122,91 @@ public class AutoDriveSys extends Subsystem {
 
 
     // 26 inches converted to meters
-    private static double WHEELWIDTH = 26 * 2.54 / 100;
+    private static double TRACKWIDTH = 26 * 2.54 / 100;
+
+    private static double WHEELDIAM = 6 * 2.54 / 100;
+
+    private static double MAX_VELOCITY = 5.0;           // meters per sec
+
+    private static double MAX_ACCEL = 4.0;              // meters per sec per sec
+
+    private Waypoint[] straightLine = new Waypoint[] {
+            new Waypoint(0, 0, 0),
+            new Waypoint(1.0, 0, 45)
+    };
+
+    private Waypoint[] straightBend = new Waypoint[] {
+            new Waypoint(0, 0, 0),
+            new Waypoint(1, 0, 0),
+            new Waypoint(2, 1,90)
+    };
+
+    /**
+     * Create a Trajectory Configuration
+     *  fit                   The fit method to use
+     *  samples               How many samples to use to refine the path (higher = smoother, lower = faster)
+     *  dt                    The time delta between points (in seconds)
+     *  max_velocity          The maximum velocity the body is capable of travelling at (in meters per second)
+     *  max_acceleration      The maximum acceleration to use (in meters per second per second)
+     *  max_jerk              The maximum jerk (acceleration per second) to use
+     * @return
+     */
+    public Trajectory getTrajectory() {
+        //File myFile = new File("/home/lvuser/profiles/testTraj.traj");
+        Trajectory trajectory = null; //Pathfinder.readFromFile(myFile);
+        if (trajectory == null) {
+            Trajectory.Config config = new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, 0.02, MAX_VELOCITY, MAX_ACCEL, 60);
+            trajectory = Pathfinder.generate(this.straightBend, config);
+        }
+        return trajectory;
+    }
 
 
+    /**
+     * Configure the PID/VA Variables for the Follower
+     *  kp The proportional term. This is usually quite high (0.8 - 1.0 are common values)
+     *  ki The integral term. Currently unused.
+     *  kd The derivative term. Adjust this if you are unhappy with the tracking of the follower. 0.0 is the default
+     *  kv The velocity ratio. This should be 1 over your maximum velocity @ 100% throttle.
+     *           This converts m/s given by the algorithm to a scale of -1..1 to be used by your
+     *           motor controllers
+     *  ka The acceleration term. Adjust this if you want to reach higher or lower speeds faster. 0.0 is the default
+     *
+     * Configure the Encoders being used in the follower.
+     *  initial_position      The initial 'offset' of your encoder. This should be set to the encoder value just
+     *                              before you start to track
+     *  ticks_per_revolution  How many ticks per revolution the encoder has
+     *  wheel_diameter        The diameter of your wheels (or pulleys for track systems) in meters
+     *
+     */
     public void prepareSystem() {
-        double wheelWidthMeters = WHEELWIDTH;
+
+       NavxPID.getInstance().zeroYawHeading();
 
         Trajectory t = this.getTrajectory();
         System.out.println("AutoDriveSys.initializeSystem trajectory " + t.toString());
         //this.saveTrajectory("/home/lvuser/profiles/testTraj.traj", t); // save to a file so we can reuse this
 
         TankModifier modifier = new TankModifier(t);
-        modifier.modify(wheelWidthMeters);
+        modifier.modify(TRACKWIDTH);
 
         Trajectory left = modifier.getLeftTrajectory();
 
-        for (int i = 0; i < left.segments.length; i++) {
-            System.out.println("AutoDriveSys.initSys: left seg:" + left.segments[i].x + "  " + left.segments[i].y + "  " + left.segments[i].position + "  " + left.segments[i].heading);
-        }
         this.leftFollower = new EncoderFollower(left);
-        this.leftFollower.configureEncoder(getLeftSens(), 1024, 0.1524);
-        this.leftFollower.configurePIDVA(1.0, 0.0, 0.0, 1/1.7, 0);
+        this.leftFollower.configureEncoder(getLeftSens(), 1024, WHEELDIAM);
+        this.leftFollower.configurePIDVA(1.0, 0.0, 0.0, 1/MAX_VELOCITY, 0);
 
         Trajectory right = modifier.getRightTrajectory();
         for (int i = 0; i < right.segments.length; i++) {
-            System.out.println("AutoDriveSys.initSys: right seg:" + right.segments[i].x + "  " + right.segments[i].y + "  " + right.segments[i].position+ "  " + right.segments[i].heading);
+            System.out.println("AutoDriveSys.initSys: left seg:" + left.segments[i].x + "  " + left.segments[i].y + "  " + left.segments[i].velocity + "  " + left.segments[i].heading);
+            System.out.println("AutoDriveSys.initSys: right seg:" + right.segments[i].x + "  " + right.segments[i].y + "  " + right.segments[i].velocity + "  " + right.segments[i].heading);
         }
         this.rightFollower = new EncoderFollower(right);
-        this.rightFollower.configureEncoder(getRightSens(), 1024, wheelWidthMeters);
-        this.rightFollower.configurePIDVA(1.0, 0.0, 0.0, 1/1.17, 0);
+        this.rightFollower.configureEncoder(getRightSens(), 1024, WHEELDIAM);
+        this.rightFollower.configurePIDVA(1.0, 0.0, 0.0, 1/MAX_VELOCITY, 0);
     }
 
-    public Trajectory getTrajectory() {
-        //File myFile = new File("/home/lvuser/profiles/testTraj.traj");
-        Trajectory trajectory = null; //Pathfinder.readFromFile(myFile);
-        if (trajectory == null) {
-            Trajectory.Config config = new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, 0.05, 1.7, 2.0, 60);
-            trajectory = Pathfinder.generate(this.straightBend, config);
-        }
-        return trajectory;
-    }
+
 
     // filename extension should be .trah
     public void saveTrajectory(String filename, Trajectory traj) {
@@ -211,27 +243,11 @@ public class AutoDriveSys extends Subsystem {
      */
     public void initDefaultCommand() {
         System.out.println("AutoDriveSys: init default command");
-        /*setDefaultCommand(new Command() {
-
-            public Command() {
-                requires(AutoDriveSys.getInstance());
-            }
-
-            @Override
-            protected void execute() {
-                advanceTrajectory();
-            }
-
-            @Override
-            protected boolean isFinished() {
-                return false;
-            }
-        });
-//        setDefaultCommand(new TankDriveCmd(ControlBoard.getInstance().drive_stick));*/
     }
 
     private int getLeftSens() {
-        return mLeft_Master.getSelectedSensorPosition(0);
+        //return mLeft_Master.getSelectedSensorPosition(0);
+        return Math.floorMod(mLeft_Master.getSensorCollection().getPulseWidthPosition(), 1024);
     }
 
     /**
@@ -239,9 +255,26 @@ public class AutoDriveSys extends Subsystem {
      * @return
      */
     private int getRightSens() {
-        return -mRight_Master.getSelectedSensorPosition(0);
+        //return -mRight_Master.getSelectedSensorPosition(0);
+        return -Math.floorMod(mRight_Master.getSensorCollection().getPulseWidthPosition(), 1024);
     }
 
+
+    private int mLoopCtr = 0;
+
+
+    /**
+     * Output from the follower.calculate is:
+            double distance_covered = ((double)(encoder_tick - encoder_offset) / encoder_tick_count) * wheel_circumference;
+             Trajectory.Segment seg = trajectory.get(segment);
+             double error = seg.position - distance_covered;
+             double calculated_value =
+                             kp * error +                                    // Proportional
+                             kd * ((error - last_error) / seg.dt) +          // Derivative
+                             (kv * seg.velocity + ka * seg.acceleration);    // V and A Terms
+
+        Have to normalise the output to (-1 to 1) for the tankdrive
+     */
     public void advanceTrajectory() {
         if (leftFollower.isFinished()) {
             return;
@@ -250,21 +283,31 @@ public class AutoDriveSys extends Subsystem {
        // while (keepAlive) {
         int leftSensPosn = getLeftSens();
         int rightSensPosn = getRightSens();
-        double leftOutput = leftFollower.calculate(leftSensPosn);
-        double rightOutput = rightFollower.calculate(rightSensPosn);
+        double leftPercent = mLeft_Master.getMotorOutputPercent();
+        double leftVolts = mLeft_Master.getMotorOutputVoltage();
+        double rightPercent = mRight_Master.getMotorOutputPercent();
+        double rightVolts = mRight_Master.getMotorOutputVoltage();
 
-        double gyro_heading = NavSys.getInstance().getHeading();
+        double follLeft = leftFollower.calculate(leftSensPosn);
+        double follRight = rightFollower.calculate(rightSensPosn);
+
+        double gyro_heading = NavxPID.getInstance().getYawHeading();
         double desired_heading = Pathfinder.r2d(leftFollower.getHeading());
 
-        System.out.println("AutoDrvSys.advTraj: leftSens: " + leftSensPosn + "  rightSens: " + rightSensPosn + "  lout: " + leftOutput + "  rout: " + rightOutput + "  hdg: " + gyro_heading + " desired: " + desired_heading);
-       //System.out.println("Encoder check; " + mLeft_Mas)
-
+        // Bound an angle (in degrees) to -180 to 180 degrees.
         double angleDifference = Pathfinder.boundHalfDegrees(desired_heading - gyro_heading);
         double turn = 0.8 * (-1.0/80.0) * angleDifference;
+        double modLeftOutput = follLeft + turn;
+        double modRightOutput = follRight - turn;
 
-//            mLeft_Master.set(leftOutput);
-//            mRight_Master.set(rightOutput);
-        mRoboDrive.tankDrive(-leftOutput, -rightOutput);
+        System.out.println("AutoDrvSys.advTraj: leftSens: " + leftSensPosn + "  rightSens: " + rightSensPosn ); // + "  ltrag: " + follLeft + "  rtrag: " + follRight + "  gyro: " + gyro_heading + " desired: " + desired_heading + "  turn: " + turn);
+        System.out.println("Auto.advTraj: gyro " + gyro_heading + " desired: " + desired_heading + " angDif: " + angleDifference + " turn: " + turn
+                + " follL: " + follLeft + " calcL: " + modLeftOutput + " follR: " + follRight + " modR: " + modRightOutput);
+
+        //System.out.println("AutoDrvSys.advTraj: leftPercent: " + leftPercent + "  leftVolts: " + leftVolts + "  rightPercent: " + rightPercent + "  rightVolts: " + rightVolts);
+        //System.out.println("Encoder check; " + mLeft_Mas)
+
+        mRoboDrive.tankDrive(-modLeftOutput, -modRightOutput);
        // }
     }
 
