@@ -38,6 +38,9 @@ public class NavSys implements PIDOutput {
         // communicative with the naxX MXP
         try {
             this.navX = new AHRS(SPI.Port.kMXP);
+            this.navX.zeroYaw();
+
+
             this.turnController = new PIDController(kP, kI, kD, kF, this.navX, (PIDOutput) this);
 
         } catch (Exception ex ) {
@@ -58,6 +61,6 @@ public class NavSys implements PIDOutput {
 
     // getting the navX direction in degrees
     public double getHeading() {
-        return this.navX.getAngle();
+        return this.navX.getYaw();
     }
 }
