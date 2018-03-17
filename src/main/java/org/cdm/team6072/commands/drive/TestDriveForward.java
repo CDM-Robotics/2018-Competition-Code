@@ -12,7 +12,7 @@ import org.cdm.team6072.subsystems.NavXSys;
 public class TestDriveForward extends Command {
 
     // 5 seconds - assumes execute is called every 20 mSec
-    private static int KTIMETORUN = 50 * 5;
+    private static int KTIMETORUN = 50 * 2;
 
 
     public TestDriveForward() {
@@ -35,7 +35,6 @@ public class TestDriveForward extends Command {
             mAhrs = NavXSys.getInstance().getAHRS();
             //mAhrs.reset();
             mAhrs.enableLogging(true);
-            mDriveSys.logPosn("TDF.init -----");
         }
         catch (Exception ex) {
             System.out.println("*********************  TestDriveForward: Ex initializing: " + ex.getMessage());

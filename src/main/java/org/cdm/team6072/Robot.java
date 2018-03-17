@@ -23,7 +23,7 @@ import org.cdm.team6072.subsystems.*;
 /**
  * Use TimedRobot as it has better control over the loop timing
  */
-public class Robot extends TimedRobot {
+public class Robot extends IterativeRobot {
 
 
     private DriveSys mDriveSys;
@@ -51,6 +51,7 @@ public class Robot extends TimedRobot {
 //        CameraManager.getInstance().runCameras();
 //        CameraManager.getInstance().runFilter();
         mDriveSys = DriveSys.getInstance();
+        mDriveSys.setSensorStartPosn();
         mElevatorSys = ElevatorSys.getInstance();
         mIntakeMotorSys = IntakeMotorSys.getInstance();
         mPDP = new PowerDistributionPanel(RobotConfig.PDP_ID);

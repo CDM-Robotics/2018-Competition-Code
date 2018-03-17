@@ -178,6 +178,31 @@ public class DriveSys extends Subsystem {
     }
 
 
+    public void setSensorStartPosn() {
+
+        mLeft_Master.getSensorCollection().setPulseWidthPosition(0, 10);
+        int mBasePosn = mLeft_Master.getSensorCollection().getPulseWidthPosition();
+        int absolutePosition = mBasePosn;
+
+        /* mask out overflows, keep bottom 12 bits */
+        absolutePosition &= 0xFFF;
+//        if (mSensorPhase)
+//            absolutePosition *= -1;
+//        if (mMotorInvert)
+//            absolutePosition *= -1;
+        /* set the quadrature (relative) sensor to match absolute */
+        mLeft_Master.setSelectedSensorPosition(absolutePosition, 0, 10);
+        //mTalon.setSelectedSensorPosition(0, kPIDLoopIdx, kTimeoutMs);
+        // setSelected takes time so wait for it to get accurate print
+        sleep(1000);
+        logPosn("setStart");
+    }
+
+    public int getLeftSensPosn() {
+        return mLeft_Master.getSensorCollection().getPulseWidthPosition();
+    }
+
+
 
 
 
