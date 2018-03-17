@@ -41,6 +41,11 @@ public class GameData {
         RIGHT
     }
 
+    public static enum AUTO_MODE {
+        STRAIGHT,
+        STRAIGHT_90
+    }
+
     public static GameData getInstance() {
         if (mInstance == null) {
             mInstance = new GameData();
@@ -52,6 +57,8 @@ public class GameData {
         String gameData = DriverStation.getInstance().getGameSpecificMessage();
         if (gameData.length() > 3) {
             this.gameData = gameData;
+        } else {
+            System.out.println("GameData.loadGameData: NO GAME DATA FROM DRIVER STATION");
         }
         this.gameData = null;
     }
@@ -93,5 +100,19 @@ public class GameData {
 
         }
     }
+
+
+    public void initiateAutoMode(AUTO_MODE mode) {
+        switch (mode) {
+            case STRAIGHT:
+                break;
+            case STRAIGHT_90:
+                break;
+            default:
+                break;
+        }
+    }
+
+
 
 }
