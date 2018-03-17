@@ -124,34 +124,6 @@ public class Robot extends TimedRobot {
     private PathFinderDriveSys mPathFinderDriveSys;
 
 
-    /**
-     * Details on what is provided by field management system
-     * https://wpilib.screenstepslive.com/s/currentCS/m/getting_started/l/826278-2018-game-data-details
-     *
-     * Data is a 3 char string with the side for:
-     *      switch
-     *      scale
-     *      far switch
-     * For example:  LRL
-     *      left switch
-     *      right scale
-     *      left far switch
-     *
-     *
-     The DriverStation class can provide information on what alliance color the robot is.
-     When connected to FMS this is the alliance color communicated to the DS by the field.
-     When not connected, the alliance color is determined by the Team Station dropdown box on the Operation tab of the DS software.
-
-     https://www.chiefdelphi.com/forums/showthread.php?t=163822 - problems with
-     We had this problem our rookie year in 2016. We found by making sure we selected the auto mode after the robot
-     was connected to the field solved our problem. Even if you have already selected the mode you want,
-     click off of it and back on it after the robot was connected.
-     Make sure you only have one instance of the SmartDashboard open.
-     If there are multiple instances open, each with a different auton selected,
-     you will get mixed results. Happened to us last weekend.
-
-     */
-
     @Override
     public void autonomousInit() {
         super.autonomousInit();
