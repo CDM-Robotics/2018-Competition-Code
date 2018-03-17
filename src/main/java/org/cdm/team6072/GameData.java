@@ -80,6 +80,11 @@ public class GameData {
         return this.getDirection(2);
     }
 
+    public void logDirections() {
+        String output = "switch side -> " + this.getSwitchSide().toString() + ", scale side -> " + this.getScaleSide().toString() + ", far switch -> " + this.getFarSwitchSide().toString();
+        System.out.println(output);
+    }
+
     // TODO decide how to route commands
     public void routeCommandGroups(CommandGroup group) {
         if (this.getSwitchSide() == DIRECTION.LEFT) {
