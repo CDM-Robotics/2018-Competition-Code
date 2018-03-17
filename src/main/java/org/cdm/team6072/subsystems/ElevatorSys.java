@@ -85,11 +85,16 @@ public class ElevatorSys extends Subsystem {
 
     /**
      * Specify the direction the elevator should move
+     *  Up = Talon.setInverted(false)
      */
     public static enum Direction {
         Up,
         Down
     }
+
+    private static boolean TALON_INVERTED_UP = false;
+    private static boolean TALON_INVERTED_DOWN = true;
+
 
     /**
      * Specify the target position we want to reach.
@@ -163,7 +168,7 @@ public class ElevatorSys extends Subsystem {
             System.out.println("ElevatorSys.ctor:  topSw: " + mTopSwitch.getChannel() + "  botSw: " + mBotSwitch.getChannel());
 
             mTalon = new WPI_TalonSRX(RobotConfig.ELEVATOR_TALON);
-            mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
+            mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, kPIDLoopIdx, kTimeoutMs);
             mTalon.setSensorPhase(mSensorPhase);
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
 
@@ -173,7 +178,7 @@ public class ElevatorSys extends Subsystem {
             mTalon.configPeakCurrentDuration(100, 0);
             //mTalon.enableCurrentLimit(true);
 
-            mTalon.configOpenloopRamp(0.25, 10);
+            mTalon.configOpenloopRamp(0.1, 10);
 
             // set slot zero for position hold closed loop
             mTalon.configNominalOutputForward(0, kTimeoutMs);
@@ -228,6 +233,7 @@ public class ElevatorSys extends Subsystem {
 
 
     //  grab the 360 degree position of the MagEncoder's absolute position, and set the relative sensor to match.
+    // should only be called on robot.init
     public void setSensorStartPosn() {
 
         // might be in a PID hold mode, so get out of it
@@ -350,14 +356,14 @@ public class ElevatorSys extends Subsystem {
 
     public void move(Direction dir, double speed) {
         if (topSwitchSet() || botSwitchSet()) {
-            System.out.println("*****************  ElvSys.move:  switch hit  top:" + mTopCounter.get() + "  bot: " + mBotCounter.get());
+            System.out.println("*****************  ElvSys.move:  switch hit:  top:" + mTopCounter.get() + "  bot: " + mBotCounter.get());
             stop();
             return;
         }
         if (dir == Direction.Up) {
-            mTalon.setInverted(false);
+            mTalon.setInverted(TALON_INVERTED_UP);
         } else {
-            mTalon.setInverted(true);
+            mTalon.setInverted(TALON_INVERTED_DOWN);
         }
         mTalon.set(ControlMode.PercentOutput, speed);
         if (++mMoveLoopCtr % 5 == 0) {
@@ -382,7 +388,7 @@ public class ElevatorSys extends Subsystem {
         mTalon.config_kP(kPIDSlot_Hold, 1.0, kTimeoutMs);             // kP 1.0 used on elevator 2018-02-17
         mTalon.config_kI(kPIDSlot_Hold, 0.0, kTimeoutMs);
         mTalon.config_kD(kPIDSlot_Hold, 0.0, kTimeoutMs);
-        sleep(50);
+        sleep(10);
         double curPosn = mTalon.getSelectedSensorPosition(kPIDSlot_Hold);
         //double curPosn = Math.abs(mTalon.getSelectedSensorPosition(0));
         printPosn("holdPosn.before");
@@ -686,9 +692,10 @@ public class ElevatorSys extends Subsystem {
         mLastQuadPosn = quadPosn;
 //        System.out.println("ArmSys." + caller + ":    topSwitch: " + mTopCounter.get() + "   botSwitch: " + mBotCounter.get());
 //        System.out.println("ArmSys." + caller + ":    Vel: " + vel + "  pwVel: " + pwVel + "  MotorOut: " + mout  +  "  voltOut: " + voltOut+ "  clErr: " + closedLoopErr);
-//        System.out.println("ElvSys." + caller + ":  base: " + mBasePosn + "   sensPosn: " + sensPosnSign + absSensPosn + "  relDelta: " + relDelta
-//                + "  quadPosn: " + quadPosn  + "  quadDelta: " + quadDelta + "  pwPosn: " + pwPosn + "  clErr: " + closedLoopErr);
-        System.out.println("  out%: " + mout + "   volt: " + voltOut + "   curOut: " + curOut);
+        System.out.println("ElvSys." + caller + ":  base: " + mBasePosn + "  sens: " + sensPosnSign + absSensPosn + "  rDelta: " + relDelta
+                + "  quad: " + quadPosn  + "  qDelta: " + quadDelta + "  pw: " + pwPosn + "  clErr: " + closedLoopErr);
+
+        //        System.out.println("  out%: " + mout + "   volt: " + voltOut + "   curOut: " + curOut);
         //shuffleBd();
     }
 

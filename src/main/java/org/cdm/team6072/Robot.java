@@ -23,7 +23,7 @@ import org.cdm.team6072.subsystems.*;
 /**
  * Use TimedRobot as it has better control over the loop timing
  */
-public class Robot extends IterativeRobot {
+public class Robot extends TimedRobot {
 
 
     private DriveSys mDriveSys;
@@ -53,6 +53,7 @@ public class Robot extends IterativeRobot {
         mDriveSys = DriveSys.getInstance();
         mDriveSys.setSensorStartPosn();
         mElevatorSys = ElevatorSys.getInstance();
+        mElevatorSys.setSensorStartPosn();
         mIntakeMotorSys = IntakeMotorSys.getInstance();
         mPDP = new PowerDistributionPanel(RobotConfig.PDP_ID);
 
@@ -83,15 +84,18 @@ public class Robot extends IterativeRobot {
     public void teleopInit() {
         System.out.println("6072: teleop init");
         mTelopLoopCtr = 0;
-        mElevatorSys.setSensorStartPosn();
 
         NavXSys.getInstance().zeroYawHeading(); // TESTING PURPOSES
+        ArcadeDriveCmd  mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
+        Scheduler.getInstance().removeAll();
+        Scheduler.getInstance().add(mArcadeDriveCmd);
+
     }
 
     private int mDisLoopCnt = 0;
     public void disabledPeriodic() {
         if (++mDisLoopCnt % (50 * 5) == 0) { // limiting the log output
-            mDriveSys.logPosn("Robot.disabled");
+ //           mDriveSys.logPosn("Robot.disabled");
         }
     }
 
@@ -106,8 +110,6 @@ public class Robot extends IterativeRobot {
     public void teleopPeriodic() {
         // must call the scheduler to run
         Scheduler.getInstance().run();
-
-
 
         // update PDP stats every half second
         if (++mTelopLoopCtr % 200 == 0) {
@@ -129,8 +131,9 @@ public class Robot extends IterativeRobot {
     public void autonomousInit() {
         super.autonomousInit();
         System.out.println("auto init (6072)  ------------------------------------------------------------");
-
+        NavXSys.getInstance().zeroYawHeading();
         int option = mChooser.getSelected();
+        System.out.println("AutoInit: chooser: " + option + "   -----------------------------------------------");
 
         // how to get what color we are - could be useful for object recog
         DriverStation.Alliance color;

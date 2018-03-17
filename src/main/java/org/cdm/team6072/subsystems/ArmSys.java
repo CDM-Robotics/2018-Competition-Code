@@ -16,8 +16,6 @@ import util.CrashTracker;
 /**
  * ArmSys has a single talon used to move the arm through an arc of +- 80 degrees from horizontal
  *
- * ArmSys is attached to the ArmSys, and moves up and dwon with it.
- *
  * The IntakeMotorSys is attached to teh end of the ArmSys, and is used to hold the cubes.
  */
 public class ArmSys extends Subsystem {
@@ -30,6 +28,9 @@ public class ArmSys extends Subsystem {
         Up,
         Down
     }
+
+    private static boolean TALON_INVERTED_UP = true;
+    private static boolean TALON_INVERTED_DOWN = false;
 
     /**
      * Which PID slot to pull gains from.  Starting 2018, you can choose
@@ -102,11 +103,11 @@ public class ArmSys extends Subsystem {
             System.out.println("ArmSys.ctor:  topSw: " + mTopSwitch.getChannel() + "  botSw: " + mBotSwitch.getChannel());
 
             mTalon = new WPI_TalonSRX(RobotConfig.ARM_TALON);
-            mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
+            mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, kPIDLoopIdx, kTimeoutMs);
             mTalon.setSensorPhase(sensorPhase);
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
 
-            mTalon.configOpenloopRamp(0.25, 10);
+            mTalon.configOpenloopRamp(0.1, 10);
 
             // set slot zero for position hold closed loop
             mTalon.configNominalOutputForward(0, kTimeoutMs);
@@ -140,7 +141,7 @@ public class ArmSys extends Subsystem {
             mTalon.setSelectedSensorPosition(absolutePosition, kPIDLoopIdx, kTimeoutMs);
             //mTalon.setSelectedSensorPosition(0, kPIDLoopIdx, kTimeoutMs);
             // setSelected takes time so wait for it to get accurate print
-            Thread.sleep(100);
+            Thread.sleep(50);
             printPosn("ctor");
 
             // test  motion profile --------------
@@ -163,11 +164,6 @@ public class ArmSys extends Subsystem {
 
 
 
-    private void sleep(int milliSecs) {
-        try {
-            Thread.sleep(milliSecs);
-        } catch (Exception ex) {}
-    }
 
 
     public void initTopSwitch() {
@@ -218,9 +214,9 @@ public class ArmSys extends Subsystem {
             return;
         }
         if (dir == ArmSys.Direction.Up) {
-            mTalon.setInverted(true);
+            mTalon.setInverted(TALON_INVERTED_UP);
         } else {
-            mTalon.setInverted(false);
+            mTalon.setInverted(TALON_INVERTED_DOWN);
         }
         mTalon.set(ControlMode.PercentOutput, speed);
         if (++mCounter % 5 == 0) {
@@ -287,14 +283,6 @@ public class ArmSys extends Subsystem {
         return mStopMode == StopMode.StopComplete;
     }
 
-
-    /**
-     * The position provided is a delta from the designated start posn
-     * @param posn
-     */
-    public void MoteToPosn(int posn) {
-
-    }
     
     
     
@@ -334,8 +322,8 @@ public class ArmSys extends Subsystem {
         mLastQuadPosn = quadPosn;
 //        System.out.println("ArmSys." + caller + ":    topSwitch: " + mTopCounter.get() + "   botSwitch: " + mBotCounter.get());
 //        System.out.println("ArmSys." + caller + ":    Vel: " + vel + "  pwVel: " + pwVel + "  MotorOut: " + mout  +  "  voltOut: " + voltOut+ "  clErr: " + closedLoopErr);
-        System.out.println("ArmSys." + caller + ":   sensPosn: " + sensPosnSign + absSensPosn + "  relDelta: " + relDelta
-                + "  quadPosn: " + quadPosn  + "  quadDelta: " + quadDelta + "  pwPosn: " + pwPosn + "  clErr: " + closedLoopErr);
+        System.out.println("ArmSys." + caller + ":  sens: " + sensPosnSign + absSensPosn + "  rDelta: " + relDelta
+                + "  quad: " + quadPosn  + "  qDelta: " + quadDelta + "  pw: " + pwPosn + "  clErr: " + closedLoopErr);
         //shuffleBd();
     }
 

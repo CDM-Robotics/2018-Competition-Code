@@ -1,6 +1,7 @@
 package org.cdm.team6072.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -32,50 +33,7 @@ public class PathFinderDriveSys extends Subsystem {
 
     private DifferentialDrive mRoboDrive;
 
-    /**
-     * https://www.chiefdelphi.com/forums/showthread.php?p=1691279
-     *
-     * The coordinate system is just standard x, y, and theta. Note that theta must be in radians.
-     * The units of x and y don’t matter as long as you are consistent.
-     * If you provide coordinates in feet, you must provide velocity and acceleration in ft/s and ft/s^2,
-     * and your output will be in feet and ft/s.
-     *
-     * The way it currently works is like so:
-     X+ is forward from where your robot starts.
-     X- is backward from where your robot starts.
-     Y+ is to the right of your robot where it starts.
-     Y- is to the left of your robot where it starts.
-     Angle (theta) is your desired robot heading in radians, which you can convert to/from degrees with the r2d and d2r functions provided by Pathfinder.
 
-     Positive headings are going from X+ towards Y+,
-     Negative Headings from X+ to Y-.
-     As for the actual following of the heading, that depends on where your gyroscope is zero'd to.
-
-     As with anything, these coordinates are useless unless you have the follower code to interpret them.
-     X and Y coordinate directions can be flipped by just sending them to different motor outputs, for example
-
-     You can orient the coordinate plane any way you want, as long as you are consistent.
-     Since, as I mentioned above, angle is measured counterclockwise from the +x axis,
-     a starting waypoint of (0,0,0) for (x,y,theta) will correspond to a robot at the origin facing in the +x direction.
-
-     If you do not like this, and would rather have the robot face in the +y direction,
-     all you need to do is start with a waypoint of (0,0,pi/2) instead.
-     */
-
-    // waypoint positions are in meters
-    // angles in degrees but d2r method converts to radians
-    private Waypoint[] points = new Waypoint[] {
-      new Waypoint(-4, -1, Pathfinder.d2r(-45)),
-      new Waypoint(-2 ,-2, 0),
-      new Waypoint(0,0,0)
-    };
-
-    private Waypoint[] sinewave = new Waypoint[] {
-            new Waypoint(2, 2, Pathfinder.d2r(0)),
-            new Waypoint(4, -2, Pathfinder.d2r(0)),
-            new Waypoint(6, 2, Pathfinder.d2r(0)),
-            new Waypoint(8, -2, Pathfinder.d2r(0)),
-    };
 
 
 
@@ -94,6 +52,8 @@ public class PathFinderDriveSys extends Subsystem {
             mLeft_Master = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_MASTER);
             mLeft_Master.configOpenloopRamp(0 , 0);
             mLeft_Master.setNeutralMode(NeutralMode.Brake);
+            mLeft_Master.setSensorPhase(true);
+            mLeft_Master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 10);
 
             mLeft_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE0);
             mLeft_Slave0.set(ControlMode.Follower, RobotConfig.DRIVE_LEFT_MASTER);
@@ -101,7 +61,8 @@ public class PathFinderDriveSys extends Subsystem {
 
             mRight_Master = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_MASTER);
             mRight_Master.configOpenloopRamp(0, 0);
-            mLeft_Master.setNeutralMode(NeutralMode.Brake);
+            mRight_Master.setNeutralMode(NeutralMode.Brake);
+            mRight_Master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 10);
 
             mRight_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_SLAVE0);
             mRight_Slave0.set(ControlMode.Follower, RobotConfig.DRIVE_RIGHT_MASTER);
@@ -124,11 +85,12 @@ public class PathFinderDriveSys extends Subsystem {
 
     public static double WHEELDIAM = 6 * 2.54 / 100;
 
-    public static double MAX_VELOCITY = 5.0;           // meters per sec
+    // measured max speed was about 7.8 feet/sec
+    public static double MAX_VELOCITY = 7.8 * 12 * 2.54 /100 ;           // meters per sec
 
     public static double MAX_ACCEL = 4.0;              // meters per sec per sec
 
-
+    public static int TICKS_PER_REV = 4096;
 
 
     /**
@@ -157,39 +119,22 @@ public class PathFinderDriveSys extends Subsystem {
 
         Trajectory left = modifier.getLeftTrajectory();
         this.leftFollower = new EncoderFollower(left);
-        this.leftFollower.configureEncoder(getLeftSens(), 1024, WHEELDIAM);
+        this.leftFollower.configureEncoder(getLeftSens(), TICKS_PER_REV, WHEELDIAM);
         this.leftFollower.configurePIDVA(1.0, 0.0, 0.0, 1/MAX_VELOCITY, 0);
 
         Trajectory right = modifier.getRightTrajectory();
         this.rightFollower = new EncoderFollower(right);
-        this.rightFollower.configureEncoder(getRightSens(), 1024, WHEELDIAM);
+        this.rightFollower.configureEncoder(getRightSens(), TICKS_PER_REV, WHEELDIAM);
         this.rightFollower.configurePIDVA(1.0, 0.0, 0.0, 1/MAX_VELOCITY, 0);
 
         for (int i = 0; i < right.segments.length; i++) {
-            System.out.println("Auto.setTraj: left seg:" + left.segments[i].x + "  " + left.segments[i].y + "  " + left.segments[i].velocity + "  " + left.segments[i].heading);
-            System.out.println("Auto.setTraj: right seg:" + right.segments[i].x + "  " + right.segments[i].y + "  " + right.segments[i].velocity + "  " + right.segments[i].heading);
+            String lmsg = String.format("\"Auto.setTraj: left x:%.3f  y:%.3f  v:%.3f  h:%.3f", left.segments[i].x, left.segments[i].y, left.segments[i].velocity, left.segments[i].heading);
+            String rmsg = String.format("\"Auto.setTraj: rght x:%.3f  y:%.3f  v:%.3f  h:%.3f", right.segments[i].x, right.segments[i].y, right.segments[i].velocity, right.segments[i].heading);
+            System.out.println(lmsg);
+            System.out.println(rmsg);
         }
     }
 
-
-
-    /**
-     * Set lef tand right talons to the same sensor position
-     */
-    private void setSensorStartPosn() {
-        mLeft_Master.getSensorCollection().setPulseWidthPosition(0, 10);
-        int absolutePosition = mLeft_Master.getSensorCollection().getPulseWidthPosition();
-
-        /* mask out overflows, keep bottom 12 bits */
-        absolutePosition &= 0xFFF;
-//        if (mSensorPhase)
-//            absolutePosition *= -1;
-//        if (mMotorInvert)
-//            absolutePosition *= -1;
-        /* set the quadrature (relative) sensor to match absolute */
-        mLeft_Master.setSelectedSensorPosition(absolutePosition, 0, 10);
-        mRight_Master.setSelectedSensorPosition(absolutePosition, 0, 10);
-    }
 
     /**
      * Each subsystem may, but is not required to, have a default command
@@ -206,7 +151,7 @@ public class PathFinderDriveSys extends Subsystem {
 
     private int getLeftSens() {
         //return mLeft_Master.getSelectedSensorPosition(0);
-        return Math.floorMod(mLeft_Master.getSensorCollection().getPulseWidthPosition(), 1024);
+        return mLeft_Master.getSelectedSensorPosition(0);
     }
 
     /**
@@ -215,7 +160,7 @@ public class PathFinderDriveSys extends Subsystem {
      */
     private int getRightSens() {
         //return -mRight_Master.getSelectedSensorPosition(0);
-        return -Math.floorMod(mRight_Master.getSensorCollection().getPulseWidthPosition(), 1024);
+        return mRight_Master.getSelectedSensorPosition(0);
     }
 
 
@@ -254,23 +199,26 @@ public class PathFinderDriveSys extends Subsystem {
         double follLeft = leftFollower.calculate(leftSensPosn);
         double follRight = rightFollower.calculate(rightSensPosn);
 
-        double gyro_heading = NavXSys.getInstance().getYawHeading();
+        double gyro_heading = NavXSys.getInstance().getAngle();
         double desired_heading = Pathfinder.r2d(leftFollower.getHeading());
 
         // Bound an angle (in degrees) to -180 to 180 degrees.
         double angleDifference = Pathfinder.boundHalfDegrees(desired_heading - gyro_heading);
-        double turn = 0.8 * (-1.0/80.0) * angleDifference;
-        double modLeftOutput = follLeft + turn;
-        double modRightOutput = follRight - turn;
+        double turn = -1 * 0.01 * angleDifference;
+        double modLeftOutput = follLeft - turn;
+        double modRightOutput = follRight + turn;
 
-        System.out.println("AutoDrvSys.advTraj: leftSens: " + leftSensPosn + "  rightSens: " + rightSensPosn ); // + "  ltrag: " + follLeft + "  rtrag: " + follRight + "  gyro: " + gyro_heading + " desired: " + desired_heading + "  turn: " + turn);
-        System.out.println("Auto.advTraj: gyro " + gyro_heading + " desired: " + desired_heading + " angDif: " + angleDifference + " turn: " + turn
-                + " follL: " + follLeft + " calcL: " + modLeftOutput + " follR: " + follRight + " modR: " + modRightOutput);
+        //System.out.println("AutoDrvSys.advTraj: leftSens: " + leftSensPosn + "  rightSens: " + rightSensPosn ); // + "  ltrag: " + follLeft + "  rtrag: " + follRight + "  gyro: " + gyro_heading + " desired: " + desired_heading + "  turn: " + turn);
+
+        String msg = String.format("Auto.advTraj: l: %d  r: %d  gyro %.2f  des: %.2f  aDif: %.3f  turn: %.3f  follLeft: %.3f  follRight: %.3f  calcLeft: %.3f  calcRight: %.3f",
+                leftSensPosn, rightSensPosn,   gyro_heading, desired_heading, angleDifference, turn,  follLeft, follRight, modLeftOutput, modRightOutput);
+        System.out.println(msg);
 
         //System.out.println("AutoDrvSys.advTraj: leftPercent: " + leftPercent + "  leftVolts: " + leftVolts + "  rightPercent: " + rightPercent + "  rightVolts: " + rightVolts);
         //System.out.println("Encoder check; " + mLeft_Mas)
 
-        mRoboDrive.tankDrive(-modLeftOutput, -modRightOutput);
+        // for tank drive, -ve and -ve will go forward
+        mRoboDrive.tankDrive(-modLeftOutput / 2, -modRightOutput / 2);
        // }
     }
 

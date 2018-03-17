@@ -49,15 +49,21 @@ public class IntakeMotorSys extends Subsystem {
 
     }
 
+    private static boolean TALON_INVERTED_LEFT_IN = false;
+    private static boolean TALON_INVERTED_RIGHT_IN = true;
+    private static boolean TALON_INVERTED_LEFT_OUT = true;
+    private static boolean TALON_INVERTED_RIGHT_OUT = false;
+
+
 
     public void runWheels(WheelDirn dir, double speed) {
         if (dir == WheelDirn.In) {
-            mTalonLeft.setInverted(false);
-            mTalonRight.setInverted(true);
+            mTalonLeft.setInverted(TALON_INVERTED_LEFT_IN);
+            mTalonRight.setInverted(TALON_INVERTED_RIGHT_IN);
         }
         else {
-            mTalonLeft.setInverted(true);
-            mTalonRight.setInverted(false);
+            mTalonLeft.setInverted(TALON_INVERTED_LEFT_OUT);
+            mTalonRight.setInverted(TALON_INVERTED_RIGHT_OUT);
         }
         mTalonLeft.set(ControlMode.PercentOutput, speed);
         mTalonRight.set(ControlMode.PercentOutput, speed);
@@ -68,8 +74,8 @@ public class IntakeMotorSys extends Subsystem {
      * On stop, set wheels in very slow
      */
     public void stopWheels() {
-        mTalonLeft.setInverted(false);
-        mTalonRight.setInverted(true);
+        mTalonLeft.setInverted(TALON_INVERTED_LEFT_IN);
+        mTalonRight.setInverted(TALON_INVERTED_RIGHT_IN);
         mTalonLeft.set(ControlMode.PercentOutput, 0.1);
         mTalonRight.set(ControlMode.PercentOutput, 0.1);
         // In Position mode, output value is in encoder ticks or an analog value, depending on the sensor.

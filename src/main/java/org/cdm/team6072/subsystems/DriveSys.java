@@ -78,6 +78,7 @@ public class DriveSys extends Subsystem {
             mLeft_Master = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_MASTER);
             mLeft_Master.configOpenloopRamp(0.1 , 10);
             mLeft_Master.setNeutralMode(NeutralMode.Brake);
+            mLeft_Master.setSensorPhase(true);
 
             mLeft_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE0);
             mLeft_Slave0.set(ControlMode.Follower, RobotConfig.DRIVE_LEFT_MASTER);
@@ -104,7 +105,6 @@ public class DriveSys extends Subsystem {
 
             mAhrs = NavXSys.getInstance().getAHRS();
             mAdsState = AdsState.Straight;      // set arcadeDriveStraight to drive straight state
-
             initGyroPID();
             mGyroPID.setSetpoint(0);
             mGyroPID.enable();
@@ -178,24 +178,28 @@ public class DriveSys extends Subsystem {
     }
 
 
+    /**
+     * Set the quad posn to same as PW posn.
+     * Left motor sensor goes -ve when driving forward
+     * This should only be called from Robot.Init because of the time delays
+     */
     public void setSensorStartPosn() {
 
         mLeft_Master.getSensorCollection().setPulseWidthPosition(0, 10);
-        int mBasePosn = mLeft_Master.getSensorCollection().getPulseWidthPosition();
-        int absolutePosition = mBasePosn;
+        mRight_Master.getSensorCollection().setPulseWidthPosition(0, 10);
+        int leftPosn = mLeft_Master.getSensorCollection().getPulseWidthPosition();
+        int rightPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
 
         /* mask out overflows, keep bottom 12 bits */
-        absolutePosition &= 0xFFF;
-//        if (mSensorPhase)
-//            absolutePosition *= -1;
-//        if (mMotorInvert)
-//            absolutePosition *= -1;
-        /* set the quadrature (relative) sensor to match absolute */
-        mLeft_Master.setSelectedSensorPosition(absolutePosition, 0, 10);
+        int leftAbsPosition = leftPosn  & 0xFFF;
+        int rightAbsPosn = rightPosn & 0xFFF;
+
+        mLeft_Master.setSelectedSensorPosition(-leftAbsPosition, 0, 10);
+        mRight_Master.setSelectedSensorPosition(rightAbsPosn, 0, 10);
         //mTalon.setSelectedSensorPosition(0, kPIDLoopIdx, kTimeoutMs);
         // setSelected takes time so wait for it to get accurate print
-        sleep(1000);
-        logPosn("setStart");
+        sleep(100);
+        logPosn("DS.setStart");
     }
 
     public int getLeftSensPosn() {
@@ -274,11 +278,20 @@ public class DriveSys extends Subsystem {
     }
 
     public void logPosn(String caller) {
+        int lSens = mLeft_Master.getSelectedSensorPosition(0);
         int lQuad = mLeft_Master.getSensorCollection().getQuadraturePosition();
         int lPW = mLeft_Master.getSensorCollection().getPulseWidthPosition();
         int lQuadVel = mLeft_Master.getSensorCollection().getQuadratureVelocity();
         int lPWVel = mLeft_Master.getSensorCollection().getPulseWidthVelocity();
-        String msg = String.format("%s:  lQuad: %5d lPW: %5d  lQdVel: %5d  lPWVel: %5d ", caller, lQuad, lPW, lQuadVel, lPWVel);
+        int rSens = mRight_Master.getSelectedSensorPosition(0);
+        int rQuad = mRight_Master.getSensorCollection().getQuadraturePosition();
+        int rPW = mRight_Master.getSensorCollection().getPulseWidthPosition();
+        int rQuadVel = mRight_Master.getSensorCollection().getQuadratureVelocity();
+        int rPWVel = mRight_Master.getSensorCollection().getPulseWidthVelocity();
+
+        //String msg = String.format("%s:  lQuad: %5d lPW: %5d  lQdVel: %5d  lPWVel: %5d ", caller, lQuad, lPW, lQuadVel, lPWVel);
+
+        String msg = String.format("%s:  lSens: %5d lQuad: %5d lPW: %5d  rSens: %5d  rQuad: %5d  rPW: %5d ", caller, lSens, lQuad, lPW, rSens, rQuad, rPW);
         System.out.println(msg);
     }
 

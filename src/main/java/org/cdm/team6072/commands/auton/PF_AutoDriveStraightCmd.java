@@ -16,6 +16,7 @@ public class PF_AutoDriveStraightCmd extends Command {
         requires(PathFinderDriveSys.getInstance());
         mPathFinderDriveSys = PathFinderDriveSys.getInstance();
         mPathFinderDriveSys.setTrajectory(AutoTrajectoryMgr.getTrajectory(AutoTrajectoryMgr.STRAIGHT));
+        System.out.println("PF_AutoDriveStraightCmd.ctor");
     }
 
 
