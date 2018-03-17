@@ -59,8 +59,8 @@ public class Robot extends TimedRobot {
         NavXSys.getInstance();
 
         // set up the autonomous options on dashboard
-        mChooser.addDefault("Option  1: Drive Straight",                               1);
-        mChooser.addObject( "Option  2: Straight then 90",                      2);
+        mChooser.addDefault("Option  1: PF Drive Straight",          1);
+        mChooser.addObject( "Option  2: PF Straight then 90",        2);
 //        mChooser.addObject( "Option  3: Cross line -  Inner",                      3);
 //        mChooser.addObject( "Option  4: Left Outer -  Switch - Cross Field",       4);
 //        mChooser.addObject( "Option  5: Left Outer -  Switch - Don't cross Field", 5);
@@ -85,9 +85,12 @@ public class Robot extends TimedRobot {
         mElevatorSys.setSensorStartPosn();
     }
 
-//    public void disabledPeriodic() {
-//        mDriveSys.arcadeDrive(0,0);
-//    }
+    private int mDisLoopCnt = 0;
+    public void disabledPeriodic() {
+        if (++mDisLoopCnt % (50 * 5) == 0) {
+            mDriveSys.logPosn("Robot.disabled");
+        }
+    }
 
     /**
      * teleopPeriodic is called about every 20mSec
@@ -101,18 +104,19 @@ public class Robot extends TimedRobot {
         Scheduler.getInstance().run();
 
         // update PDP stats every half second
-        if (++mTelopLoopCtr % 50 == 0) {
-            //logNavX();
-            Logging();
-        }
+//        if (++mTelopLoopCtr % 50 == 0) {
+//            //logNavX();
+//            Logging();
+//        }
     }
+
 
 
 
     //  AUTONOMOUS MODE  ---------------------------------------------------------------
 
 
-    private AutoDriveSys mAutoDriveSys;
+    private PathFinderDriveSys mPathFinderDriveSys;
 
 
     /**
@@ -127,6 +131,20 @@ public class Robot extends TimedRobot {
      *      left switch
      *      right scale
      *      left far switch
+     *
+     *
+     The DriverStation class can provide information on what alliance color the robot is.
+     When connected to FMS this is the alliance color communicated to the DS by the field.
+     When not connected, the alliance color is determined by the Team Station dropdown box on the Operation tab of the DS software.
+
+     https://www.chiefdelphi.com/forums/showthread.php?t=163822 - problems with
+     We had this problem our rookie year in 2016. We found by making sure we selected the auto mode after the robot
+     was connected to the field solved our problem. Even if you have already selected the mode you want,
+     click off of it and back on it after the robot was connected.
+     Make sure you only have one instance of the SmartDashboard open.
+     If there are multiple instances open, each with a different auton selected,
+     you will get mixed results. Happened to us last weekend.
+
      */
 
     @Override
@@ -136,21 +154,29 @@ public class Robot extends TimedRobot {
 
         int option = mChooser.getSelected();
 
+        // how to get what color we are - could be useful for object recog
+        DriverStation.Alliance color;
+        color = DriverStation.getInstance().getAlliance();
+        if(color == DriverStation.Alliance.Blue){
+        }
         String gameData = "";
 //        while (gameData.length() < 3) {
 //            sleep(10);
 //        }
         gameData = DriverStation.getInstance().getGameSpecificMessage();
+        if (gameData.length() < 3) {
+            System.out.println("**********************  NO GAME DATA  *********************************************");
+        }
         char switchSide = gameData.charAt(0);
         char scaleSide =  gameData.charAt(1);
         char farSwitchSide = gameData.charAt(2);
         mAutonCmdGrp = new CommandGroup();
         switch (option) {
             case 1:
-                mAutonCmdGrp.addSequential(new AutoDriveStraightCmd());
+                mAutonCmdGrp.addSequential(new PF_AutoDriveStraightCmd());
                 break;
             case 2:
-                mAutonCmdGrp.addSequential(new AutoDriveStraightBendCmd());
+                mAutonCmdGrp.addSequential(new PF_AutoDriveStraightBendCmd());
                 break;
 //            case 3:
 //                mAutonCmd = new Auto03();
@@ -167,7 +193,7 @@ public class Robot extends TimedRobot {
 //                }
 //                break;
             default:
-                mAutonCmdGrp.addSequential(new AutoDriveStraightCmd());;
+                mAutonCmdGrp.addSequential(new PF_AutoDriveStraightCmd());;
                 break;
         }
         mAutonCmdGrp.start();
@@ -222,17 +248,17 @@ public class Robot extends TimedRobot {
         Path logFile;
 
         try {
-            logFile = FileSystems.getDefault().getPath("/home/lvuser/logs", "PDP_Log.csv");
-            System.out.println("-------  Logging: path: " + logFile.toString() + " : " + logFile.toAbsolutePath().toString());
-            if (Files.notExists(logFile)) {
-                logFile = Files.createFile(logFile);
-                List<String> line = new ArrayList<String>();
-                line.add("time, DriveLeft, DriveRight, Elev, Arm");
-                Files.write(logFile, line, StandardCharsets.UTF_8);
-            }
+//            logFile = FileSystems.getDefault().getPath("/home/lvuser/logs", "PDP_Log.csv");
+//            System.out.println("-------  Logging: path: " + logFile.toString() + " : " + logFile.toAbsolutePath().toString());
+//            if (Files.notExists(logFile)) {
+//                logFile = Files.createFile(logFile);
+//                List<String> line = new ArrayList<String>();
+//                line.add("time, DriveLeft, DriveRight, Elev, Arm");
+//                Files.write(logFile, line, StandardCharsets.UTF_8);
+//            }
 
-            double elvCurrent = mPDP.getCurrent(RobotConfig.ELEVATOR_TALON_PDP);
-            double armCurrent = mPDP.getCurrent(RobotConfig.ARM_TALON_PDP);
+            double elvCurrent = 0; //mPDP.getCurrent(RobotConfig.ELEVATOR_TALON_PDP);
+            double armCurrent = 0; //mPDP.getCurrent(RobotConfig.ARM_TALON_PDP);
             double driveLeftCurrent = mPDP.getCurrent(RobotConfig.DRIVE_LEFT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_LEFT_SLAVE0_PDP);
             double driveRightCurrent = mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_SLAVE0_PDP);
 
@@ -241,11 +267,15 @@ public class Robot extends TimedRobot {
             SmartDashboard.putNumber("PDP.DriveLeftCurrent", driveLeftCurrent);
             SmartDashboard.putNumber("PDP.DriveRightCurrent", driveRightCurrent);
 
+            String logmsg = String.format("lCur: %.3f, rCur: %.3f, elvCur: %.3f, armCur: %.3f", driveLeftCurrent, driveRightCurrent, elvCurrent, armCurrent);
+
+//            System.out.println(logmsg);
+
             //SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
-            Date now = new Date();
-            List<String> line = new ArrayList<String>();
-            line.add(String.format("%tT, %f, %f, %f, %f", now, driveLeftCurrent, driveRightCurrent, elvCurrent, armCurrent));
-            Files.write(logFile, line, StandardCharsets.UTF_8);
+//            Date now = new Date();
+//            List<String> line = new ArrayList<String>();
+//            line.add(logmsg);
+//            Files.write(logFile, line, StandardCharsets.UTF_8);
         }
         catch (Exception ex) {
             System.out.println( "*******  Logging ex: "+ ex.getClass().getName() + "   msg: " + ex.getMessage() + " ");

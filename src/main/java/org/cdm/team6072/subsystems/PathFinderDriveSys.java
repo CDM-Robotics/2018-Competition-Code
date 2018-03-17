@@ -12,11 +12,10 @@ import jaci.pathfinder.Waypoint;
 import jaci.pathfinder.modifiers.TankModifier;
 import org.cdm.team6072.RobotConfig;
 import jaci.pathfinder.followers.EncoderFollower;
-import java.io.File;
 
 import java.util.ArrayList;
 
-public class AutoDriveSys extends Subsystem {
+public class PathFinderDriveSys extends Subsystem {
 
     private WPI_TalonSRX mLeft_Master;
     private WPI_TalonSRX mLeft_Slave0;
@@ -80,16 +79,15 @@ public class AutoDriveSys extends Subsystem {
 
 
 
-
-    private static AutoDriveSys mInstance;
-    public static AutoDriveSys getInstance() {
+    private static PathFinderDriveSys mInstance;
+    public static PathFinderDriveSys getInstance() {
         if (mInstance == null) {
-            mInstance = new AutoDriveSys();
+            mInstance = new PathFinderDriveSys();
         }
         return mInstance;
     }
 
-    private AutoDriveSys() {
+    private PathFinderDriveSys() {
         System.out.println("6072: DriveSys constructor");
 
         try {
@@ -116,7 +114,7 @@ public class AutoDriveSys extends Subsystem {
 
         }
         catch (Exception ex) {
-            System.out.println("Exception in AutoDriveSys ctor: " + ex.getMessage() + "\r\n" + ex.getStackTrace());
+            System.out.println("Exception in PathFinderDriveSys ctor: " + ex.getMessage() + "\r\n" + ex.getStackTrace());
         }
     }
 
@@ -203,7 +201,7 @@ public class AutoDriveSys extends Subsystem {
      *  but after any command requiring the drivetrain completes the joystick command would be scheduled again.
      */
     public void initDefaultCommand() {
-        System.out.println("AutoDriveSys: init default command");
+        System.out.println("PathFinderDriveSys: init default command");
     }
 
     private int getLeftSens() {

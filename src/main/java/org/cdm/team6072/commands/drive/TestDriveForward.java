@@ -6,7 +6,7 @@ import org.cdm.team6072.subsystems.DriveSys;
 
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.SPI;
-
+import org.cdm.team6072.subsystems.NavXSys;
 
 
 public class TestDriveForward extends Command {
@@ -32,9 +32,10 @@ public class TestDriveForward extends Command {
             mCounter = 0;
             mDriveSys = DriveSys.getInstance();
             byte updateHz = 64;
-            mAhrs = new AHRS(SPI.Port.kMXP, 100000, updateHz);
+            mAhrs = NavXSys.getInstance().getAHRS();
             //mAhrs.reset();
             mAhrs.enableLogging(true);
+            mDriveSys.logPosn("TDF.init -----");
         }
         catch (Exception ex) {
             System.out.println("*********************  TestDriveForward: Ex initializing: " + ex.getMessage());
@@ -49,13 +50,13 @@ public class TestDriveForward extends Command {
         double yaw = mAhrs.getYaw();
         boolean isMoving = mAhrs.isMoving();
         boolean isConnected = mAhrs.isConnected();
-        if (mCounter % 5 == 0) {
-            System.out.println("TestDriveFwd.execute: angle = " + angle + "  yaw: " + yaw + "  isMoving: " + isMoving + "  isConn: " + isConnected);
-        }
+//        if (mCounter % 5 == 0) {
+//            System.out.println("TestDriveFwd.execute: angle = " + angle + "  yaw: " + yaw + "  isMoving: " + isMoving + "  isConn: " + isConnected);
+//        }
         if (mCounter == 20) {
             mAhrs.enableLogging(false);
         }
-        mDriveSys.arcadeDrive(-0.6,0);
+        mDriveSys.arcadeDrive(-1.0,0);
     }
 
 
@@ -63,6 +64,7 @@ public class TestDriveForward extends Command {
     protected boolean isFinished() {
         if (mCounter == KTIMETORUN) {
             mDriveSys.arcadeDrive(0,0);
+            mDriveSys.logPosn("TDF.fin -----");
             return true;
         }
         return false;

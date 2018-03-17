@@ -70,7 +70,7 @@ public class AutoTrajectoryMgr {
         Trajectory trajectory = computedTrajs.get(trajName); //Pathfinder.readFromFile(myFile);
         if (trajectory == null) {
             Waypoint[] waypoints = baseTrajs.get(trajName);
-            Trajectory.Config config = new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, 0.02, AutoDriveSys.MAX_VELOCITY, AutoDriveSys.MAX_ACCEL, 60);
+            Trajectory.Config config = new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, 0.02, PathFinderDriveSys.MAX_VELOCITY, PathFinderDriveSys.MAX_ACCEL, 60);
             trajectory = Pathfinder.generate(waypoints, config);
         }
         return trajectory;

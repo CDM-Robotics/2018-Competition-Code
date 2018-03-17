@@ -118,8 +118,13 @@ public class ControlBoard {
         drive_stick = new Joystick(DRIVE_USB_PORT);
         drive_buttons = new JoystickButton[12];
 
-        drive_buttons[DRIVE_TOGGLE_GEAR-1] = new JoystickButton(drive_stick, DRIVE_TOGGLE_GEAR);
-        drive_buttons[DRIVE_TOGGLE_GEAR-1].whenPressed(new DriveToggleGearCmd(drive_stick));
+        // test drive forward
+        drive_buttons[EXTREME_BUT_THUMB-1] = new JoystickButton(drive_stick, EXTREME_BUT_THUMB);
+        drive_buttons[EXTREME_BUT_THUMB-1].whenPressed(new TestDriveForward());
+
+        // toggle hi lo gear
+        drive_buttons[EXTREME_BUT_8-1] = new JoystickButton(drive_stick, EXTREME_BUT_8);
+        drive_buttons[EXTREME_BUT_8-1].whenPressed(new DriveToggleGearCmd(drive_stick));
 
 //        drive_buttons[DRIVE_TEST-1] = new JoystickButton(drive_stick, DRIVE_TEST);
 //        drive_buttons[DRIVE_TEST-1].whenPressed(new TestDriveForward());
@@ -143,17 +148,17 @@ public class ControlBoard {
 //        drive_buttons[ELEVATOR_MOVETO_BASE-1] = new JoystickButton(drive_stick, ELEVATOR_MOVETO_BASE);
 //        drive_buttons[ELEVATOR_MOVETO_BASE-1].whenPressed(new ElvMoveToBaseCmd(ElevatorSys.Direction.Down, 1));
 
-        drive_buttons[ELEVATOR_MOVETO_BASE -1] = new JoystickButton(drive_stick, ELEVATOR_MOVETO_BASE);     // 9
-        drive_buttons[ELEVATOR_MOVETO_BASE -1].whenPressed(new ElvMoveToBaseCmd());
-
-        drive_buttons[ELEVATOR_MOVETO_SWITCH -1] = new JoystickButton(drive_stick, ELEVATOR_MOVETO_SWITCH);  // 10
-        drive_buttons[ELEVATOR_MOVETO_SWITCH -1].whenPressed(new ElvMoveToSwitchCmd());
-
-        drive_buttons[ELEVATOR_MOVETO_SCALELO -1] = new JoystickButton(drive_stick, ELEVATOR_MOVETO_SCALELO);  // 11
-        drive_buttons[ELEVATOR_MOVETO_SCALELO -1].whenPressed(new ElvMoveToScaleLoCmd());
-
-        drive_buttons[ELEVATOR_MOVETO_SWITCHHI-1] = new JoystickButton(drive_stick, ELEVATOR_MOVETO_SWITCHHI);  // 12
-        drive_buttons[ELEVATOR_MOVETO_SWITCHHI-1].whenPressed(new ElvMoveToScaleHiCmd());
+//        drive_buttons[ELEVATOR_MOVETO_BASE -1] = new JoystickButton(drive_stick, ELEVATOR_MOVETO_BASE);     // 9
+//        drive_buttons[ELEVATOR_MOVETO_BASE -1].whenPressed(new ElvMoveToBaseCmd());
+//
+//        drive_buttons[ELEVATOR_MOVETO_SWITCH -1] = new JoystickButton(drive_stick, ELEVATOR_MOVETO_SWITCH);  // 10
+//        drive_buttons[ELEVATOR_MOVETO_SWITCH -1].whenPressed(new ElvMoveToSwitchCmd());
+//
+//        drive_buttons[ELEVATOR_MOVETO_SCALELO -1] = new JoystickButton(drive_stick, ELEVATOR_MOVETO_SCALELO);  // 11
+//        drive_buttons[ELEVATOR_MOVETO_SCALELO -1].whenPressed(new ElvMoveToScaleLoCmd());
+//
+//        drive_buttons[ELEVATOR_MOVETO_SWITCHHI-1] = new JoystickButton(drive_stick, ELEVATOR_MOVETO_SWITCHHI);  // 12
+//        drive_buttons[ELEVATOR_MOVETO_SWITCHHI-1].whenPressed(new ElvMoveToScaleHiCmd());
 
 //        drive_buttons[ELEVATOR_MOVE_DELTA-1] = new JoystickButton(drive_stick, ELEVATOR_MOVE_DELTA);
 //        drive_buttons[ELEVATOR_MOVE_DELTA-1].whenPressed(new ElvMoveDeltaCmd(ElevatorSys.Direction.Up, 10, 0.5));
@@ -174,14 +179,14 @@ public class ControlBoard {
         control_stick = new Joystick(CONTROL_USB_PORT);
         control_buttons = new JoystickButton[12];
 
-        // map buttons and actions
-        control_buttons[ELEVATOR_MOVE_UP-1] = new JoystickButton(control_stick, ELEVATOR_MOVE_UP);
-        control_buttons[ELEVATOR_MOVE_UP-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Up, 1.0));
-        control_buttons[ELEVATOR_MOVE_UP-1].whenReleased(new StopElevatorCmd());
+        // elevator move up
+        control_buttons[EXTREME_BUT_LEFT_TOP-1] = new JoystickButton(control_stick, EXTREME_BUT_LEFT_TOP);
+        control_buttons[EXTREME_BUT_LEFT_TOP-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Up, 1.0));
+        control_buttons[EXTREME_BUT_LEFT_TOP-1].whenReleased(new StopElevatorCmd());
 
-        control_buttons[ELEVATOR_MOVE_DOWN-1] = new JoystickButton(control_stick, ELEVATOR_MOVE_DOWN);
-        control_buttons[ELEVATOR_MOVE_DOWN-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Down, 1.0));
-        control_buttons[ELEVATOR_MOVE_DOWN-1].whenReleased(new StopElevatorCmd());
+        control_buttons[EXTREME_BUT_LEFT_BOT-1] = new JoystickButton(control_stick, EXTREME_BUT_LEFT_BOT);
+        control_buttons[EXTREME_BUT_LEFT_BOT-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Down, 1.0));
+        control_buttons[EXTREME_BUT_LEFT_BOT-1].whenReleased(new StopElevatorCmd());
 
         control_buttons[ELEVATOR_RESET_START-1] = new JoystickButton(control_stick, ELEVATOR_RESET_START);
         control_buttons[ELEVATOR_RESET_START-1].whenPressed(new ElvResetCmd());

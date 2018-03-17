@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
@@ -65,19 +66,26 @@ public class DriveSys extends Subsystem {
         return mInstance;
     }
 
+    /**
+     * When configuring talon, the configXXX() methods have a timeout param.
+     * Recommended value when config during init is 10mSec, because each call witll wait to ensure value set correctly
+     * During run time, want the value ot be 0 to avoid blocking main thread
+     */
     private DriveSys() {
         System.out.println("6072: DriveSys constructor");
 
         try {
             mLeft_Master = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_MASTER);
-            mLeft_Master.configOpenloopRamp(0.25 , 0);
+            mLeft_Master.configOpenloopRamp(0.1 , 10);
+            mLeft_Master.setNeutralMode(NeutralMode.Brake);
 
             mLeft_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE0);
             mLeft_Slave0.set(ControlMode.Follower, RobotConfig.DRIVE_LEFT_MASTER);
             mLeft_Slave0.setInverted(false);
 
             mRight_Master = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_MASTER);
-            mRight_Master.configOpenloopRamp(0.25, 0);
+            mRight_Master.configOpenloopRamp(0.1, 10);
+            mRight_Master.setNeutralMode(NeutralMode.Brake);
 
             mRight_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_SLAVE0);
             mRight_Slave0.set(ControlMode.Follower, RobotConfig.DRIVE_RIGHT_MASTER);
@@ -119,7 +127,7 @@ public class DriveSys extends Subsystem {
      */
     public void initDefaultCommand() {
         System.out.println("DriveSys: init default command");
-        setDefaultCommand(new ArcadeDriveCmd(ControlBoard.getInstance().drive_stick));
+//        setDefaultCommand(new ArcadeDriveCmd(ControlBoard.getInstance().drive_stick));
 //        setDefaultCommand(new TankDriveCmd(ControlBoard.getInstance().drive_stick));
     }
 
@@ -226,6 +234,7 @@ public class DriveSys extends Subsystem {
         yaw = yaw * 0.8;        // reduce sensitivity on turn
         mRoboDrive.arcadeDrive(mag, yaw, true);
         if (mLoopCnt++ % 10 == 0) {
+            logPosn("DS.ad");
 //           System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw  );
 //                    + "  navAngle: " + mAhrs.getAngle() + "  navYaw: " + mAhrs.getYaw()
 //                    + "  PIDOut: " + mGyroPIDOut.getVal() + "  PID.kP: " + mGyroPID.getP());
@@ -237,6 +246,15 @@ public class DriveSys extends Subsystem {
 //            SmartDashboard.putNumber("DriveSys.arc.PIDOut", mGyroPIDOut.getVal());
 //            SmartDashboard.putNumber("DriveSys.arc.PID_kP",  mGyroPID.getP());
         }
+    }
+
+    public void logPosn(String caller) {
+        int lQuad = mLeft_Master.getSensorCollection().getQuadraturePosition();
+        int lPW = mLeft_Master.getSensorCollection().getPulseWidthPosition();
+        int lQuadVel = mLeft_Master.getSensorCollection().getQuadratureVelocity();
+        int lPWVel = mLeft_Master.getSensorCollection().getPulseWidthVelocity();
+        String msg = String.format("%s:  lQuad: %5d lPW: %5d  lQdVel: %5d  lPWVel: %5d ", caller, lQuad, lPW, lQuadVel, lPWVel);
+        System.out.println(msg);
     }
 
 
