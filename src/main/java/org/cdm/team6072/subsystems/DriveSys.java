@@ -94,7 +94,7 @@ public class DriveSys extends Subsystem {
             // used for motion profiling and autonomous management
             mMotionProfileManager = new MotionProfileManager(mMasterTalons);
 
-            mAhrs = Robot.getAHRS();
+            mAhrs = NavXSys.getInstance().getAHRS();
             mAdsState = AdsState.Straight;      // set arcadeDriveStraight to drive straight state
 
             initGyroPID();

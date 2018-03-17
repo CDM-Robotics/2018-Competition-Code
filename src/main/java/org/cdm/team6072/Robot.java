@@ -1,14 +1,23 @@
 package org.cdm.team6072;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import org.cdm.team6072.commands.drive.*;
+import org.cdm.team6072.commands.auton.*;
 import org.cdm.team6072.subsystems.*;
-import com.kauailabs.navx.frc.AHRS;
+
+
 
 
 /**
@@ -17,33 +26,45 @@ import com.kauailabs.navx.frc.AHRS;
 public class Robot extends TimedRobot {
 
 
-    private DriveSys mDriveSys = DriveSys.getInstance() ;
-    //private NavXSys mNavx = NavXSys.getInstance();
-    private ElevatorSys mElevatorSys = ElevatorSys.getInstance();
+    private DriveSys mDriveSys;
+    private ElevatorSys mElevatorSys;
     private IntakePneumaticsSys mPneuSys;
-    private IntakeMotorSys mIntakeMotorSys = IntakeMotorSys.getInstance();
-
-   // PowerDistributionPanel mPDP = new PowerDistributionPanel(RobotConfig.PDP_ID);
+    private IntakeMotorSys mIntakeMotorSys;
+    private PowerDistributionPanel mPDP;
 
     // ControlBoard holds the operator interface code such as JoyStick
     private ControlBoard mControlBoard  = ControlBoard.getInstance();
 
-    CommandGroup autonomousCommand;
-    SendableChooser<Integer> sendableChooser = new SendableChooser<>();
+    private CommandGroup mAutonCmdGrp;
+    private SendableChooser<Integer> mChooser = new SendableChooser<>();
 
 
     private UsbCamera cam;
 
 
-
+    /**
+     * Initialize all the subsystems in Robot init
+     */
     @Override
     public void robotInit() {
         System.out.println("6072: robotInit");
 //        CameraManager.getInstance().runCameras();
 //        CameraManager.getInstance().runFilter();
+        mDriveSys = DriveSys.getInstance();
+        mElevatorSys = ElevatorSys.getInstance();
+        mIntakeMotorSys = IntakeMotorSys.getInstance();
+        mPDP = new PowerDistributionPanel(RobotConfig.PDP_ID);
 
         // must initialize nav system here for the navX-MXP
         NavXSys.getInstance();
+
+        // set up the autonomous options on dashboard
+        mChooser.addDefault("Option  1: Drive Straight",                               1);
+        mChooser.addObject( "Option  2: Straight then 90",                      2);
+//        mChooser.addObject( "Option  3: Cross line -  Inner",                      3);
+//        mChooser.addObject( "Option  4: Left Outer -  Switch - Cross Field",       4);
+//        mChooser.addObject( "Option  5: Left Outer -  Switch - Don't cross Field", 5);
+        SmartDashboard.putData("Auto mode", mChooser);
     }
 
     @Override
@@ -53,8 +74,6 @@ public class Robot extends TimedRobot {
 
 
     //  TELEOP MODE  ---------------------------------------------------------------
-    private ArcadeDriveCmd mArcadeDriveCmd;
-    private TankDriveCmd mTankDriveCmd;
 
 
     private int mTelopLoopCtr = 0;
@@ -63,19 +82,7 @@ public class Robot extends TimedRobot {
     public void teleopInit() {
         System.out.println("6072: teleop init");
         mTelopLoopCtr = 0;
-
         mElevatorSys.setSensorStartPosn();
-        //mPneuSys = IntakePneumaticsSys.getInstance();
-
-        // drivesys now has ArcadeCommand set as default cmd
-//        Scheduler.getInstance().removeAll();
-//        mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
-//        Scheduler.getInstance().add(mArcadeDriveCmd);
-//        mTankDriveCmd = new TankDriveCmd(mControlBoard.drive_stick);
-//        Scheduler.getInstance().add(mTankDriveCmd);
-
-        
-       //DriveSys.getInstance().getMotionProfileManager().startMotionProfile();
     }
 
 //    public void disabledPeriodic() {
@@ -93,90 +100,83 @@ public class Robot extends TimedRobot {
         // must call the scheduler to run
         Scheduler.getInstance().run();
 
-        // MOTION PROFILING
-//        mElevatorSys.updateTalonRequiredMPState();
-//        mElevatorSys.getMPController().control();
-//        DriveSys.getInstance().updateTalonRequiredMPState();
-//        DriveSys.getInstance().getMotionProfileManager().control();
-
-//        ElevatorSys.getInstance().masterTalonTest();
-
         // update PDP stats every half second
         if (++mTelopLoopCtr % 50 == 0) {
             //logNavX();
-//            Logging();
-//            double elvCurrent = mPDP.getCurrent(RobotConfig.ELEVATOR_TALON_PDP);
-//            double armCurrent = mPDP.getCurrent(RobotConfig.ARM_TALON_PDP);
-//            double driveLeftCurrent = mPDP.getCurrent(RobotConfig.DRIVE_LEFT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_LEFT_SLAVE0_PDP);
-//            double driveRightCurrent = mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_SLAVE0_PDP);
-//
-//            SmartDashboard.putNumber("PDP.ElevCurrent", elvCurrent);
-//            SmartDashboard.putNumber("PDP.ArmElevCurrent", armCurrent);
-//            SmartDashboard.putNumber("PDP.DriveLeftCurrent", driveLeftCurrent);
-//            SmartDashboard.putNumber("PDP.DriveRightCurrent", driveRightCurrent);
+            Logging();
         }
     }
 
-//
-//    private void Logging() {
-//
-//        try {
-//            Path logFile = FileSystems.getDefault().getPath("/home/lvuser/logs", "PDP_Log.csv");
-//            System.out.println("-------  Logging: path: " + logFile.toString() + " : " + logFile.toAbsolutePath().toString());
-//            if (Files.notExists(logFile)) {
-//                logFile = Files.createFile(logFile);
-//                List<String> line = new ArrayList<String>();
-//                line.add("time, DriveLeft, DriveRight, Elev, Arm");
-//                Files.write(logFile, line, StandardCharsets.UTF_8);
-//            }
-//
-//            double elvCurrent = mPDP.getCurrent(RobotConfig.ELEVATOR_TALON_PDP);
-//            double armCurrent = mPDP.getCurrent(RobotConfig.ARM_TALON_PDP);
-//            double driveLeftCurrent = mPDP.getCurrent(RobotConfig.DRIVE_LEFT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_LEFT_SLAVE0_PDP);
-//            double driveRightCurrent = mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_SLAVE0_PDP);
-//            //SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
-//            Date now = new Date();
-//            List<String> line = new ArrayList<String>();
-//            String data = String.format("%tT, %f, %f, %f, %f", now, driveLeftCurrent, driveRightCurrent, elvCurrent, armCurrent);
-//            line.add("time, DriveLeft, DriveRight, Elev, Arm");
-//            Files.write(logFile, line, StandardCharsets.UTF_8);
-//
-//            SmartDashboard.putNumber("PDP.ElevCurrent", elvCurrent);
-//            SmartDashboard.putNumber("PDP.ArmElevCurrent", armCurrent);
-//            SmartDashboard.putNumber("PDP.DriveLeftCurrent", driveLeftCurrent);
-//            SmartDashboard.putNumber("PDP.DriveRightCurrent", driveRightCurrent);
-//        }
-//        catch (Exception ex) {
-//            System.out.println( "*******  Logging ex: "+ ex.getClass().getName() + "   msg: " + ex.getMessage() + " ");
-//        }
-//    }
 
 
-
-    
     //  AUTONOMOUS MODE  ---------------------------------------------------------------
 
 
     private AutoDriveSys mAutoDriveSys;
 
+
+    /**
+     * Details on what is provided by field management system
+     * https://wpilib.screenstepslive.com/s/currentCS/m/getting_started/l/826278-2018-game-data-details
+     *
+     * Data is a 3 char string with the side for:
+     *      switch
+     *      scale
+     *      far switch
+     * For example:  LRL
+     *      left switch
+     *      right scale
+     *      left far switch
+     */
+
     @Override
     public void autonomousInit() {
         super.autonomousInit();
         System.out.println("auto init (6072)  ------------------------------------------------------------");
-        mAutoDriveSys = AutoDriveSys.getInstance();
-        mAutoDriveSys.prepareSystem();
 
-        //AutoDriveSys driveSys = AutoDriveSys.getInstance();
-        /*TestDriveForward cmd = new TestDriveForward();
-        Scheduler.getInstance().removeAll();
-        Scheduler.getInstance().add(cmd);*/
+        int option = mChooser.getSelected();
+
+        String gameData = "";
+//        while (gameData.length() < 3) {
+//            sleep(10);
+//        }
+        gameData = DriverStation.getInstance().getGameSpecificMessage();
+        char switchSide = gameData.charAt(0);
+        char scaleSide =  gameData.charAt(1);
+        char farSwitchSide = gameData.charAt(2);
+        mAutonCmdGrp = new CommandGroup();
+        switch (option) {
+            case 1:
+                mAutonCmdGrp.addSequential(new AutoDriveStraightCmd());
+                break;
+            case 2:
+                mAutonCmdGrp.addSequential(new AutoDriveStraightBendCmd());
+                break;
+//            case 3:
+//                mAutonCmd = new Auto03();
+//                break;
+//            case 4:
+//                if ((switchSide == 'L') && (scaleSide == 'L')) {
+//                    mAutonCmd = new Auto05L();
+//                } else if ((switchSide == 'L') && (scaleSide == 'R')) {
+//                    mAutonCmd = new Auto05L();
+//                } else if ((switchSide == 'R') && (scaleSide == 'L')) {
+//                    mAutonCmd = new Auto02();
+//                } else if ((switchSide == 'R') && (scaleSide == 'R')) {
+//                    mAutonCmd = new Auto02();
+//                }
+//                break;
+            default:
+                mAutonCmdGrp.addSequential(new AutoDriveStraightCmd());;
+                break;
+        }
+        mAutonCmdGrp.start();
     }
 
     @Override
     public void autonomousPeriodic() {
-        mAutoDriveSys.advanceTrajectory();
+        Scheduler.getInstance().run();
     }
-
 
 
     //  TEST MODE  ---------------------------------------------------------------
@@ -214,6 +214,43 @@ public class Robot extends TimedRobot {
 
     }
 
+
+    // UTILS  ----------------------------------------------------------------------------------------
+
+
+    private void Logging() {
+        Path logFile;
+
+        try {
+            logFile = FileSystems.getDefault().getPath("/home/lvuser/logs", "PDP_Log.csv");
+            System.out.println("-------  Logging: path: " + logFile.toString() + " : " + logFile.toAbsolutePath().toString());
+            if (Files.notExists(logFile)) {
+                logFile = Files.createFile(logFile);
+                List<String> line = new ArrayList<String>();
+                line.add("time, DriveLeft, DriveRight, Elev, Arm");
+                Files.write(logFile, line, StandardCharsets.UTF_8);
+            }
+
+            double elvCurrent = mPDP.getCurrent(RobotConfig.ELEVATOR_TALON_PDP);
+            double armCurrent = mPDP.getCurrent(RobotConfig.ARM_TALON_PDP);
+            double driveLeftCurrent = mPDP.getCurrent(RobotConfig.DRIVE_LEFT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_LEFT_SLAVE0_PDP);
+            double driveRightCurrent = mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_SLAVE0_PDP);
+
+            SmartDashboard.putNumber("PDP.ElevCurrent", elvCurrent);
+            SmartDashboard.putNumber("PDP.ArmElevCurrent", armCurrent);
+            SmartDashboard.putNumber("PDP.DriveLeftCurrent", driveLeftCurrent);
+            SmartDashboard.putNumber("PDP.DriveRightCurrent", driveRightCurrent);
+
+            //SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
+            Date now = new Date();
+            List<String> line = new ArrayList<String>();
+            line.add(String.format("%tT, %f, %f, %f, %f", now, driveLeftCurrent, driveRightCurrent, elvCurrent, armCurrent));
+            Files.write(logFile, line, StandardCharsets.UTF_8);
+        }
+        catch (Exception ex) {
+            System.out.println( "*******  Logging ex: "+ ex.getClass().getName() + "   msg: " + ex.getMessage() + " ");
+        }
+    }
 
 
 
