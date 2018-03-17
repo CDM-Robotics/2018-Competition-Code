@@ -40,6 +40,7 @@ public class NavXSys {
         System.out.println("NavXSys.ctor: YawAxis: " + mAhrs.getBoardYawAxis().board_axis.getValue()
                 + "  firmware: " + mAhrs.getFirmwareVersion()
                 + "  isConnected: " + mAhrs.isConnected()
+                + "  angle: " + mAhrs.getAngle()
         );
     }
 
@@ -55,14 +56,22 @@ public class NavXSys {
         return mAhrs;
     }
 
-
     public void zeroYawHeading() {
-        mAhrs.zeroYaw();
+        mAhrs.zeroYaw(); // resets the angle to 0
     }
 
-    // getting the navX direction in degrees
+    // get the yaw (twist around z)
     public double getYawHeading() {
         return mAhrs.getYaw();
+    }
+
+    // get navX angle from 0 in degrees
+    public double getAngle() {
+        return mAhrs.getAngle();
+    }
+
+    public void outputAngles() {
+        System.out.println("NavXSys -> getAngle: " + mAhrs.getAngle() + ",  getAngleAdjustment" + mAhrs.getAngleAdjustment() + ", yaw:" + mAhrs.getYaw());
     }
 
 

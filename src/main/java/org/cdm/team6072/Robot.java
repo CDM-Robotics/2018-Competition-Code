@@ -83,14 +83,17 @@ public class Robot extends TimedRobot {
         System.out.println("6072: teleop init");
         mTelopLoopCtr = 0;
         mElevatorSys.setSensorStartPosn();
+
+        NavXSys.getInstance().zeroYawHeading(); // TESTING PURPOSES
     }
 
     private int mDisLoopCnt = 0;
     public void disabledPeriodic() {
-        if (++mDisLoopCnt % (50 * 5) == 0) {
+        if (++mDisLoopCnt % (50 * 5) == 0) { // limiting the log output
             mDriveSys.logPosn("Robot.disabled");
         }
     }
+
 
     /**
      * teleopPeriodic is called about every 20mSec
@@ -103,11 +106,13 @@ public class Robot extends TimedRobot {
         // must call the scheduler to run
         Scheduler.getInstance().run();
 
+
+
         // update PDP stats every half second
-//        if (++mTelopLoopCtr % 50 == 0) {
-//            //logNavX();
-//            Logging();
-//        }
+        if (++mTelopLoopCtr % 200 == 0) {
+//            //logNavX()
+            NavXSys.getInstance().outputAngles();
+        }
     }
 
 
