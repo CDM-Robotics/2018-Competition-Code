@@ -71,7 +71,7 @@ public class NavXSys {
     }
 
     public void outputAngles() {
-        System.out.println("NavXSys -> getAngle: " + mAhrs.getAngle() + ",  getAngleAdjustment" + mAhrs.getAngleAdjustment() + ", yaw:" + mAhrs.getYaw());
+        //System.out.printf("NavXSys -> getAngle: %.3f  angleAjd: %.3f   yaw:%.3f \r\n", mAhrs.getAngle(), mAhrs.getAngleAdjustment(), mAhrs.getYaw());
     }
 
 

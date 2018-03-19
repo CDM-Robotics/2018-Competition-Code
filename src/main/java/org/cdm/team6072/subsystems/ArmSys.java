@@ -32,14 +32,13 @@ public class ArmSys extends Subsystem {
     private static boolean TALON_INVERTED_UP = true;
     private static boolean TALON_INVERTED_DOWN = false;
 
-    /**
-     * Which PID slot to pull gains from.  Starting 2018, you can choose
-     * from 0,1,2 or 3.  Only the first two (0,1) are visible in web-based configuration.
-     */
-    public static final int kPIDSlot_0 = 0;
-    public static final int kPIDSlot_1 = 1;
-    public static final int kPIDSlot_2 = 2;
-    public static final int kPIDSlot_3 = 3;
+
+    private static int POSN_START = 1234;
+    private static int POSN_INTAKE = 1234;
+    private static int POSN_SHOOT45 = 1234;
+    private static int POSN_SHOOT135 = 1234;
+
+
     /**
      * Talon SRX/ Victor SPX will supported multiple (cascaded) PID loops.
      * For now we just want the primary one.
@@ -64,6 +63,16 @@ public class ArmSys extends Subsystem {
     public static final double kNeutralDeadband = 0.01;
 
     private WPI_TalonSRX mTalon;
+
+
+    /**
+     * Which PID slot to pull gains from.  Starting 2018, you can choose
+     * from 0,1,2 or 3.  Only the first two (0,1) are visible in web-based configuration.
+     */
+    private static final int kPIDSlot_Move = 0;
+    private static final int kPIDSlot_Hold = 1;
+    private static final int kPIDSlot_2 = 2;
+    private static final int kPIDSlot_3 = 3;
 
     private MotionProfileController mMPController;
 
@@ -118,13 +127,19 @@ public class ArmSys extends Subsystem {
              * set the allowable closed-loop error, Closed-Loop output will be
              * neutral within this range. See Table in Section 17.2.1 for native units per rotation.
              */
-            mTalon.configAllowableClosedloopError(kPIDLoopIdx, 200, kTimeoutMs);
+            mTalon.configAllowableClosedloopError(0, 50, kTimeoutMs);
 
             // set PID values for postion hold closed loop
-            mTalon.config_kF(0, 0.0, kTimeoutMs);             // 1023/1180
-            mTalon.config_kP(0, 1.5, kTimeoutMs);             // 1023 / 400  * 0.1
-            mTalon.config_kI(0, 0.0, kTimeoutMs);
-            mTalon.config_kD(0, 1.0, kTimeoutMs);
+            mTalon.config_kF(kPIDSlot_Hold, 0.0, kTimeoutMs);             // 1023/1180
+            mTalon.config_kP(kPIDSlot_Hold, 0.8, kTimeoutMs);             // 1023 / 400  * 0.1
+            mTalon.config_kI(kPIDSlot_Hold, 0.0, kTimeoutMs);
+            mTalon.config_kD(kPIDSlot_Hold, 0.0, kTimeoutMs);
+
+            // PID values for moving
+            mTalon.config_kF(kPIDSlot_Move, 0.0, kTimeoutMs);             // 1023/1180
+            mTalon.config_kP(kPIDSlot_Move, 0.0, kTimeoutMs);             // 1023 / 400  * 0.1
+            mTalon.config_kI(kPIDSlot_Move, 0.0, kTimeoutMs);
+            mTalon.config_kD(kPIDSlot_Move, 0.0, kTimeoutMs);
 
             //  grab the 360 degree position of the MagEncoder's absolute position, and set the relative sensor to match.
             mTalon.getSensorCollection().setPulseWidthPosition(0, 10);
@@ -164,8 +179,6 @@ public class ArmSys extends Subsystem {
 
 
 
-
-
     public void initTopSwitch() {
         mTopCounter.reset();
     }
@@ -199,6 +212,7 @@ public class ArmSys extends Subsystem {
         mLastQuadPosn = mTalon.getSensorCollection().getQuadraturePosition();
         initBotSwitch();
         initTopSwitch();
+        mTalon.selectProfileSlot(kPIDSlot_Move, 0);
         		    /* set closed loop gains in slot0, typically kF stays zero. */
 //        mTalon.config_kF(kPIDLoopIdx, 0.867, kTimeoutMs);             // 1023/1180
 //        mTalon.config_kP(kPIDLoopIdx, 0.0, kTimeoutMs);             // 1023 / 400  * 0.1
@@ -244,15 +258,11 @@ public class ArmSys extends Subsystem {
 
         curPosn = mTalon.getSelectedSensorPosition(0);
         if (mStopMode == StopMode.Moving) {
+
             mTalon.set(ControlMode.PercentOutput, 0);
-            /* set closed loop gains in slot0, typically kF stays zero. */
-//            mTalon.config_kF(0, 0.0, kTimeoutMs);             // 1023/1180
-//            mTalon.config_kP(0, 2.0, kTimeoutMs);             // 1023 / 400  * 0.1
-//            mTalon.config_kI(0, 0.0, kTimeoutMs);
-//            mTalon.config_kD(0, 0.5, kTimeoutMs);
-            //double curPosn = Math.abs(mTalon.getSelectedSensorPosition(0));
             printPosn("Arm.stop.before");
             // In Position mode, output value is in encoder ticks or an analog value, depending on the sensor.
+            mTalon.selectProfileSlot(kPIDSlot_Hold, 0);
             mTalon.set(ControlMode.Position, curPosn);
             mLastError = -1;
             mStopCallCount = 0;
@@ -283,9 +293,141 @@ public class ArmSys extends Subsystem {
         return mStopMode == StopMode.StopComplete;
     }
 
-    
-    
-    
+
+
+    // target moving        --------------------------------------------------------------------
+
+
+    /**
+     *
+     * @return the current absolute position - pulsewidth
+     */
+    private int getCurPosn() {
+        return mTalon.getSelectedSensorPosition(0);
+    }
+
+
+    public void moveToStart() {
+        moveToTarget(POSN_START);
+    }
+    public boolean moveToStartComplete() {
+        return moveToTargetComplete();
+    }
+
+    public void moveToIntake() {
+        moveToTarget(POSN_INTAKE);
+    }
+    public boolean moveToIntakeComplete() {
+        return moveToTargetComplete();
+    }
+
+    public void moveToShoot45() {
+        moveToTarget(POSN_SHOOT45);
+    }
+    public boolean moveToShoot45Complete() {
+        return moveToTargetComplete();
+    }
+
+    public void moveToShoot135() {
+        moveToTarget(POSN_SHOOT135);
+    }
+    public boolean moveToShoot135Complete() {
+        return moveToTargetComplete();
+    }
+
+
+
+
+    private void moveToTarget(int targPosn) {
+        Direction dir;
+
+        //int normCurPosn = getCurPosn() - mBasePosn;
+        //int distToMove = targPosn - normCurPosn;
+        int distToMove = targPosn - getCurPosn();
+        if (distToMove >= 0) {
+            dir = Direction.Up;
+        }
+        else {
+            dir = Direction.Down;
+        }
+        System.out.println("ArmSys.moveToTarget:  mBasePosn: " + mBasePosn + "  targPosn: " + targPosn + "  curPosn: " + getCurPosn() + "  distToMove: " + distToMove);
+        initForMagicMove();
+        magicMove(dir, Math.abs(distToMove));
+    }
+
+
+    public boolean moveToTargetComplete() {
+        return magicMoveComplete();
+    }
+
+
+    private boolean mMMStarted;
+
+    /**
+     * Measured max vel was 1180 native units per 100 mSec
+     *  kF = 1023 / 1180 = 0.867
+     *  Set max cruise to 0.5 * 1180 = 885
+     */
+    public void initForMagicMove() {
+
+        // set acceleration and cruise velocity - see documentation
+        mTalon.configMotionCruiseVelocity(590, kTimeoutMs);
+        mTalon.configMotionAcceleration(500, kTimeoutMs);
+//        mLastRelPosn = mTalon.getSelectedSensorPosition(0);
+//        mLastQuadPosn = mTalon.getSensorCollection().getQuadraturePosition();
+        mMMStartPosn = getCurPosn();
+        //mTalon.setSelectedSensorPosition(0, 0, kTimeoutMs);
+        mMMStarted = false;
+        mLoopCtr = 0;
+        printPosn("initForMagicMove");
+    }
+
+
+    private int mLoopCtr = 0;
+
+    /**
+     * Use Magic motion profile to move the specified number of rotations up or down
+     * @param dir
+     * @param distInSensUnits
+     */
+    private void magicMove(ArmSys.Direction dir, double distInSensUnits) {
+        double targetDist;
+        if (!mMMStarted) {
+            if (dir == ArmSys.Direction.Up) {
+                targetDist = distInSensUnits;
+            } else {
+                targetDist = -1 * distInSensUnits;
+            }
+            //mMMTargetPosn = targetDist + mMMStartPosn;
+            mTalon.set(ControlMode.MotionMagic, targetDist);
+            mMMStarted = true;
+        }
+    }
+
+    public void moveStatus() {
+        if (++mLoopCtr % 5 == 0) {
+            printPosn("MM_" + mLoopCtr);
+        }
+    }
+
+    /**
+     * Return true when velocity zero and have moved at least 500 units from start
+     * @return
+     */
+    public boolean magicMoveComplete() {
+        double curVel = mTalon.getSelectedSensorVelocity(kPIDSlot_Move);
+        int curPosn = Math.abs(getCurPosn());
+        boolean end =  (curVel == 0) && (Math.abs(mMMStartPosn - curPosn) > 500);
+        if (end) {
+            printPosn("magicMoveComplete -------- ");
+        }
+        return end;
+    }
+
+
+
+
+
     // utils ---------------------------------------------------------------------------------------
 
 
@@ -298,7 +440,7 @@ public class ArmSys extends Subsystem {
     private double mMMStartPosn;
     private double mMMTargetPosn;
 
-    private void printPosn(String caller) {
+    public void printPosn(String caller) {
         int sensPosn = mTalon.getSelectedSensorPosition(0);
         String sensPosnSign = "(+)";
         int absSensPosn = Math.abs(sensPosn);

@@ -1,5 +1,6 @@
 package org.cdm.team6072.subsystems;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Counter;
@@ -24,14 +25,14 @@ public class ElevatorSys extends Subsystem {
      * How many sensor units per rotation.
      * @link https://github.com/CrossTheRoadElec/Phoenix-Documentation#what-are-the-units-of-my-sensor
      */
-    public static final int kCTREUnitsPerRotation = 1024; // 4096;
+    public static final int kCTREUnitsPerRotation = 4096; // 4096;
     public static final int kAndyMarkUnitsPerRotation = 80;
     
     public static final int kUnitsPerRotation = kCTREUnitsPerRotation;
     
     // inches of elevator travel per complete rotation of encoder
     // gear is 1 inch diameter
-    public static final double kDistancePerRotation = 1.25 * Math.PI;
+    public static final double kDistancePerRotation = 1.75 * Math.PI;
 
     public static final int kUnitsPerInch = (int)Math.round(kUnitsPerRotation / kDistancePerRotation);
 
@@ -40,7 +41,7 @@ public class ElevatorSys extends Subsystem {
     private static int BASE_POSN = 1 * kUnitsPerInch;
     private static int SWITCH_POSN_UNITS = 24 * kUnitsPerInch;
     private static int SCALELO_POSN_UNITS = 36 * kUnitsPerInch;
-    private static int SCALEHI_POSN_UNITS = 70 * kUnitsPerInch;
+    private static int SCALEHI_POSN_UNITS = 50 * kUnitsPerInch;
 
 
 
@@ -48,7 +49,7 @@ public class ElevatorSys extends Subsystem {
      * Which PID slot to pull gains from.  Starting 2018, you can choose
      * from 0,1,2 or 3.  Only the first two (0,1) are visible in web-based configuration.
      */
-    public static final int kPIDSlot_Move = 0;
+    public static final int kPIDSlot_Move = 1;
     public static final int kPIDSlot_Hold = 0;
     public static final int kPIDSlot_2 = 2;
     public static final int kPIDSlot_3 = 3;
@@ -92,8 +93,8 @@ public class ElevatorSys extends Subsystem {
         Down
     }
 
-    private static boolean TALON_INVERTED_UP = false;
-    private static boolean TALON_INVERTED_DOWN = true;
+    private static boolean TALON_INVERTED_UP = true;
+    private static boolean TALON_INVERTED_DOWN = false;
 
 
     /**
@@ -156,7 +157,7 @@ public class ElevatorSys extends Subsystem {
      */
     private ElevatorSys() {
         CrashTracker.logMessage("ElevatorSys.ctor: initializing");
-        double peakOut = 0.75;           // 1.0 is max
+        double peakOut = 1.0;           // 1.0 is max
         try {
             // set up the limit switches - counter is used to detect switch closing because might be too fast
             mTopSwitch = new DigitalInput(RobotConfig.ELEVATOR_SWITCH_TOP);
@@ -168,9 +169,16 @@ public class ElevatorSys extends Subsystem {
             System.out.println("ElevatorSys.ctor:  topSw: " + mTopSwitch.getChannel() + "  botSw: " + mBotSwitch.getChannel());
 
             mTalon = new WPI_TalonSRX(RobotConfig.ELEVATOR_TALON);
-            mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, kPIDLoopIdx, kTimeoutMs);
-            mTalon.setSensorPhase(mSensorPhase);
+
+            //  The sensor position must move in a positive direction as the motor controller drives positive output (and LEDs are green)
+            //      true inverts the sensor
+            mTalon.setSensorPhase(false);
+            mTalon.setInverted(true);
+            mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
+
+            // in case we are in magic motion mode
+            mTalon.set(ControlMode.PercentOutput, 0);
 
             // set up current limits
             mTalon.configContinuousCurrentLimit(10, 0);
@@ -179,6 +187,7 @@ public class ElevatorSys extends Subsystem {
             //mTalon.enableCurrentLimit(true);
 
             mTalon.configOpenloopRamp(0.1, 10);
+            mTalon.setNeutralMode(NeutralMode.Brake);
 
             // set slot zero for position hold closed loop
             mTalon.configNominalOutputForward(0, kTimeoutMs);
@@ -187,27 +196,26 @@ public class ElevatorSys extends Subsystem {
             mTalon.configPeakOutputReverse(-peakOut, kTimeoutMs);
 
             // init PID for moving
-//            mTalon.config_kF(kPIDSlot_Move, 0.867, kTimeoutMs);
-//            mTalon.config_kP(kPIDSlot_Move, 0.255, kTimeoutMs);
-//            mTalon.config_kI(kPIDSlot_Move, 0.0, kTimeoutMs);
-//            mTalon.config_kD(kPIDSlot_Move, 0.0, kTimeoutMs);
-//            sleep(10);      // wait for the params to hit
-//
-//            // init PID for hold
-//            mTalon.config_kF(kPIDSlot_Hold, 0.0, kTimeoutMs);             // normally 0 for position hold
-//            mTalon.config_kP(kPIDSlot_Hold, 1.0, kTimeoutMs);             // kP 1.0 used on elevator 2018-02-17
-//            mTalon.config_kI(kPIDSlot_Hold, 0.0, kTimeoutMs);
-//            mTalon.config_kD(kPIDSlot_Hold, 0.0, kTimeoutMs);
-//            try {
-//                Thread.sleep(100);
-//            }
-//            catch (Exception ex) {
-//            }
+            mTalon.config_kF(kPIDSlot_Move, 0.867, kTimeoutMs);
+            mTalon.config_kP(kPIDSlot_Move, 0.255, kTimeoutMs);
+            mTalon.config_kI(kPIDSlot_Move, 0.0, kTimeoutMs);
+            mTalon.config_kD(kPIDSlot_Move, 0.0, kTimeoutMs);
+
+            // init PID for hold
+            mTalon.config_kF(kPIDSlot_Hold, 0.0, kTimeoutMs);             // normally 0 for position hold
+            mTalon.config_kP(kPIDSlot_Hold, 0.0, kTimeoutMs);             // kP 1.0 used on elevator 2018-02-17
+            mTalon.config_kI(kPIDSlot_Hold, 0.0, kTimeoutMs);
+            mTalon.config_kD(kPIDSlot_Hold, 0.0, kTimeoutMs);
+            try {
+                Thread.sleep(100);
+            }
+            catch (Exception ex) {
+            }
             /*
              * set the allowable closed-loop error, Closed-Loop output will be
              * neutral within this range. See Table in Section 17.2.1 for native units per rotation.
              */
-            mTalon.configAllowableClosedloopError(kPIDLoopIdx, 0, kTimeoutMs);
+            mTalon.configAllowableClosedloopError(kPIDLoopIdx, 50, kTimeoutMs);
 
             setSensorStartPosn();
 
@@ -238,9 +246,7 @@ public class ElevatorSys extends Subsystem {
 
         // might be in a PID hold mode, so get out of it
         mTalon.set(ControlMode.PercentOutput, 0);
-        sleep(20);
-        mTalon.getSensorCollection().setPulseWidthPosition(0, 10);
-        sleep(20);
+        mTalon.getSensorCollection().setPulseWidthPosition(0, 10); // OLD -> position was 0
         mBasePosn = mTalon.getSensorCollection().getPulseWidthPosition();
         int absolutePosition = mBasePosn;
 
@@ -248,13 +254,12 @@ public class ElevatorSys extends Subsystem {
         absolutePosition &= 0xFFF;
         if (mSensorPhase)
             absolutePosition *= -1;
-        if (mMotorInvert)
+        if (true)
             absolutePosition *= -1;
         /* set the quadrature (relative) sensor to match absolute */
         mTalon.setSelectedSensorPosition(absolutePosition, 0, kTimeoutMs);
         //mTalon.setSelectedSensorPosition(0, kPIDLoopIdx, kTimeoutMs);
         // setSelected takes time so wait for it to get accurate print
-        sleep(5);
         printPosn("setStart");
     }
 
@@ -338,14 +343,11 @@ public class ElevatorSys extends Subsystem {
 
 
 
-    public void resetSystemState() {
-        mTalon.setInverted(false);
-    }
-
 
     public void initForMove() {
-        mLastRelPosn = mTalon.getSelectedSensorPosition(kPIDSlot_Move);
+        mLastRelPosn = mTalon.getSelectedSensorPosition(0);
         mLastQuadPosn = mTalon.getSensorCollection().getQuadraturePosition();
+        mTalon.selectProfileSlot(kPIDSlot_Move,0);
         mMoveLoopCtr = 0;
         initBotSwitch();
         initTopSwitch();
@@ -361,9 +363,10 @@ public class ElevatorSys extends Subsystem {
             return;
         }
         if (dir == Direction.Up) {
-            mTalon.setInverted(TALON_INVERTED_UP);
+//            mTalon.setInverted(TALON_INVERTED_UP);
         } else {
-            mTalon.setInverted(TALON_INVERTED_DOWN);
+//            mTalon.setInverted(TALON_INVERTED_DOWN);
+            speed = -speed;
         }
         mTalon.set(ControlMode.PercentOutput, speed);
         if (++mMoveLoopCtr % 5 == 0) {
@@ -383,34 +386,35 @@ public class ElevatorSys extends Subsystem {
      * Switch to using closed loop position hold at current position
      */
     private void holdPosn() {
-        /* set closed loop gains in slot0, typically kF stays zero. */
-        mTalon.config_kF(kPIDSlot_Hold, 0.0, kTimeoutMs);             // normally 0 for position hold
-        mTalon.config_kP(kPIDSlot_Hold, 1.0, kTimeoutMs);             // kP 1.0 used on elevator 2018-02-17
-        mTalon.config_kI(kPIDSlot_Hold, 0.0, kTimeoutMs);
-        mTalon.config_kD(kPIDSlot_Hold, 0.0, kTimeoutMs);
-        sleep(10);
-        double curPosn = mTalon.getSelectedSensorPosition(kPIDSlot_Hold);
+        // ensure we have positive up on motor
+       // mTalon.setInverted(TALON_INVERTED_UP);
+        // select the hold PID slot
+        mTalon.selectProfileSlot(kPIDSlot_Hold,0);
+
+        double curPosn = mTalon.getSelectedSensorPosition(0);
         //double curPosn = Math.abs(mTalon.getSelectedSensorPosition(0));
         printPosn("holdPosn.before");
+        int loopCnt = 0;
         // In Position mode, output value is in encoder ticks or an analog value, depending on the sensor.
         mTalon.set(ControlMode.Position, curPosn);
-        boolean notFinished = true;
-        double lastErr = -1;
-        int loopCnt = 0;
-        while (notFinished && loopCnt < 50) {
-            try {
-                Thread.sleep(50);
-                double curError = mTalon.getClosedLoopError(kPIDSlot_Hold);
-                if (lastErr != -1) {
-                    notFinished = (Math.abs(curError - lastErr) > 200);
-                }
-                lastErr = curError;
-                if (++loopCnt % 5 == 0) {
-                    printPosn("holdPosn.after_" + curPosn +"_" + loopCnt );
-                }
-            } catch (Exception ex) {
-            }
-        }
+//
+//        boolean notFinished = true;
+//        double lastErr = -1;
+//
+//        while (notFinished && loopCnt < 50) {
+//            try {
+//                Thread.sleep(10);
+//                double curError = mTalon.getClosedLoopError(0);
+//                if (lastErr != -1) {
+//                    notFinished = (Math.abs(curError - lastErr) > 200);
+//                }
+//                lastErr = curError;
+//                if (++loopCnt % 5 == 0) {
+//                    printPosn("holdPosn.after_" + curPosn +"_" + loopCnt );
+//                }
+//            } catch (Exception ex) {
+//            }
+//        }
         printPosn("holdPosn.FINISH_" + curPosn +"_" + loopCnt );
     }
     
@@ -448,7 +452,6 @@ public class ElevatorSys extends Subsystem {
         return moveToTargetComplete();
     }
 
-    //------------------------------------------
 
     /**
      * mbasePosn is based on the sensor pulsewidth posn
@@ -476,8 +479,6 @@ public class ElevatorSys extends Subsystem {
     }
 
 
-    // code for motion magic move  -------------------------------------------------------------------
-
 
     private double mMMTargetPosn = -1;
 
@@ -490,16 +491,10 @@ public class ElevatorSys extends Subsystem {
      *  Set max cruise to 0.5 * 1180 = 885
      */
     public void initForMagicMove() {
-		//  set closed loop gains in slot0
-        mTalon.config_kF(kPIDSlot_Move, 0.867, kTimeoutMs);
-        mTalon.config_kP(kPIDSlot_Move, 0.255, kTimeoutMs);
-        mTalon.config_kI(kPIDSlot_Move, 0.0, kTimeoutMs);
-        mTalon.config_kD(kPIDSlot_Move, 0.0, kTimeoutMs);
-        sleep(10);      // wait for the params to hit
-
         // set acceleration and cruise velocity - see documentation
         mTalon.configMotionCruiseVelocity(590, kTimeoutMs);
         mTalon.configMotionAcceleration(500, kTimeoutMs);
+        mTalon.selectProfileSlot(kPIDSlot_Move, 0);
 //        mLastRelPosn = mTalon.getSelectedSensorPosition(0);
 //        mLastQuadPosn = mTalon.getSensorCollection().getQuadraturePosition();
         mMMStartPosn = getCurPosn();
@@ -639,17 +634,6 @@ public class ElevatorSys extends Subsystem {
 
     // --------------------------------------------------------------------
 
-    /**
-     * Utility method to allow us to get the encoder ticks at max speed, and check encoder phase
-     */
-    public void masterTalonTest() {
-        //this.mTalon.set(ControlMode.Velocity, 1);
-        //mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, 0);
-        mTalon.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, 0, 0);
-        mTalon.setSensorPhase(false);
-        SmartDashboard.putNumber("Encoder posn", mTalon.getSensorCollection().getQuadraturePosition());
-        mTalon.set(ControlMode.PercentOutput, 1);
-    }
 
 
     //  shuffleboard setup ---------------------------------------------------
@@ -660,14 +644,14 @@ public class ElevatorSys extends Subsystem {
      * @return the current absolute position - pulsewidth
      */
     private int getCurPosn() {
-        return mTalon.getSensorCollection().getPulseWidthPosition();
+        return mTalon.getSelectedSensorPosition(0);
     }
 
 
     private double mLastRelPosn;
     private double mLastQuadPosn;
 
-    private void printPosn(String caller) {
+    public void printPosn(String caller) {
         int sensPosn = mTalon.getSelectedSensorPosition(0);
         String sensPosnSign = "(+)";
         int absSensPosn = Math.abs(sensPosn);

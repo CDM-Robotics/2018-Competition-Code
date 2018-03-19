@@ -101,7 +101,7 @@ public class DriveSys extends Subsystem {
             setGearHi();
 
             // used for motion profiling and autonomous management
-            mMotionProfileManager = new MotionProfileManager(mMasterTalons);
+            //mMotionProfileManager = new MotionProfileManager(mMasterTalons);
 
             mAhrs = NavXSys.getInstance().getAHRS();
             mAdsState = AdsState.Straight;      // set arcadeDriveStraight to drive straight state
@@ -127,7 +127,7 @@ public class DriveSys extends Subsystem {
      */
     public void initDefaultCommand() {
         System.out.println("DriveSys: init default command");
-//        setDefaultCommand(new ArcadeDriveCmd(ControlBoard.getInstance().drive_stick));
+        setDefaultCommand(new ArcadeDriveCmd(ControlBoard.getInstance().drive_stick));
 //        setDefaultCommand(new TankDriveCmd(ControlBoard.getInstance().drive_stick));
     }
 
@@ -263,7 +263,7 @@ public class DriveSys extends Subsystem {
         yaw = yaw * 0.8;        // reduce sensitivity on turn
         mRoboDrive.arcadeDrive(mag, yaw, true);
         if (mLoopCnt++ % 10 == 0) {
-            logPosn("DS.ad");
+//            logPosn("DrvSys.arcadedrv");
 //           System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw  );
 //                    + "  navAngle: " + mAhrs.getAngle() + "  navYaw: " + mAhrs.getYaw()
 //                    + "  PIDOut: " + mGyroPIDOut.getVal() + "  PID.kP: " + mGyroPID.getP());

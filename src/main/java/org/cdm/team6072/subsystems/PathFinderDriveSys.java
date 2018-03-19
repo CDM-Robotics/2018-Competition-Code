@@ -50,19 +50,17 @@ public class PathFinderDriveSys extends Subsystem {
 
         try {
             mLeft_Master = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_MASTER);
-            mLeft_Master.configOpenloopRamp(0 , 0);
+            mLeft_Master.configOpenloopRamp(0.1 , 10);
             mLeft_Master.setNeutralMode(NeutralMode.Brake);
             mLeft_Master.setSensorPhase(true);
-            mLeft_Master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 10);
 
             mLeft_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_SLAVE0);
             mLeft_Slave0.set(ControlMode.Follower, RobotConfig.DRIVE_LEFT_MASTER);
             mLeft_Slave0.setInverted(false);
 
             mRight_Master = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_MASTER);
-            mRight_Master.configOpenloopRamp(0, 0);
+            mRight_Master.configOpenloopRamp(0.1, 10);
             mRight_Master.setNeutralMode(NeutralMode.Brake);
-            mRight_Master.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 10);
 
             mRight_Slave0 = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_SLAVE0);
             mRight_Slave0.set(ControlMode.Follower, RobotConfig.DRIVE_RIGHT_MASTER);
@@ -86,9 +84,9 @@ public class PathFinderDriveSys extends Subsystem {
     public static double WHEELDIAM = 6 * 2.54 / 100;
 
     // measured max speed was about 7.8 feet/sec
-    public static double MAX_VELOCITY = 7.8 * 12 * 2.54 /100 ;           // meters per sec
+    public static double MAX_VELOCITY = 7.8 * 12 * 2.54 /100 ;           // 2.37 meters per sec
 
-    public static double MAX_ACCEL = 4.0;              // meters per sec per sec
+    public static double MAX_ACCEL = 2.0;              // meters per sec per sec
 
     public static int TICKS_PER_REV = 4096;
 
@@ -218,7 +216,7 @@ public class PathFinderDriveSys extends Subsystem {
         //System.out.println("Encoder check; " + mLeft_Mas)
 
         // for tank drive, -ve and -ve will go forward
-        mRoboDrive.tankDrive(-modLeftOutput / 2, -modRightOutput / 2);
+        mRoboDrive.tankDrive(-modLeftOutput , -modRightOutput );
        // }
     }
 

@@ -31,6 +31,7 @@ public class Robot extends TimedRobot {
     private IntakePneumaticsSys mPneuSys;
     private IntakeMotorSys mIntakeMotorSys;
     private PowerDistributionPanel mPDP;
+    private ArmSys mArmSys;
 
     // ControlBoard holds the operator interface code such as JoyStick
     private ControlBoard mControlBoard  = ControlBoard.getInstance();
@@ -51,27 +52,41 @@ public class Robot extends TimedRobot {
 //        CameraManager.getInstance().runCameras();
 //        CameraManager.getInstance().runFilter();
         mDriveSys = DriveSys.getInstance();
-        mDriveSys.setSensorStartPosn();
         mElevatorSys = ElevatorSys.getInstance();
-        mElevatorSys.setSensorStartPosn();
         mIntakeMotorSys = IntakeMotorSys.getInstance();
-        mPDP = new PowerDistributionPanel(RobotConfig.PDP_ID);
+        mArmSys = ArmSys.getInstance();
+
+        mDriveSys.setSensorStartPosn();
+        mElevatorSys.setSensorStartPosn();
+
+        //mPDP = new PowerDistributionPanel(RobotConfig.PDP_ID);
 
         // must initialize nav system here for the navX-MXP
         NavXSys.getInstance();
 
-        // set up the autonomous options on dashboard
-        mChooser.addDefault("Option  1: PF Drive Straight",          1);
-        mChooser.addObject( "Option  2: PF Straight then 90",        2);
-//        mChooser.addObject( "Option  3: Cross line -  Inner",                      3);
-//        mChooser.addObject( "Option  4: Left Outer -  Switch - Cross Field",       4);
-//        mChooser.addObject( "Option  5: Left Outer -  Switch - Don't cross Field", 5);
-        SmartDashboard.putData("Auto mode", mChooser);
+//        // set up the autonomous options on dashboard
+//        mChooser.addDefault("Option  1: PF Drive Straight",          1);
+//        mChooser.addObject( "Option  2: PF Straight then 90",        2);
+////        mChooser.addObject( "Option  3: Cross line -  Inner",                      3);
+////        mChooser.addObject( "Option  4: Left Outer -  Switch - Cross Field",       4);
+////        mChooser.addObject( "Option  5: Left Outer -  Switch - Don't cross Field", 5);
+//        SmartDashboard.putData("Auto mode", mChooser);
     }
 
     @Override
     public void disabledInit() {
         //DriveSys.getInstance().setupProfile();
+    }
+
+
+    private int mDisLoopCnt = 0;
+    public void disabledPeriodic() {
+        if (++mDisLoopCnt % (50 * 5) == 0) { // limiting the log output
+            //           mDriveSys.logPosn("Robot.disabled");
+           mElevatorSys.printPosn("Robot.disabled");
+//            mArmSys.printPosn("Robot.disabled");
+//            System.out.println();
+        }
     }
 
 
@@ -89,15 +104,8 @@ public class Robot extends TimedRobot {
         ArcadeDriveCmd  mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(mArcadeDriveCmd);
-
     }
 
-    private int mDisLoopCnt = 0;
-    public void disabledPeriodic() {
-        if (++mDisLoopCnt % (50 * 5) == 0) { // limiting the log output
- //           mDriveSys.logPosn("Robot.disabled");
-        }
-    }
 
 
     /**
@@ -119,8 +127,6 @@ public class Robot extends TimedRobot {
     }
 
 
-
-
     //  AUTONOMOUS MODE  ---------------------------------------------------------------
 
 
@@ -132,8 +138,6 @@ public class Robot extends TimedRobot {
         super.autonomousInit();
         System.out.println("auto init (6072)  ------------------------------------------------------------");
         NavXSys.getInstance().zeroYawHeading();
-        int option = mChooser.getSelected();
-        System.out.println("AutoInit: chooser: " + option + "   -----------------------------------------------");
 
         // how to get what color we are - could be useful for object recog
         DriverStation.Alliance color;
@@ -152,6 +156,8 @@ public class Robot extends TimedRobot {
         char scaleSide =  gameData.charAt(1);
         char farSwitchSide = gameData.charAt(2);
         mAutonCmdGrp = new CommandGroup();
+        int option = mChooser.getSelected();
+        System.out.println("AutoInit: chooser: " + option + "   -----------------------------------------------");
         switch (option) {
             case 1:
                 mAutonCmdGrp.addSequential(new PF_AutoDriveStraightCmd());
@@ -240,8 +246,8 @@ public class Robot extends TimedRobot {
 
             double elvCurrent = 0; //mPDP.getCurrent(RobotConfig.ELEVATOR_TALON_PDP);
             double armCurrent = 0; //mPDP.getCurrent(RobotConfig.ARM_TALON_PDP);
-            double driveLeftCurrent = mPDP.getCurrent(RobotConfig.DRIVE_LEFT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_LEFT_SLAVE0_PDP);
-            double driveRightCurrent = mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_SLAVE0_PDP);
+            double driveLeftCurrent = 0; //mPDP.getCurrent(RobotConfig.DRIVE_LEFT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_LEFT_SLAVE0_PDP);
+            double driveRightCurrent = 0; //mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_SLAVE0_PDP);
 
             SmartDashboard.putNumber("PDP.ElevCurrent", elvCurrent);
             SmartDashboard.putNumber("PDP.ArmElevCurrent", armCurrent);

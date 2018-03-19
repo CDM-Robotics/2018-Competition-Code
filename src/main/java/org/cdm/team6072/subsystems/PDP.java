@@ -29,9 +29,9 @@ public class PDP extends Subsystem {
     }
 
 
-    public double getTotalCurrent() {
-        return mPDP.getTotalCurrent();
-    }
+//    public double getTotalCurrent() {
+//        return mPDP.getTotalCurrent();
+//    }
 
 
 }

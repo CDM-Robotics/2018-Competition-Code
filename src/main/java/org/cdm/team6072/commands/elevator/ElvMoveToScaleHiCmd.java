@@ -12,7 +12,7 @@ public class ElvMoveToScaleHiCmd extends Command {
 
 
     public ElvMoveToScaleHiCmd() {
-        CrashTracker.logMessage("ElvMoveToScaleHiCmd: ");
+        System.out.println("ElvMoveToScaleHiCmd: ");
         requires(ElevatorSys.getInstance());
         mElevatorSys = ElevatorSys.getInstance();
     }
