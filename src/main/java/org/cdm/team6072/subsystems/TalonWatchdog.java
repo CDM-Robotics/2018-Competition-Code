@@ -22,14 +22,17 @@ public class TalonWatchdog {
         timer.schedule(new TimerTask() {
             public void run() {
                 ControlMode mode = talon.getControlMode();
-                double error = talon.getClosedLoopError(pidIdx);
+                int error = Math.abs(talon.getClosedLoopError(pidIdx));
+                int posn = talon.getSelectedSensorPosition(pidIdx);
                 if ((mode == ControlMode.Position) && error > allowedError) {
                     talon.set(ControlMode.PercentOutput, 0);
-                    System.out.printf("WATCHDOG:  ********  Talon %s in mode: %s  with large error: %.3f  ******************", talon.getName(), mode, error);
+                    System.out.printf("WATCHDOG:  ********  Talon %s in mode: %s  with posn: %d   LARGE error: %d  *****************\r\n*",
+                            talon.getName(), mode, posn, error);
                 }
                 else {
-                    System.out.printf("WATCHDOG:  Talon %s in mode: %s  error: %.3f     OK", talon.getName(), mode, error);
+                    System.out.printf("WATCHDOG:  Talon %s in mode: %s  posn: %d   error: %d     OK\r\n", talon.getName(), mode, posn, error);
                 }
+                System.out.println();
             }
         }, delay);
     }

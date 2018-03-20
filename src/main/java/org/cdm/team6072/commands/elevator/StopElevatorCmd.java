@@ -14,13 +14,13 @@ public class StopElevatorCmd extends Command {
         requires(ElevatorSys.getInstance());
     }
 
+    /**
+     * The elevator move command does a stop on interrupt, which does a hold
+     * So this stop command is a no-op at the moment, to avoid sending two hold commands
+     */
     protected void execute() {
         System.out.println("StopElevatorCmd: ---------------------------------------");
         ElevatorSys.getInstance().stop();
-//        ElevatorSys.getInstance().stop();
-//        ElevatorSys.getInstance().stop();
-//        ElevatorSys.getInstance().stop();
-//        ElevatorSys.getInstance().stop();
         System.out.println("StopElevatorCmd end: ---------------------------------------");
     }
 

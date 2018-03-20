@@ -41,12 +41,12 @@ public class MoveElevatorCmd extends Command {
 
     protected void end() {
         CrashTracker.logMessage("MoveElevatorCmd.end");
-        mElevatorSys.stop();
+        //mElevatorSys.stop();
     }
 
     protected void interrupted() {
         CrashTracker.logMessage("MoveElevatorCmd.interrupted");
-        mElevatorSys.stop();
+       // mElevatorSys.stop();
     }
 
 }

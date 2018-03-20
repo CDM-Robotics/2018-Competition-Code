@@ -4,10 +4,7 @@ import edu.wpi.first.wpilibj.command.Command;
 import org.cdm.team6072.subsystems.ElevatorSys;
 import util.CrashTracker;
 
-
-
-public class ElvMoveToBaseCmd extends Command {
-
+public class ElvFindBaseCmd extends Command {
 
     private ElevatorSys.Direction mDirection;
     private double mSpeed = 0.5;
@@ -16,28 +13,37 @@ public class ElvMoveToBaseCmd extends Command {
     private ElevatorSys mElevatorSys;
 
 
-    public ElvMoveToBaseCmd() {
-        CrashTracker.logMessage("ElvMoveToBaseCmd  -------------");
+    public ElvFindBaseCmd() {
+        CrashTracker.logMessage("ElvFindBaseCmd:");
         requires(ElevatorSys.getInstance());
-        mElevatorSys = ElevatorSys.getInstance();
     }
 
     @Override
     protected void initialize() {
-        // actually start the move here
-        mElevatorSys.moveToBase();
+        mElevatorSys = ElevatorSys.getInstance();
+        mElevatorSys.findBase();
     }
 
     @Override
     protected void execute() {
-        // dont do anything in exec because move has been started
-        mElevatorSys.magicMoveStatus();
+
     }
 
     @Override
     protected boolean isFinished() {
-        return mElevatorSys.moveToBaseComplete();
+        return mElevatorSys.findBaseComplete();
     }
 
 
+    protected void end() {
+        CrashTracker.logMessage("MoveElevatorCmd.end");
+        //mElevatorSys.stop();
+    }
+
+    protected void interrupted() {
+        CrashTracker.logMessage("MoveElevatorCmd.interrupted");
+        // mElevatorSys.stop();
+    }
+
 }
+
