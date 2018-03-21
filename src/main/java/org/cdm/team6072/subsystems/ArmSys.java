@@ -159,8 +159,8 @@ public class ArmSys extends Subsystem {
             mTalon.config_kD(kPIDSlot_Hold, 0.0, kTimeoutMs);
 
             // PID values for moving
-            mTalon.config_kF(kPIDSlot_Move, 0.0, kTimeoutMs);             // 1023/1180
-            mTalon.config_kP(kPIDSlot_Move, 0.0, kTimeoutMs);             // 1023 / 400  * 0.1
+            mTalon.config_kF(kPIDSlot_Move, 0.8, kTimeoutMs);             // 1023/1180
+            mTalon.config_kP(kPIDSlot_Move, 0.2, kTimeoutMs);             // 1023 / 400  * 0.1
             mTalon.config_kI(kPIDSlot_Move, 0.0, kTimeoutMs);
             mTalon.config_kD(kPIDSlot_Move, 0.0, kTimeoutMs);
 
@@ -452,8 +452,8 @@ public class ArmSys extends Subsystem {
         mLastQuadPosn = quadPosn;
 //        System.out.println("ArmSys." + caller + ":    topSwitch: " + mTopCounter.get() + "   botSwitch: " + mBotCounter.get());
 //        System.out.println("ArmSys." + caller + ":    Vel: " + vel + "  pwVel: " + pwVel + "  MotorOut: " + mout  +  "  voltOut: " + voltOut+ "  clErr: " + closedLoopErr);
-        System.out.println("ArmSys." + caller + ":  sens: " + sensPosnSign + absSensPosn + "  rDelta: " + relDelta
-                + "  quad: " + quadPosn  + "  qDelta: " + quadDelta + "  pw: " + pwPosn + "  clErr: " + closedLoopErr);
+        System.out.println("ArmSys." + caller + "  base: " + mBasePosn + "  sens: " + sensPosnSign + absSensPosn
+                + "  quad: " + quadPosn  +  "  pw: " + pwPosn + "  clErr: " + closedLoopErr);
         //shuffleBd();
     }
 

@@ -125,8 +125,8 @@ public class ControlBoard {
 //        drive_buttons[EXTREME_BUT_THUMB-1].whenPressed(new TestDriveForward());
 
         // toggle hi lo gear
-        drive_buttons[EXTREME_BUT_8-1] = new JoystickButton(drive_stick, EXTREME_BUT_8);
-        drive_buttons[EXTREME_BUT_8-1].whenPressed(new DriveToggleGearCmd(drive_stick));
+//        drive_buttons[EXTREME_BUT_8-1] = new JoystickButton(drive_stick, EXTREME_BUT_8);
+//        drive_buttons[EXTREME_BUT_8-1].whenPressed(new DriveToggleGearCmd(drive_stick));
 
 //        drive_buttons[DRIVE_TEST-1] = new JoystickButton(drive_stick, DRIVE_TEST);
 //        drive_buttons[DRIVE_TEST-1].whenPressed(new TestDriveForward());
@@ -151,7 +151,13 @@ public class ControlBoard {
 //        drive_buttons[ELEVATOR_MOVETO_BASE-1].whenPressed(new ElvMoveToBaseCmd(ElevatorSys.Direction.Down, 1));
 
         drive_buttons[EXTREME_BUT_7 -1] = new JoystickButton(drive_stick, EXTREME_BUT_7);     // 9
-        drive_buttons[EXTREME_BUT_7 -1].whenPressed(new ElvFindBaseCmd());
+        drive_buttons[EXTREME_BUT_7 -1].whenPressed(new ArmMoveIntake());
+
+        drive_buttons[EXTREME_BUT_8 -1] = new JoystickButton(drive_stick, EXTREME_BUT_8);     // 9
+        drive_buttons[EXTREME_BUT_8 -1].whenPressed(new ArmMoveShoot45());
+
+        drive_buttons[EXTREME_BUT_9 -1] = new JoystickButton(drive_stick, EXTREME_BUT_9);     // 9
+        drive_buttons[EXTREME_BUT_9 -1].whenPressed(new ArmMoveShoot135());
 //
         drive_buttons[EXTREME_BUT_10 -1] = new JoystickButton(drive_stick, EXTREME_BUT_10);  // 10
         drive_buttons[EXTREME_BUT_10 -1].whenPressed(new ElvMoveToSwitchCmd());

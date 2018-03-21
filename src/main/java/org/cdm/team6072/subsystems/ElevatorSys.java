@@ -40,9 +40,9 @@ public class ElevatorSys extends Subsystem {
     // scale height in native units from nominal base posn
     // the arm assy is on a 2:1 gearing from the drive motor
     private static int BASE_POSN = 1 * kUnitsPerInch;
-    private static int SWITCH_POSN_UNITS = 24 * kUnitsPerInch / 2;
-    private static int SCALELO_POSN_UNITS = 36 * kUnitsPerInch / 2;
-    private static int SCALEHI_POSN_UNITS = 50 * kUnitsPerInch / 2;
+    private static int SWITCH_POSN_UNITS = 27 * kUnitsPerInch / 2;
+    private static int SCALELO_POSN_UNITS = 70 * kUnitsPerInch / 2;
+    private static int SCALEHI_POSN_UNITS = 80 * kUnitsPerInch / 2;
 
 
 
@@ -195,7 +195,8 @@ public class ElevatorSys extends Subsystem {
 
             // PID settings
 
-            mTalon.configClosedloopRamp(0.1, kTimeoutMs);
+            // ramping can interfere with the PID: https://www.chiefdelphi.com/forums/showthread.php?p=1748993#post1748993
+            //mTalon.configClosedloopRamp(0.1, kTimeoutMs);
 
             // bot to top 29000 in 1 sec = 2900 ticks per 100 ms
             mTalon.configMotionCruiseVelocity(2900, kTimeoutMs);
@@ -203,8 +204,8 @@ public class ElevatorSys extends Subsystem {
             mTalon.configAllowableClosedloopError(kPIDSlot_Move, TALON_ALLOWED_CLOSELOOP_ERROR, kTimeoutMs);
 
             // init PID for moving
-            mTalon.config_kF(kPIDSlot_Move, 0.867, kTimeoutMs);
-            mTalon.config_kP(kPIDSlot_Move, 0.255, kTimeoutMs);
+            mTalon.config_kF(kPIDSlot_Move, 0.4429, kTimeoutMs);
+            mTalon.config_kP(kPIDSlot_Move, 0.14, kTimeoutMs);
             mTalon.config_kI(kPIDSlot_Move, 0.0, kTimeoutMs);
             mTalon.config_kD(kPIDSlot_Move, 0.0, kTimeoutMs);
 
@@ -399,21 +400,21 @@ public class ElevatorSys extends Subsystem {
         boolean notFinished = true;
         double lastErr = -1;
 
-        while (notFinished && loopCnt < 50) {
-            try {
-                Thread.sleep(1);
-                double curError = mTalon.getClosedLoopError(0);
-                if (lastErr != -1) {
-                    notFinished = (Math.abs(curError) > TALON_ALLOWED_CLOSELOOP_ERROR);
-                }
-                lastErr = curError;
-                loopCnt++;
-                //if (loopCnt % 2 == 0) {
-                    printPosn("holdPosn.after_" + curPosn +"_" + loopCnt );
-                //}
-            } catch (Exception ex) {
-            }
-        }
+//        while (notFinished && loopCnt < 50) {
+//            try {
+//                Thread.sleep(1);
+//                double curError = mTalon.getClosedLoopError(0);
+//                if (lastErr != -1) {
+//                    notFinished = (Math.abs(curError) > TALON_ALLOWED_CLOSELOOP_ERROR);
+//                }
+//                lastErr = curError;
+//                loopCnt++;
+//                //if (loopCnt % 2 == 0) {
+////                    printPosn("holdPosn.after_" + curPosn +"_" + loopCnt );
+//                //}
+//            } catch (Exception ex) {
+//            }
+//        }
         printPosn("holdPosn.FINISH_" + curPosn +"_" + loopCnt );
     }
     
@@ -537,10 +538,12 @@ public class ElevatorSys extends Subsystem {
 
     /**
      * Stop movement and move to closed loop position hold
+     * NOTE: MotionMagic will essentially turn into position hold at the end
      */
     public void magicStop() {
  //       mTalon.set(ControlMode.PercentOutput, 0);
-        holdPosn();
+        //holdPosn();
+        printPosn("magicMoveStop -------- ");
     }
 
 
