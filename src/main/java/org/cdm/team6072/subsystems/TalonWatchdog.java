@@ -9,6 +9,24 @@ import java.util.TimerTask;
 public class TalonWatchdog {
 
 
+
+    public static TalonWatchdog SetWatchdog(WPI_TalonSRX talon, int secs, int pidIdx, int allowedError) {
+        return new TalonWatchdog(talon, secs, pidIdx, allowedError);
+    }
+
+
+    /**
+     * This MUST be an instance variable to allow the cancel to hit the correct task
+     */
+    private TimerTask mTask;
+
+    public void Cancel() {
+        if (mTask != null) {
+            mTask.cancel();
+        }
+    }
+
+
     /**
      * Set a watch dog to check that the talon in position hold mode is not driving the motor hard forever
      * @param talon Talon to be checked
@@ -38,7 +56,4 @@ public class TalonWatchdog {
     }
 
 
-    public static TalonWatchdog SetWatchdog(WPI_TalonSRX talon, int secs, int pidIdx, int allowedError) {
-        return new TalonWatchdog(talon, secs, pidIdx, allowedError);
-    }
 }

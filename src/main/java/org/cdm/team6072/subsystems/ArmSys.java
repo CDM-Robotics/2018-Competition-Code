@@ -33,10 +33,13 @@ public class ArmSys extends Subsystem {
     private static boolean TALON_INVERTED_DOWN = false;
 
 
+    // positions are absolute sensor values measured manually
     private static int POSN_START = 1234;
-    private static int POSN_INTAKE = 1234;
-    private static int POSN_SHOOT45 = 1234;
-    private static int POSN_SHOOT135 = 1234;
+
+    private static int POSN_INTAKE = 6700;
+    private static int POSN_SHOOT45 = 5580;
+    private static int POSN_SHOOT135 = 3595;
+    private static int POSN_180 = 2800;
 
 
     /**
@@ -63,6 +66,16 @@ public class ArmSys extends Subsystem {
     public static final double kNeutralDeadband = 0.01;
 
     private WPI_TalonSRX mTalon;
+    private static final boolean TALON_INVERT = true;
+    //  The sensor position must move in a positive direction as the motor controller drives positive output (and LEDs are green)
+    //      true inverts the sensor
+    private static final boolean TALON_SENSOR_PHASE = false;
+
+    /*
+     * set the allowable closed-loop error, Closed-Loop output will be
+     * neutral within this range. See Table in Section 17.2.1 for native units per rotation.
+     */
+    private static final int TALON_ALLOWED_CLOSELOOP_ERROR = 0;
 
 
     /**
@@ -112,8 +125,13 @@ public class ArmSys extends Subsystem {
             System.out.println("ArmSys.ctor:  topSw: " + mTopSwitch.getChannel() + "  botSw: " + mBotSwitch.getChannel());
 
             mTalon = new WPI_TalonSRX(RobotConfig.ARM_TALON);
+            mTalon.setName(String.format("%d: Arm", RobotConfig.ARM_TALON));
+            // in case we are in magic motion or position hold mode
+            mTalon.set(ControlMode.PercentOutput, 0);
+            mTalon.setSensorPhase(TALON_SENSOR_PHASE);
+            mTalon.setInverted(TALON_INVERT);
+
             mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, kPIDLoopIdx, kTimeoutMs);
-            mTalon.setSensorPhase(sensorPhase);
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
 
             mTalon.configOpenloopRamp(0.1, 10);
@@ -123,11 +141,16 @@ public class ArmSys extends Subsystem {
             mTalon.configNominalOutputReverse(0, kTimeoutMs);
             mTalon.configPeakOutputForward(peakOut, kTimeoutMs);
             mTalon.configPeakOutputReverse(-peakOut, kTimeoutMs);
+
+            // set acceleration and cruise velocity - see documentation
+            mTalon.configMotionCruiseVelocity(590, kTimeoutMs);
+            mTalon.configMotionAcceleration(500, kTimeoutMs);
             /*
              * set the allowable closed-loop error, Closed-Loop output will be
              * neutral within this range. See Table in Section 17.2.1 for native units per rotation.
              */
-            mTalon.configAllowableClosedloopError(0, 50, kTimeoutMs);
+            mTalon.configAllowableClosedloopError(0, TALON_ALLOWED_CLOSELOOP_ERROR, kTimeoutMs);
+            mTalon.configClosedloopRamp(0.1, kTimeoutMs);
 
             // set PID values for postion hold closed loop
             mTalon.config_kF(kPIDSlot_Hold, 0.0, kTimeoutMs);             // 1023/1180
@@ -148,23 +171,13 @@ public class ArmSys extends Subsystem {
 
 		    /* mask out overflows, keep bottom 12 bits */
             absolutePosition &= 0xFFF;
-            if (sensorPhase)
+            if (TALON_SENSOR_PHASE)
                 absolutePosition *= -1;
-            if (motorInvert)
+            if (TALON_INVERT)
                 absolutePosition *= -1;
 		    /* set the quadrature (relative) sensor to match absolute */
             mTalon.setSelectedSensorPosition(absolutePosition, kPIDLoopIdx, kTimeoutMs);
-            //mTalon.setSelectedSensorPosition(0, kPIDLoopIdx, kTimeoutMs);
-            // setSelected takes time so wait for it to get accurate print
-            Thread.sleep(50);
             printPosn("ctor");
-
-            // test  motion profile --------------
-//            System.out.println("ArmSys.setMPProfile:  setting Talon control mode to MotionProfile ");
-//            mTalon.set(ControlMode.MotionProfile, SetValueMotionProfile.Disable.value);
-//            System.out.println("ArmSys.setMPProfile:  back from setting Talon ");
-
-            // test magic motion
 
         } catch (Exception ex) {
             System.out.println("************************** ArmSys.ctor Ex: " + ex.getMessage());
@@ -213,11 +226,6 @@ public class ArmSys extends Subsystem {
         initBotSwitch();
         initTopSwitch();
         mTalon.selectProfileSlot(kPIDSlot_Move, 0);
-        		    /* set closed loop gains in slot0, typically kF stays zero. */
-//        mTalon.config_kF(kPIDLoopIdx, 0.867, kTimeoutMs);             // 1023/1180
-//        mTalon.config_kP(kPIDLoopIdx, 0.0, kTimeoutMs);             // 1023 / 400  * 0.1
-//        mTalon.config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
-//        mTalon.config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
         printPosn("initForMove");
     }
 
@@ -227,10 +235,8 @@ public class ArmSys extends Subsystem {
             stop();
             return;
         }
-        if (dir == ArmSys.Direction.Up) {
-            mTalon.setInverted(TALON_INVERTED_UP);
-        } else {
-            mTalon.setInverted(TALON_INVERTED_DOWN);
+        if (dir == Direction.Down) {
+            speed = -speed;
         }
         mTalon.set(ControlMode.PercentOutput, speed);
         if (++mCounter % 5 == 0) {
@@ -336,13 +342,10 @@ public class ArmSys extends Subsystem {
     }
 
 
-
-
     private void moveToTarget(int targPosn) {
         Direction dir;
 
-        //int normCurPosn = getCurPosn() - mBasePosn;
-        //int distToMove = targPosn - normCurPosn;
+        mTalon.selectProfileSlot(kPIDSlot_Move,0);
         int distToMove = targPosn - getCurPosn();
         if (distToMove >= 0) {
             dir = Direction.Up;
@@ -369,14 +372,7 @@ public class ArmSys extends Subsystem {
      *  Set max cruise to 0.5 * 1180 = 885
      */
     public void initForMagicMove() {
-
-        // set acceleration and cruise velocity - see documentation
-        mTalon.configMotionCruiseVelocity(590, kTimeoutMs);
-        mTalon.configMotionAcceleration(500, kTimeoutMs);
-//        mLastRelPosn = mTalon.getSelectedSensorPosition(0);
-//        mLastQuadPosn = mTalon.getSensorCollection().getQuadraturePosition();
         mMMStartPosn = getCurPosn();
-        //mTalon.setSelectedSensorPosition(0, 0, kTimeoutMs);
         mMMStarted = false;
         mLoopCtr = 0;
         printPosn("initForMagicMove");
@@ -386,20 +382,14 @@ public class ArmSys extends Subsystem {
     private int mLoopCtr = 0;
 
     /**
-     * Use Magic motion profile to move the specified number of rotations up or down
+     * Use Magic motion profile to move to the specified position
      * @param dir
-     * @param distInSensUnits
+     * @param targPosn
      */
-    private void magicMove(ArmSys.Direction dir, double distInSensUnits) {
+    private void magicMove(ArmSys.Direction dir, double targPosn) {
         double targetDist;
         if (!mMMStarted) {
-            if (dir == ArmSys.Direction.Up) {
-                targetDist = distInSensUnits;
-            } else {
-                targetDist = -1 * distInSensUnits;
-            }
-            //mMMTargetPosn = targetDist + mMMStartPosn;
-            mTalon.set(ControlMode.MotionMagic, targetDist);
+            mTalon.set(ControlMode.MotionMagic, targPosn);
             mMMStarted = true;
         }
     }
@@ -423,8 +413,6 @@ public class ArmSys extends Subsystem {
         }
         return end;
     }
-
-
 
 
 

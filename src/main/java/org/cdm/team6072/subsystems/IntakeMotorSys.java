@@ -23,6 +23,11 @@ public class IntakeMotorSys extends Subsystem {
     }
 
 
+    // motors positive for wheels IN
+    private static boolean TALON_INVERT_STATE_LEFT = false;
+    private static boolean TALON_INVERT_STATE_RIGHT = true;
+
+
     private WPI_TalonSRX mTalonLeft;
     private WPI_TalonSRX mTalonRight;
 
@@ -39,8 +44,10 @@ public class IntakeMotorSys extends Subsystem {
 
         mTalonLeft = new WPI_TalonSRX(RobotConfig.INTAKE_TALON_LEFT);
         mTalonLeft.setNeutralMode(NeutralMode.Brake);
+        mTalonLeft.setInverted(TALON_INVERT_STATE_LEFT);
         mTalonRight = new WPI_TalonSRX(RobotConfig.INTAKE_TALON_RIGHT);
         mTalonRight.setNeutralMode(NeutralMode.Brake);
+        mTalonRight.setInverted(TALON_INVERT_STATE_RIGHT);
     }
 
 
@@ -49,21 +56,16 @@ public class IntakeMotorSys extends Subsystem {
 
     }
 
-    private static boolean TALON_INVERTED_LEFT_IN = false;
-    private static boolean TALON_INVERTED_RIGHT_IN = true;
-    private static boolean TALON_INVERTED_LEFT_OUT = true;
-    private static boolean TALON_INVERTED_RIGHT_OUT = false;
+//    private static boolean TALON_INVERTED_LEFT_IN = false;
+//    private static boolean TALON_INVERTED_RIGHT_IN = true;
+//    private static boolean TALON_INVERTED_LEFT_OUT = true;
+//    private static boolean TALON_INVERTED_RIGHT_OUT = false;
 
 
 
     public void runWheels(WheelDirn dir, double speed) {
-        if (dir == WheelDirn.In) {
-            mTalonLeft.setInverted(TALON_INVERTED_LEFT_IN);
-            mTalonRight.setInverted(TALON_INVERTED_RIGHT_IN);
-        }
-        else {
-            mTalonLeft.setInverted(TALON_INVERTED_LEFT_OUT);
-            mTalonRight.setInverted(TALON_INVERTED_RIGHT_OUT);
+        if (dir == WheelDirn.Out) {
+           speed = -speed;
         }
         mTalonLeft.set(ControlMode.PercentOutput, speed);
         mTalonRight.set(ControlMode.PercentOutput, speed);
@@ -74,15 +76,8 @@ public class IntakeMotorSys extends Subsystem {
      * On stop, set wheels in very slow
      */
     public void stopWheels() {
-        mTalonLeft.setInverted(TALON_INVERTED_LEFT_IN);
-        mTalonRight.setInverted(TALON_INVERTED_RIGHT_IN);
         mTalonLeft.set(ControlMode.PercentOutput, 0.1);
         mTalonRight.set(ControlMode.PercentOutput, 0.1);
-        // In Position mode, output value is in encoder ticks or an analog value, depending on the sensor.
-//        double curPosnLeft = mTalonLeft.getSelectedSensorPosition(0);
-//        mTalonLeft.set(ControlMode.Position, curPosnLeft);
-//        double curPosnRight = mTalonRight.getSelectedSensorPosition(0);
-//        mTalonRight.set(ControlMode.Position, curPosnRight);
     }
 
 

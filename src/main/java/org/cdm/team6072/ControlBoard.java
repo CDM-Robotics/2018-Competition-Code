@@ -213,12 +213,12 @@ public class ControlBoard {
 
         // intake wheels IN
         control_buttons[EXTREME_BUT_TRIGGER-1] = new JoystickButton(control_stick, EXTREME_BUT_TRIGGER);
-        control_buttons[EXTREME_BUT_TRIGGER-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In, 0.5));
+        control_buttons[EXTREME_BUT_TRIGGER-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In, 0.6));
         control_buttons[EXTREME_BUT_TRIGGER-1].whenReleased(new StopIntakeWheelsCmd());
 
         // intake wheels OUT
         control_buttons[EXTREME_BUT_THUMB-1] = new JoystickButton(control_stick, EXTREME_BUT_THUMB);
-        control_buttons[EXTREME_BUT_THUMB-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 0.8));
+        control_buttons[EXTREME_BUT_THUMB-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
         control_buttons[EXTREME_BUT_THUMB-1].whenReleased(new StopIntakeWheelsCmd());
 
         // intake OPEN

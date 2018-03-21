@@ -54,9 +54,6 @@ public class ElevatorSys extends Subsystem {
     public static final int kBaseTrajPeriodMs = 0;
 
 
-
-
-
     /**
      * Specify the direction the elevator should move
      *  Up = Talon.setInverted(false)
@@ -91,7 +88,7 @@ public class ElevatorSys extends Subsystem {
      * set the allowable closed-loop error, Closed-Loop output will be
      * neutral within this range. See Table in Section 17.2.1 for native units per rotation.
      */
-    private static final int TALON_ALLOWED_CLOSELOOP_ERROR = 10;
+    private static final int TALON_ALLOWED_CLOSELOOP_ERROR = 0;
 
      // Motor deadband, set to 1%.
     public static final double kNeutralDeadband = 0.01;
@@ -198,12 +195,14 @@ public class ElevatorSys extends Subsystem {
 
             // PID settings
 
+            mTalon.configClosedloopRamp(0.1, kTimeoutMs);
+
             // bot to top 29000 in 1 sec = 2900 ticks per 100 ms
             mTalon.configMotionCruiseVelocity(2900, kTimeoutMs);
             mTalon.configMotionAcceleration(2000, kTimeoutMs);
+            mTalon.configAllowableClosedloopError(kPIDSlot_Move, TALON_ALLOWED_CLOSELOOP_ERROR, kTimeoutMs);
 
             // init PID for moving
-            mTalon.configAllowableClosedloopError(kPIDSlot_Move, TALON_ALLOWED_CLOSELOOP_ERROR, kTimeoutMs);
             mTalon.config_kF(kPIDSlot_Move, 0.867, kTimeoutMs);
             mTalon.config_kP(kPIDSlot_Move, 0.255, kTimeoutMs);
             mTalon.config_kI(kPIDSlot_Move, 0.0, kTimeoutMs);
@@ -375,6 +374,9 @@ public class ElevatorSys extends Subsystem {
         holdPosn();
     }
 
+
+    private TalonWatchdog mWatchdog;
+
     /**
      * Switch to using closed loop position hold at current position
      */
@@ -388,7 +390,11 @@ public class ElevatorSys extends Subsystem {
         int loopCnt = 0;
         // In Position mode, output value is in encoder ticks or an analog value, depending on the sensor.
         mTalon.set(ControlMode.Position, curPosn);
-        TalonWatchdog.SetWatchdog(mTalon, 3, kPIDLoopIdx, TALON_ALLOWED_CLOSELOOP_ERROR);
+        if (mWatchdog != null) {
+            // cancel the existing watchdog, set a new one
+            mWatchdog.Cancel();
+        }
+        //mWatchdog = TalonWatchdog.SetWatchdog(mTalon, 3, kPIDLoopIdx, TALON_ALLOWED_CLOSELOOP_ERROR + 50);
 
         boolean notFinished = true;
         double lastErr = -1;
@@ -484,10 +490,7 @@ public class ElevatorSys extends Subsystem {
     public void initForMagicMove() {
         // set acceleration and cruise velocity - see documentation
         mTalon.selectProfileSlot(kPIDSlot_Move, 0);
-//        mLastSensPosn = mTalon.getSelectedSensorPosition(0);
-//        mLastQuadPosn = mTalon.getSensorCollection().getQuadraturePosition();
         mMMStartPosn = getCurPosn();
-        //mTalon.setSelectedSensorPosition(0, 0, kTimeoutMs);
         mMMStarted = false;
         mLoopCtr = 0;
         printPosn("initForMagicMove");
@@ -504,11 +507,6 @@ public class ElevatorSys extends Subsystem {
     private void magicMove(Direction dir, double targPosn) {
 //        double targetDist;
         if (!mMMStarted) {
-//            if (dir == Direction.Up) {
-//                targetDist = targPosn;
-//            } else {
-//                targetDist = -1 * targPosn;
-//            }
             mTalon.set(ControlMode.MotionMagic, targPosn);
             mMMStarted = true;
         }
