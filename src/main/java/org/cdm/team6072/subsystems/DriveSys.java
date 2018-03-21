@@ -433,6 +433,24 @@ public class DriveSys extends Subsystem {
         }
     }
 
+    // move distance in feet
+    public void moveDistance(float feet) {
+
+        // wheel diameter is 6 inches (0.5 feet)
+        double targetEncoderDist = (feet/(Math.PI * 0.5)) * 4096;
+
+        double yaw = mGyroPIDOut.getVal();
+
+        double startEncoderDist = mLeft_Master.getSensorCollection().getQuadraturePosition();
+        //double rightEncoderDist = mRight_Master.getSensorCollection().getQuadraturePosition();
+
+        while (startEncoderDist < (startEncoderDist + targetEncoderDist)) {
+            System.out.println("target dist: " + targetEncoderDist + ", actual: " + startEncoderDist);
+            startEncoderDist = mLeft_Master.getSensorCollection().getQuadraturePosition();
+            this.arcadeDriveStraight(-5, 0);
+        }
+
+    }
 
 
 
