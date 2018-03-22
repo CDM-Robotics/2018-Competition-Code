@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import org.cdm.team6072.autonomous.routines.GoToSwitch;
 import org.cdm.team6072.commands.drive.*;
 import org.cdm.team6072.commands.auton.*;
 import org.cdm.team6072.subsystems.*;
@@ -165,6 +166,7 @@ public class Robot extends TimedRobot {
         mAutonCmdGrp = new CommandGroup();
         int option = mChooser.getSelected();
         System.out.println("AutoInit: chooser: " + option + "   -----------------------------------------------");
+
         switch (option) {
             case 1:
                 mAutonCmdGrp.addSequential(new PF_AutoDriveStraightCmd());
@@ -191,6 +193,21 @@ public class Robot extends TimedRobot {
                 break;
         }
         mAutonCmdGrp.start();
+
+        //initSwitchRoutine(0, switchSide);
+    }
+
+    public void initSwitchRoutine(int startBox, char switchSide) {
+        GoToSwitch switchRoutine;
+        GoToSwitch.ALLIANCE_SIDE side = null;
+
+        if (switchSide == 'L') {
+            side = GoToSwitch.ALLIANCE_SIDE.LEFT;
+        } else if (switchSide == 'R') {
+            side = GoToSwitch.ALLIANCE_SIDE.RIGHT;
+        }
+        switchRoutine = new GoToSwitch(startBox, side);
+        switchRoutine.start();
     }
 
     @Override
