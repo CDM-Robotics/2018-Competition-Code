@@ -11,6 +11,9 @@ public class GoToSwitch extends CommandGroup {
         LEFT, RIGHT
     }
 
+    private float midChannelDist = (float) 4.9;
+    private float midChannelToSwitchDist = 3;
+
     // startBox options are 1, 2, 3
     public GoToSwitch(int startBox, ALLIANCE_SIDE side) {
         System.out.println("GoToSwitch: startBox -> " + startBox + ", side -> " + side);
@@ -41,47 +44,47 @@ public class GoToSwitch extends CommandGroup {
     }
 
     public void goFromPosThreeToRight() {
-        addSequential(new DriveDistCmd(10));
-        addSequential(new DriveTurnYawCmd(45));
-        addSequential(new DriveDistCmd(2));
+        addSequential(new DriveDistCmd(12));
+        addSequential(new DriveTurnYawCmd(-90));
+        addSequential(new DriveDistCmd((float)2.95));
     }
 
     // go straight, 90 degree turn to right, straight, 90 degree turn left, straight to finish at switch
     public void goFromPosTwoToRight() {
-        addSequential(new DriveDistCmd(8));
+        addSequential(new DriveDistCmd(midChannelDist));
         addSequential(new DriveTurnYawCmd(90));
-        addSequential(new DriveDistCmd(5));
+        addSequential(new DriveDistCmd((float)5.7));
         addSequential(new DriveTurnYawCmd(-90));
-        addSequential(new DriveDistCmd(3));
+        addSequential(new DriveDistCmd(midChannelToSwitchDist));
     }
 
     public void goFromPosOneToRight() {
-        addSequential(new DriveDistCmd(8));
+        addSequential(new DriveDistCmd(midChannelDist));
         addSequential(new DriveTurnYawCmd(90));
-        addSequential(new DriveDistCmd(10));
+        addSequential(new DriveDistCmd((float)10.5));
         addSequential(new DriveTurnYawCmd(-90));
-        addSequential(new DriveDistCmd(3));
+        addSequential(new DriveDistCmd(midChannelToSwitchDist));
     }
 
     public void goFromPosThreeToLeft() {
-        addSequential(new DriveDistCmd(8));
+        addSequential(new DriveDistCmd(midChannelDist));
         addSequential(new DriveTurnYawCmd(-90));
-        addSequential(new DriveDistCmd(10));
+        addSequential(new DriveDistCmd((float)10.5));
         addSequential(new DriveTurnYawCmd(90));
-        addSequential(new DriveDistCmd(3));
+        addSequential(new DriveDistCmd(midChannelToSwitchDist));
     }
 
     public void goFromPosTwoToLeft() {
-        addSequential(new DriveDistCmd(8));
+        addSequential(new DriveDistCmd(midChannelDist));
         addSequential(new DriveTurnYawCmd(-90));
-        addSequential(new DriveDistCmd(5));
+        addSequential(new DriveDistCmd((float)5.7));
         addSequential(new DriveTurnYawCmd(90));
-        addSequential(new DriveDistCmd(3));
+        addSequential(new DriveDistCmd(midChannelToSwitchDist));
     }
 
     public void goFromPosOnetoLeft() {
-        addSequential(new DriveDistCmd(10));
-        addSequential(new DriveTurnYawCmd(45));
-        addSequential(new DriveDistCmd(3));
+        addSequential(new DriveDistCmd(12));
+        addSequential(new DriveTurnYawCmd(90));
+        addSequential(new DriveDistCmd((float)2.95));
     }
 }
