@@ -75,7 +75,7 @@ public class IntakeMotorSys extends Subsystem {
     /**
      * On stop, set wheels in very slow
      */
-    public void stopWheels() {
+    public void runWheelsInLo() {
         mTalonLeft.set(ControlMode.PercentOutput, 0.1);
         mTalonRight.set(ControlMode.PercentOutput, 0.1);
     }

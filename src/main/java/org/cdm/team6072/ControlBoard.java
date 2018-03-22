@@ -3,9 +3,7 @@ package org.cdm.team6072;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 import org.cdm.team6072.commands.drive.DriveDistCmd;
-import org.cdm.team6072.commands.drive.DriveToggleGearCmd;
 import org.cdm.team6072.commands.drive.DriveTurnYawCmd;
-import org.cdm.team6072.commands.drive.TestDriveForward;
 import org.cdm.team6072.commands.elevator.*;
 import org.cdm.team6072.commands.intake.*;
 import org.cdm.team6072.commands.arm.*;
@@ -185,11 +183,11 @@ public class ControlBoard {
 
 //        drive_buttons[INTAKE_WHEELS_IN_BTN-1] = new JoystickButton(drive_stick, INTAKE_WHEELS_IN_BTN);
 //        drive_buttons[INTAKE_WHEELS_IN_BTN-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In));
-//        drive_buttons[INTAKE_WHEELS_IN_BTN-1].whenReleased(new StopIntakeWheelsCmd());
+//        drive_buttons[INTAKE_WHEELS_IN_BTN-1].whenReleased(new IntakeRunWheelsInLoCmd());
 //
 //        drive_buttons[INTAKE_WHEELS_OUT_BTN-1] = new JoystickButton(drive_stick, INTAKE_WHEELS_OUT_BTN);
 //        drive_buttons[INTAKE_WHEELS_OUT_BTN-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out));
-//        drive_buttons[INTAKE_WHEELS_OUT_BTN-1].whenReleased(new StopIntakeWheelsCmd());
+//        drive_buttons[INTAKE_WHEELS_OUT_BTN-1].whenReleased(new IntakeRunWheelsInLoCmd());
 
         // control systems using usb1
         control_stick = new Joystick(CONTROL_USB_PORT);
@@ -228,12 +226,12 @@ public class ControlBoard {
         // intake wheels IN
         control_buttons[EXTREME_BUT_TRIGGER-1] = new JoystickButton(control_stick, EXTREME_BUT_TRIGGER);
         control_buttons[EXTREME_BUT_TRIGGER-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In, 0.6));
-        control_buttons[EXTREME_BUT_TRIGGER-1].whenReleased(new StopIntakeWheelsCmd());
+        control_buttons[EXTREME_BUT_TRIGGER-1].whenReleased(new IntakeRunWheelsInLoCmd());
 
         // intake wheels OUT
         control_buttons[EXTREME_BUT_THUMB-1] = new JoystickButton(control_stick, EXTREME_BUT_THUMB);
         control_buttons[EXTREME_BUT_THUMB-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
-        control_buttons[EXTREME_BUT_THUMB-1].whenReleased(new StopIntakeWheelsCmd());
+        control_buttons[EXTREME_BUT_THUMB-1].whenReleased(new IntakeRunWheelsInLoCmd());
 
         // intake OPEN
         control_buttons[EXTREME_BUT_12-1] = new JoystickButton(control_stick, EXTREME_BUT_12);

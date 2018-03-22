@@ -41,7 +41,7 @@ public class RunIntakeWheelsCmd extends Command {
 
     protected void interrupted() {
         CrashTracker.logMessage("RunIntakeWheelsCmd.interrupted");
-        mGrabber.stopWheels();
+        mGrabber.runWheelsInLo();
     }
 
 

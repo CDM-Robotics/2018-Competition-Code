@@ -13,7 +13,9 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import org.cdm.team6072.autonomous.routines.GoToScale;
 import org.cdm.team6072.autonomous.routines.GoToSwitch;
+import org.cdm.team6072.autonomous.routines.tests.TestSwitchRoutine;
 import org.cdm.team6072.commands.drive.*;
 import org.cdm.team6072.commands.auton.*;
 import org.cdm.team6072.subsystems.*;
@@ -66,13 +68,13 @@ public class Robot extends TimedRobot {
         // must initialize nav system here for the navX-MXP
         NavXSys.getInstance();
 
-//        // set up the autonomous options on dashboard
-//        mChooser.addDefault("Option  1: PF Drive Straight",          1);
-//        mChooser.addObject( "Option  2: PF Straight then 90",        2);
-////        mChooser.addObject( "Option  3: Cross line -  Inner",                      3);
-////        mChooser.addObject( "Option  4: Left Outer -  Switch - Cross Field",       4);
-////        mChooser.addObject( "Option  5: Left Outer -  Switch - Don't cross Field", 5);
-//        SmartDashboard.putData("Auto mode", mChooser);
+        // set up the autonomous options on dashboard
+        mChooser.addDefault("Option  1: Run TEST Auton",      1);
+        mChooser.addObject( "Option  2: Run to Switch",       2);
+        mChooser.addObject( "Option  3: Run to Scale",        3);
+//        mChooser.addObject( "Option  4: Left Outer -  Switch - Cross Field",       4);
+//        mChooser.addObject( "Option  5: Left Outer -  Switch - Don't cross Field", 5);
+        SmartDashboard.putData("Auto mode", mChooser);
     }
 
     @Override
@@ -143,6 +145,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        DriverStation ds = DriverStation.getInstance();
+
         super.autonomousInit();
         System.out.println("auto init (6072)  ------------------------------------------------------------");
         NavXSys.getInstance().zeroYawHeading();
@@ -153,30 +157,35 @@ public class Robot extends TimedRobot {
         if(color == DriverStation.Alliance.Blue){
         }
         String gameData = "";
-//        while (gameData.length() < 3) {
-//            sleep(10);
-//        }
-        gameData = DriverStation.getInstance().getGameSpecificMessage();
-        if (gameData.length() < 3) {
-            System.out.println("**********************  NO GAME DATA  *********************************************");
+        int station = 1;
+        char switchSide = 'L';
+        char scaleSide = 'L';
+        char farSwitchSide = 'L';
+        if (ds.isFMSAttached()) {
+            gameData = ds.getGameSpecificMessage();
+            station = ds.getLocation();
+            if (gameData.length() < 3) {
+                System.out.println("**********************  NO GAME DATA  *********************************************");
+            }
+            switchSide = gameData.charAt(0);
+            scaleSide = gameData.charAt(1);
+            farSwitchSide = gameData.charAt(2);
         }
-        char switchSide = gameData.charAt(0);
-        char scaleSide =  gameData.charAt(1);
-        char farSwitchSide = gameData.charAt(2);
         mAutonCmdGrp = new CommandGroup();
         int option = mChooser.getSelected();
-        System.out.println("AutoInit: chooser: " + option + "   -----------------------------------------------");
+        System.out.printf("AutoInit: chooser: %d   station: %d   switchSide: %s   scaleSide: %s ", option, station, switchSide, scaleSide);
 
         switch (option) {
             case 1:
-                mAutonCmdGrp.addSequential(new PF_AutoDriveStraightCmd());
+                TestSwitchRoutine test = new TestSwitchRoutine();
+                test.start();
                 break;
             case 2:
-                mAutonCmdGrp.addSequential(new PF_AutoDriveStraightBendCmd());
+                initSwitchRoutine(station, switchSide);
                 break;
-//            case 3:
-//                mAutonCmd = new Auto03();
-//                break;
+            case 3:
+                initScaleRoutine(station, scaleSide);
+                break;
 //            case 4:
 //                if ((switchSide == 'L') && (scaleSide == 'L')) {
 //                    mAutonCmd = new Auto05L();
@@ -189,12 +198,9 @@ public class Robot extends TimedRobot {
 //                }
 //                break;
             default:
-                mAutonCmdGrp.addSequential(new PF_AutoDriveStraightCmd());;
+//                mAutonCmdGrp.addSequential(new PF_AutoDriveStraightCmd());;
                 break;
         }
-        mAutonCmdGrp.start();
-
-        //initSwitchRoutine(0, switchSide);
     }
 
     public void initSwitchRoutine(int startBox, char switchSide) {
@@ -207,6 +213,19 @@ public class Robot extends TimedRobot {
             side = GoToSwitch.ALLIANCE_SIDE.RIGHT;
         }
         switchRoutine = new GoToSwitch(startBox, side);
+        switchRoutine.start();
+    }
+
+    public void initScaleRoutine(int startBox, char scaleSide) {
+        GoToScale switchRoutine;
+        GoToScale.ALLIANCE_SIDE side = null;
+
+        if (scaleSide == 'L') {
+            side = GoToScale.ALLIANCE_SIDE.LEFT;
+        } else if (scaleSide == 'R') {
+            side = GoToScale.ALLIANCE_SIDE.RIGHT;
+        }
+        switchRoutine = new GoToScale(startBox, side);
         switchRoutine.start();
     }
 

@@ -4,14 +4,14 @@ import edu.wpi.first.wpilibj.command.Command;
 import org.cdm.team6072.subsystems.IntakeMotorSys;
 
 
-public class StopIntakeWheelsCmd extends Command {
+public class IntakeRunWheelsInLoCmd extends Command {
 
-    public StopIntakeWheelsCmd() {
+    public IntakeRunWheelsInLoCmd() {
         requires(IntakeMotorSys.getInstance());
     }
 
     protected void execute() {
-        IntakeMotorSys.getInstance().stopWheels();
+        IntakeMotorSys.getInstance().runWheelsInLo();
     }
 
     @Override
