@@ -12,9 +12,9 @@ public class TestSwitchRoutine extends CommandGroup {
     }
 
     public void testSwitch() {
-        addSequential(new DriveDistCmd(1));
+        addSequential(new DriveDistCmd(4));
         addSequential(new DriveTurnYawCmd(90));
         addParallel(new PositionSwitchShooter());
-        addSequential(new DriveDistCmd(1));
+        addSequential(new DriveDistCmd(4));
     }
 }
