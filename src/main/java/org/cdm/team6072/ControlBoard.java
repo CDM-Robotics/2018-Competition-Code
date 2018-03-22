@@ -2,7 +2,9 @@ package org.cdm.team6072;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import org.cdm.team6072.commands.drive.DriveDistCmd;
 import org.cdm.team6072.commands.drive.DriveToggleGearCmd;
+import org.cdm.team6072.commands.drive.DriveTurnYawCmd;
 import org.cdm.team6072.commands.drive.TestDriveForward;
 import org.cdm.team6072.commands.elevator.*;
 import org.cdm.team6072.commands.intake.*;
@@ -151,22 +153,28 @@ public class ControlBoard {
 //        drive_buttons[ELEVATOR_MOVETO_BASE-1].whenPressed(new ElvMoveToBaseCmd(ElevatorSys.Direction.Down, 1));
 
         drive_buttons[EXTREME_BUT_7 -1] = new JoystickButton(drive_stick, EXTREME_BUT_7);     // 9
-        drive_buttons[EXTREME_BUT_7 -1].whenPressed(new ArmMoveIntake());
+        drive_buttons[EXTREME_BUT_7 -1].whenPressed(new DriveDistCmd(4));
 
         drive_buttons[EXTREME_BUT_8 -1] = new JoystickButton(drive_stick, EXTREME_BUT_8);     // 9
-        drive_buttons[EXTREME_BUT_8 -1].whenPressed(new ArmMoveShoot45());
+        drive_buttons[EXTREME_BUT_8 -1].whenPressed(new DriveTurnYawCmd(90));
 
-        drive_buttons[EXTREME_BUT_9 -1] = new JoystickButton(drive_stick, EXTREME_BUT_9);     // 9
-        drive_buttons[EXTREME_BUT_9 -1].whenPressed(new ArmMoveShoot135());
+//        drive_buttons[EXTREME_BUT_7 -1] = new JoystickButton(drive_stick, EXTREME_BUT_7);     // 9
+//        drive_buttons[EXTREME_BUT_7 -1].whenPressed(new ArmMoveIntake());
 //
-        drive_buttons[EXTREME_BUT_10 -1] = new JoystickButton(drive_stick, EXTREME_BUT_10);  // 10
-        drive_buttons[EXTREME_BUT_10 -1].whenPressed(new ElvMoveToSwitchCmd());
-
-        drive_buttons[EXTREME_BUT_11 -1] = new JoystickButton(drive_stick, EXTREME_BUT_11);  // 11
-        drive_buttons[EXTREME_BUT_11 -1].whenPressed(new ElvMoveToScaleLoCmd());
-
-        drive_buttons[EXTREME_BUT_12-1] = new JoystickButton(drive_stick, EXTREME_BUT_12);  // 12
-        drive_buttons[EXTREME_BUT_12-1].whenPressed(new ElvMoveToScaleHiCmd());
+//        drive_buttons[EXTREME_BUT_8 -1] = new JoystickButton(drive_stick, EXTREME_BUT_8);     // 9
+//        drive_buttons[EXTREME_BUT_8 -1].whenPressed(new ArmMoveShoot45());
+//
+//        drive_buttons[EXTREME_BUT_9 -1] = new JoystickButton(drive_stick, EXTREME_BUT_9);     // 9
+//        drive_buttons[EXTREME_BUT_9 -1].whenPressed(new ArmMoveShoot135());
+//
+//        drive_buttons[EXTREME_BUT_10 -1] = new JoystickButton(drive_stick, EXTREME_BUT_10);  // 10
+//        drive_buttons[EXTREME_BUT_10 -1].whenPressed(new ElvMoveToSwitchCmd());
+//
+//        drive_buttons[EXTREME_BUT_11 -1] = new JoystickButton(drive_stick, EXTREME_BUT_11);  // 11
+//        drive_buttons[EXTREME_BUT_11 -1].whenPressed(new ElvMoveToScaleLoCmd());
+//
+//        drive_buttons[EXTREME_BUT_12-1] = new JoystickButton(drive_stick, EXTREME_BUT_12);  // 12
+//        drive_buttons[EXTREME_BUT_12-1].whenPressed(new ElvMoveToScaleHiCmd());
 
 //        drive_buttons[ELEVATOR_MOVE_DELTA-1] = new JoystickButton(drive_stick, ELEVATOR_MOVE_DELTA);
 //        drive_buttons[ELEVATOR_MOVE_DELTA-1].whenPressed(new ElvMoveDeltaCmd(ElevatorSys.Direction.Up, 10, 0.5));

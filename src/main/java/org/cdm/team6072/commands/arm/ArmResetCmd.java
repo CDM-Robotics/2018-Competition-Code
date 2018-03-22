@@ -17,7 +17,7 @@ public class ArmResetCmd extends Command {
 
     @Override
     protected void execute() {
-        ArmSys.getInstance().resetStart();
+        ArmSys.getInstance().setSensorStartPosn();
     }
 
     @Override

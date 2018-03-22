@@ -58,6 +58,7 @@ public class Robot extends TimedRobot {
 
         mDriveSys.setSensorStartPosn();
         mElevatorSys.setSensorStartPosn();
+        mArmSys.setSensorStartPosn();
 
         //mPDP = new PowerDistributionPanel(RobotConfig.PDP_ID);
 
@@ -79,14 +80,18 @@ public class Robot extends TimedRobot {
     }
 
 
+    private int mDisLoopMAXcnt = 3;
+    private int mDisLoopPrintCnt=0;
     private int mDisLoopCnt = 0;
+
     public void disabledPeriodic() {
-        if (++mDisLoopCnt % (50 * 5) == 0) { // limiting the log output
-//           mDriveSys.logPosn("Robot.disabled");
+        if ((++mDisLoopCnt % (50 * 5) == 0) && (mDisLoopPrintCnt < mDisLoopMAXcnt)) { // limiting the log output
+            mDriveSys.logPosn("Rob.dis");
+            mDisLoopPrintCnt++;
 //           mElevatorSys.printPosn("Robot.disabled");
-            mArmSys.printPosn("Robot.disabled");
+//            mArmSys.printPosn("Robot.disabled");
 //            System.out.println();
-    }
+        }
     }
 
 
@@ -119,6 +124,8 @@ public class Robot extends TimedRobot {
         // must call the scheduler to run
         Scheduler.getInstance().run();
 
+        // reset the disabled loop print count to allow a few prints when disabled
+        mDisLoopPrintCnt = 0;
         // update PDP stats every half second
         if (++mTelopLoopCtr % 200 == 0) {
 //            //logNavX()

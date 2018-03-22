@@ -31,6 +31,7 @@ import org.cdm.team6072.commands.drive.TankDriveCmd;
 import org.cdm.team6072.profiles.Constants;
 import org.cdm.team6072.autonomous.MotionProfileManager;
 import org.cdm.team6072.profiles.drive.DrivetrainProfile;
+import org.opencv.core.Mat;
 
 
 /**
@@ -108,6 +109,9 @@ public class DriveSys extends Subsystem {
             initGyroPID();
             mGyroPID.setSetpoint(0);
             mGyroPID.enable();
+
+            initDrivePID();
+
             SmartDashboard.putData(mGyroPID);
         }
         catch (Exception ex) {
@@ -333,7 +337,7 @@ public class DriveSys extends Subsystem {
      * @param mag
      * @param yaw
      */
-    public void arcadeDriveStraight(double mag, double yaw) {
+    public void arcadeOperatorDriveStraight(double mag, double yaw) {
 
         boolean inDeadband = yaw <= 0.05;
         mAdsDirns[mAdsDirnsIndex] = mAhrs.getCompassHeading();
@@ -433,25 +437,138 @@ public class DriveSys extends Subsystem {
         }
     }
 
-    // move distance in feet
-    public void moveDistance(float feet) {
 
-        // wheel diameter is 6 inches (0.5 feet)
-        double targetEncoderDist = (feet/(Math.PI * 0.5)) * 4096;
+    // autonomous driving ---------------------------------------------------------------------------
 
-        double yaw = mGyroPIDOut.getVal();
+    // calculate allowed dist error in inches
+    private static final int ALLOWED_DISTERR = (int) (6 / (Math.PI * 6) * 4096);
+    private float mDistance;
 
-        double startEncoderDist = mLeft_Master.getSensorCollection().getQuadraturePosition();
-        //double rightEncoderDist = mRight_Master.getSensorCollection().getQuadraturePosition();
+    private int mStartPosn;
+    private int mTargetDist;
+    private int mTargPosn;
 
-        while (startEncoderDist < (startEncoderDist + targetEncoderDist)) {
-            System.out.println("target dist: " + targetEncoderDist + ", actual: " + startEncoderDist);
-            startEncoderDist = mLeft_Master.getSensorCollection().getQuadraturePosition();
-            this.arcadeDriveStraight(-5, 0);
-        }
+    static final double kF_drive = 2.0;
+    static final double kP_drive = 1.0;
+    static final double kI_drive = 1.0;
+    static final double kD_drive = 0.00;
 
+    /* This tuning parameter indicates how close to "on target" the    */
+    /* PID Controller will attempt to get.                             */
+
+
+    
+    private PIDController mDrivePID;
+    private PIDOutReceiver mDrivePIDOut;
+
+    private PIDSourceTalonPW mTalonPIDSource;
+
+
+    private void initDrivePID() {
+        mDrivePIDOut = new PIDOutReceiver();
+        mTalonPIDSource = new PIDSourceTalonPW(mRight_Master);
+        mDrivePID = new PIDController(kP_drive, kI_drive, kD_drive, kF_drive, mTalonPIDSource, mDrivePIDOut);
+        //mDrivePID.setInputRange(-180.0f,  180.0f);
+        mDrivePID.setOutputRange(-0.8, 0.8);
+        // Makes PIDController.onTarget() return True when PIDInput is within the Setpoint +/- the absolute tolerance.
+        mDrivePID.setAbsoluteTolerance(ALLOWED_DISTERR);
+        // Treats the input ranges as the same, continuous point rather than two boundaries, so it can calculate shorter routes.
+        // For example, in a Drive, 0 and 360 are the same point, and should be continuous. Needs setInputRanges.
+        mDrivePID.setContinuous(false);
+        mDrivePID.setName("DriveSys.DrivePID");
+        System.out.println("DriveSys.initDrivePID:  ");
     }
 
+
+    // move distance in feet
+    // wheel diameter is 6 inches (0.5 feet), so one rev = PI * 0.5 feet
+    // distance to go in encoder ticks
+    public void startMoveDistance(float distInFeet) {
+        mTargetDist = (int) ((distInFeet / (Math.PI * 0.5)) * 4096);
+        double dist = ((distInFeet / (Math.PI * 0.5)) * 4096);
+        System.out.printf("DS.startMoveDist: distInFeet: %.3f   mTargdist:  %d   floatDist: %.3f  \r\n", distInFeet, mTargetDist, dist);
+        mStartPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
+        mTargPosn = mStartPosn + mTargetDist;
+        mHitTarg = false;
+        mMoveDistLoopCnt = 0;
+        mLastErr = 99999999;
+        mDrivePID.setSetpoint(mTargPosn);
+        mDrivePID.enable();
+    }
+
+
+    // set this true when get within ERR of target, to prevent further driving
+    private boolean mHitTarg = false;
+
+    private int mLastErr;
+
+    private int mMoveDistLoopCnt;
+
+    /**
+     * Called by the command exec loop
+     * Stop if with error bound of taarget, OR if error is growing - we went past target
+     */
+    public void moveDistanceExec() {
+
+        int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
+        int curErr = Math.abs(mTargPosn - curPosn);
+        mHitTarg = (curErr < ALLOWED_DISTERR) || curErr > mLastErr;
+        double yaw = mGyroPIDOut.getVal();
+        if (mMoveDistLoopCnt++ % 5 == 0) {
+            System.out.printf("DS.moveDistExec: start: %d   cur: %d   targ: %d   yaw: %.3f  curErr: %d  lastErr: %d  \r\n", mStartPosn, curPosn, mTargPosn, yaw, curErr, mLastErr);
+        }
+        mLastErr = curErr;
+        if (!mHitTarg) {
+            mRoboDrive.arcadeDrive(-0.5, yaw, false);
+        } else {
+            mRoboDrive.arcadeDrive(-0.0, 0, false);
+            System.out.printf("DS.moveDistExec: start: %d   cur: %d   targ: %d   yaw: %.3f  curErr: %d  lastErr: %d  ------------\r\n", mStartPosn, curPosn, mTargPosn, yaw, curErr, mLastErr);
+        }
+    }
+
+    public void moveDistancePIDExec() {
+        int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
+        double mag = mDrivePIDOut.getVal();
+        double yaw = mGyroPIDOut.getVal();
+        if (mMoveDistLoopCnt++ % 5 == 0) {
+            System.out.printf("DS.moveDistPIDExec: start: %d   cur: %d   targ: %d   mag: %.3f  yaw: %.3f  \r\n", mStartPosn, curPosn, mTargPosn, mag, yaw);
+        }
+        mRoboDrive.arcadeDrive(-mag, yaw, false);
+        mHitTarg = mDrivePID.onTarget();
+    }
+
+    public boolean moveDistComplete() {
+        if (mHitTarg) {
+            int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
+            int dist = curPosn - mStartPosn;
+            double distRevs = dist / 4096;
+            double distFeet = distRevs * 1.5708;
+            double distErr = dist / mTargetDist;
+            System.out.printf("DS.moveDistExec: start: %d   cur: %d   targ: %d   lastErr: %d  distEnc: %d   distRevs: %.3f  distFeet: %.3f   distErr: %.2f\r\n",
+                    mStartPosn, curPosn, mTargPosn, mLastErr, dist, distRevs, distFeet, distErr) ;
+        }
+        return mHitTarg;
+    }
+
+
+
+    private int mTurnYaw;
+
+    public void initTurnYaw(int yaw) {
+            mTurnYaw = yaw;
+            mGyroPID.setSetpoint(yaw);
+            mGyroPID.enable();
+    }
+
+
+    public void turnYawExec() {
+        double val = mGyroPIDOut.getVal();
+        mRoboDrive.arcadeDrive(-0, val, false);
+    }
+
+    public boolean turnYawComplete() {
+        return mGyroPID.onTarget();
+    }
 
 
 
