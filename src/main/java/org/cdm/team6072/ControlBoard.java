@@ -159,13 +159,13 @@ public class ControlBoard {
         drive_buttons[EXTREME_BUT_8 -1].whenPressed(new DriveTurnYawCmd(90));
 
 //        drive_buttons[EXTREME_BUT_7 -1] = new JoystickButton(drive_stick, EXTREME_BUT_7);     // 9
-//        drive_buttons[EXTREME_BUT_7 -1].whenPressed(new ArmMoveIntake());
+//        drive_buttons[EXTREME_BUT_7 -1].whenPressed(new ArmMoveToIntake());
 //
 //        drive_buttons[EXTREME_BUT_8 -1] = new JoystickButton(drive_stick, EXTREME_BUT_8);     // 9
-//        drive_buttons[EXTREME_BUT_8 -1].whenPressed(new ArmMoveShoot45());
+//        drive_buttons[EXTREME_BUT_8 -1].whenPressed(new ArmMoveTo45());
 //
 //        drive_buttons[EXTREME_BUT_9 -1] = new JoystickButton(drive_stick, EXTREME_BUT_9);     // 9
-//        drive_buttons[EXTREME_BUT_9 -1].whenPressed(new ArmMoveShoot135());
+//        drive_buttons[EXTREME_BUT_9 -1].whenPressed(new ArmMoveTo135());
 //
 //        drive_buttons[EXTREME_BUT_10 -1] = new JoystickButton(drive_stick, EXTREME_BUT_10);  // 10
 //        drive_buttons[EXTREME_BUT_10 -1].whenPressed(new ElvMoveToSwitchCmd());

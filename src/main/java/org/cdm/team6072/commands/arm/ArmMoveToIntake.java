@@ -3,14 +3,14 @@ package org.cdm.team6072.commands.arm;
 import edu.wpi.first.wpilibj.command.Command;
 import org.cdm.team6072.subsystems.ArmSys;
 
-public class ArmMoveIntake   extends Command {
+public class ArmMoveToIntake extends Command {
 
 
     private ArmSys mArmSys;
 
 
-    public ArmMoveIntake() {
-        System.out.println("ArmMoveIntake: ");
+    public ArmMoveToIntake() {
+        System.out.println("ArmMoveToIntake: ");
         requires(ArmSys.getInstance());
         mArmSys = ArmSys.getInstance();
     }
