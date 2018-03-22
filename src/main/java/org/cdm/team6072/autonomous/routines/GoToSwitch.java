@@ -1,12 +1,20 @@
 package org.cdm.team6072.autonomous.routines;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
+import org.cdm.team6072.autonomous.routines.subroutines.PositionSwitchShooter;
 import org.cdm.team6072.commands.drive.DriveDistCmd;
 import org.cdm.team6072.commands.drive.DriveTurnYawCmd;
 import org.cdm.team6072.commands.elevator.ElvMoveToSwitchCmd;
 import org.cdm.team6072.subsystems.DriveSys;
 
 public class GoToSwitch extends CommandGroup {
+
+    // Field Layout
+    // ------------------------              --------------------- \\
+    // -    1        L                L                  1  -      \\
+    // -    2     (switch)         (scale)               2  -      \\
+    // -    3        R                R                  3  -      \\
+    // -----------------------               --------------------- \\
 
     public static enum ALLIANCE_SIDE {
         LEFT, RIGHT
@@ -47,7 +55,7 @@ public class GoToSwitch extends CommandGroup {
     private void goFromPosThreeToRight() {
         addSequential(new DriveDistCmd(12));
         addSequential(new DriveTurnYawCmd(-90));
-        addParallel(new ElvMoveToSwitchCmd());
+        addParallel(new PositionSwitchShooter());
         addSequential(new DriveDistCmd((float)2.95));
     }
 
@@ -57,7 +65,7 @@ public class GoToSwitch extends CommandGroup {
         addSequential(new DriveTurnYawCmd(90));
         addSequential(new DriveDistCmd((float)5.7));
         addSequential(new DriveTurnYawCmd(-90));
-        addParallel(new ElvMoveToSwitchCmd());
+        addParallel(new PositionSwitchShooter());
         addSequential(new DriveDistCmd(midChannelToSwitchDist));
     }
 
@@ -66,7 +74,7 @@ public class GoToSwitch extends CommandGroup {
         addSequential(new DriveTurnYawCmd(90));
         addSequential(new DriveDistCmd((float)10.5));
         addSequential(new DriveTurnYawCmd(-90));
-        addParallel(new ElvMoveToSwitchCmd());
+        addParallel(new PositionSwitchShooter());
         addSequential(new DriveDistCmd(midChannelToSwitchDist));
     }
 
@@ -75,7 +83,7 @@ public class GoToSwitch extends CommandGroup {
         addSequential(new DriveTurnYawCmd(-90));
         addSequential(new DriveDistCmd((float)10.5));
         addSequential(new DriveTurnYawCmd(90));
-        addParallel(new ElvMoveToSwitchCmd());
+        addParallel(new PositionSwitchShooter());
         addSequential(new DriveDistCmd(midChannelToSwitchDist));
     }
 
@@ -84,21 +92,21 @@ public class GoToSwitch extends CommandGroup {
         addSequential(new DriveTurnYawCmd(-90));
         addSequential(new DriveDistCmd((float)5.7));
         addSequential(new DriveTurnYawCmd(90));
-        addParallel(new ElvMoveToSwitchCmd());
+        addParallel(new PositionSwitchShooter());
         addSequential(new DriveDistCmd(midChannelToSwitchDist));
     }
 
     private void goFromPosOnetoLeft() {
         addSequential(new DriveDistCmd(12));
         addSequential(new DriveTurnYawCmd(90));
-        addParallel(new ElvMoveToSwitchCmd());
+        addParallel(new PositionSwitchShooter());
         addSequential(new DriveDistCmd((float)2.95));
     }
 
     public void testSwitch() {
         addSequential(new DriveDistCmd(1));
         addSequential(new DriveTurnYawCmd(90));
-        addParallel(new ElvMoveToSwitchCmd());
+        addParallel(new PositionSwitchShooter());
         addSequential(new DriveDistCmd(1));
     }
 }
