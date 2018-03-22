@@ -29,10 +29,6 @@ public class ArmSys extends Subsystem {
         Down
     }
 
-    private static boolean TALON_INVERTED_UP = true;
-    private static boolean TALON_INVERTED_DOWN = false;
-
-
 
     // start position is with cube loaded and arm folded all in
     private static int POSN_START = 1234;
@@ -72,6 +68,10 @@ public class ArmSys extends Subsystem {
     //  The sensor position must move in a positive direction as the motor controller drives positive output (and LEDs are green)
     //      true inverts the sensor
     private static final boolean TALON_SENSOR_PHASE = false;
+
+    private static final int TALON_FORWARD_LIMIT = -1;
+
+    private static final int TALON_REVERSE_LIMIT = -1;
 
     /*
      * set the allowable closed-loop error, Closed-Loop output will be
@@ -135,6 +135,11 @@ public class ArmSys extends Subsystem {
 
             mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, kPIDLoopIdx, kTimeoutMs);
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
+
+            mTalon.configForwardSoftLimitThreshold(TALON_FORWARD_LIMIT, kTimeoutMs);
+            mTalon.configForwardSoftLimitEnable(false, kTimeoutMs);
+            mTalon.configReverseSoftLimitThreshold(TALON_REVERSE_LIMIT, kTimeoutMs);
+            mTalon.configReverseSoftLimitEnable(false, kTimeoutMs);
 
             mTalon.configOpenloopRamp(0.1, 10);
 

@@ -90,10 +90,10 @@ public class Robot extends TimedRobot {
     public void disabledPeriodic() {
         if ((++mDisLoopCnt % (50 * 5) == 0) && (mDisLoopPrintCnt < mDisLoopMAXcnt)) { // limiting the log output
             mDriveSys.logPosn("Rob.dis");
-            mDisLoopPrintCnt++;
-//           mElevatorSys.printPosn("Robot.disabled");
-//            mArmSys.printPosn("Robot.disabled");
+//            mElevatorSys.printPosn("Rob.dis");
+//            mArmSys.printPosn("Rob.dis");
 //            System.out.println();
+            mDisLoopPrintCnt++;
         }
     }
 

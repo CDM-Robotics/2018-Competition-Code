@@ -84,6 +84,10 @@ public class ElevatorSys extends Subsystem {
     //      true inverts the sensor
     private static final boolean TALON_SENSOR_PHASE = true;
 
+    private static final int TALON_FORWARD_LIMIT = -1;
+
+    private static final int TALON_REVERSE_LIMIT = -1;
+
     /*
      * set the allowable closed-loop error, Closed-Loop output will be
      * neutral within this range. See Table in Section 17.2.1 for native units per rotation.
@@ -173,6 +177,11 @@ public class ElevatorSys extends Subsystem {
             mTalon.setInverted(TALON_INVERT);
             mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
+
+            mTalon.configForwardSoftLimitThreshold(TALON_FORWARD_LIMIT, kTimeoutMs);
+            mTalon.configForwardSoftLimitEnable(false, kTimeoutMs);
+            mTalon.configReverseSoftLimitThreshold(TALON_REVERSE_LIMIT, kTimeoutMs);
+            mTalon.configReverseSoftLimitEnable(false, kTimeoutMs);
 
             mTalon.configOpenloopRamp(0.1, kTimeoutMs);
             mTalon.setNeutralMode(NeutralMode.Brake);
