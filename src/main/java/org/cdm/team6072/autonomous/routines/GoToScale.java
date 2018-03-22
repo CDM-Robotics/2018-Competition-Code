@@ -2,6 +2,7 @@ package org.cdm.team6072.autonomous.routines;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import org.cdm.team6072.commands.drive.DriveDistCmd;
+import org.cdm.team6072.commands.elevator.ElvMoveToScaleHiCmd;
 
 public class GoToScale extends CommandGroup {
 
@@ -19,10 +20,15 @@ public class GoToScale extends CommandGroup {
     }
 
     private void goFromPosOneToLeft() {
-        addSequential(new DriveDistCmd(25));
+        addSequential(new DriveDistCmd(20));
+        addSequential(new DriveDistCmd(5));
+        addParallel(new ElvMoveToScaleHiCmd());
+
     }
 
     private void goFromPosThreeToRight() {
-        addSequential(new DriveDistCmd(25));
+        addSequential(new DriveDistCmd(20));
+        addSequential(new DriveDistCmd(5));
+        addParallel(new ElvMoveToScaleHiCmd());
     }
 }
