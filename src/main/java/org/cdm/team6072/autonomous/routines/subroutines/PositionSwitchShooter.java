@@ -10,7 +10,7 @@ public class PositionSwitchShooter extends CommandGroup {
     public PositionSwitchShooter() {
         addSequential(new CloseIntakeHiCmd());
         addParallel(new ElvMoveToSwitchCmd());
-        addParallel(new ArmMoveTo45());
+        //addParallel(new ArmMoveTo45());
     }
 
 

@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.cdm.team6072.RobotConfig;
 import org.cdm.team6072.profiles.MotionProfileController;
 import org.cdm.team6072.profiles.PIDConfig;
+import org.omg.IOP.TAG_MULTIPLE_COMPONENTS;
 import util.CrashTracker;
 
 /**
@@ -295,14 +296,14 @@ public class ArmSys extends Subsystem {
     public void stopping() {
         double output = mTalon.getMotorOutputPercent();
         double outVolts = mTalon.getMotorOutputVoltage();
-        System.out.printf("ElvSys.stopping:  output%%: %.2f    volts: %.3f  \r\n");
+        System.out.printf("ElvSys.stopping:  output%%: %.2f    volts: %.3f  \r\n", output, outVolts);
     }
 
     public boolean stopComplete() {
 
         double output = mTalon.getMotorOutputPercent();
         if (output < 0.1) {
-            System.out.printf("ElvSys.stopComplete:  output%%: %.2f    \r\n");
+            System.out.printf("ElvSys.stopComplete:  output%%: %.2f    \r\n", output);
             holdPosn();
             return true;
         }
@@ -381,7 +382,7 @@ public class ArmSys extends Subsystem {
      * @return the current absolute position - pulsewidth
      */
     private int getCurPosn() {
-        return mTalon.getSelectedSensorPosition(0);
+        return mTalon.getSensorCollection().getPulseWidthPosition();
     }
 
 
@@ -423,6 +424,7 @@ public class ArmSys extends Subsystem {
 
         mTalon.selectProfileSlot(kPIDSlot_Move,0);
         mCalcTarg = mPosn_START + targPosnDelta;
+//        mCalcTarg = mPosn_START + targPosnDelta - getCurPosn();
         mMMStartPosn = getCurPosn();
         System.out.println("ArmSys.moveToTarget:  mPosn_START: " + mPosn_START + "  delta: " + targPosnDelta  + "  calcTarg: " + mCalcTarg+ "  curPosn: " + getCurPosn());
         mMMStarted = false;
@@ -475,6 +477,7 @@ public class ArmSys extends Subsystem {
 
     // use a PW delta from START posn to get target
     public void startMoveTarget(int targPosnDelta) {
+        mHitTarg = false;
         mCalcTarg = mPosn_START + targPosnDelta;
         double curPosn = getCurPosn();
         if (mCalcTarg > curPosn) {
@@ -495,7 +498,7 @@ public class ArmSys extends Subsystem {
      * Called by the command exec loop
      * Stop if with error bound of target, OR if error is growing - we went past target
      */
-    public void moveTargetExec() {
+    public boolean moveTargetExec() {
 
         int curPosn = mTalon.getSensorCollection().getPulseWidthPosition();
         int curErr = Math.abs(mTargPosn - curPosn);
@@ -514,7 +517,10 @@ public class ArmSys extends Subsystem {
                 mTalon.set(ControlMode.PercentOutput, mMotorDirn * 0.3);
             }
         }
+        return mHitTarg;
     }
+
+
 
 
 
