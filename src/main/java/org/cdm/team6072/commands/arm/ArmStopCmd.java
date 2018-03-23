@@ -6,23 +6,34 @@ import org.cdm.team6072.subsystems.ArmSys;
 public class ArmStopCmd extends Command {
 
 
+    private ArmSys mArmSys;
+
     /**
      * If StopElevatorCmd is called when MoveElevatorCmd is running, it will cause an interrupt
      * on move which will cause it to stop anyway
      */
     public ArmStopCmd() {
         requires(ArmSys.getInstance());
+        mArmSys = ArmSys.getInstance();
     }
 
-    protected void execute() {
-//        System.out.println("ArmStopCmd: ---------------------------------------");
-        ArmSys.getInstance().stop();
-//        System.out.println("ArmStopCmd end: ---------------------------------------");
+
+    @Override
+    protected void initialize() {
+        System.out.println("StopArmCmd:  ------------");
+        mArmSys.initStop();
     }
+
+
+    @Override
+    protected void execute() {
+        mArmSys.getInstance().stopping();
+    }
+
 
     @Override
     protected boolean isFinished() {
-        return ArmSys.getInstance().stopComplete();
+        return mArmSys.stopComplete();
     }
 
 

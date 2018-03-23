@@ -6,7 +6,7 @@ import util.CrashTracker;
 
 
 
-public class ElvMoveToBaseCmd extends Command {
+public class ElvMoveToIntakeCmd extends Command {
 
 
     private ElevatorSys.Direction mDirection;
@@ -16,8 +16,8 @@ public class ElvMoveToBaseCmd extends Command {
     private ElevatorSys mElevatorSys;
 
 
-    public ElvMoveToBaseCmd() {
-        CrashTracker.logMessage("ElvMoveToBaseCmd  -------------");
+    public ElvMoveToIntakeCmd() {
+        CrashTracker.logMessage("ElvMoveToIntakeCmd  -------------");
         requires(ElevatorSys.getInstance());
         mElevatorSys = ElevatorSys.getInstance();
     }
@@ -25,7 +25,7 @@ public class ElvMoveToBaseCmd extends Command {
     @Override
     protected void initialize() {
         // actually start the move here
-        mElevatorSys.moveToBase();
+        mElevatorSys.moveToIntake();
     }
 
     @Override
@@ -36,7 +36,7 @@ public class ElvMoveToBaseCmd extends Command {
 
     @Override
     protected boolean isFinished() {
-        return mElevatorSys.moveToBaseComplete();
+        return mElevatorSys.moveToIntakeComplete();
     }
 
 

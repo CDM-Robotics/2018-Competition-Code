@@ -77,6 +77,7 @@ public class DriveSys extends Subsystem {
 
         try {
             mLeft_Master = new WPI_TalonSRX(RobotConfig.DRIVE_LEFT_MASTER);
+            mLeft_Master.setSafetyEnabled(false);
             mLeft_Master.configOpenloopRamp(0.1 , 10);
             mLeft_Master.setNeutralMode(NeutralMode.Brake);
             mLeft_Master.setSensorPhase(true);
@@ -86,6 +87,7 @@ public class DriveSys extends Subsystem {
             mLeft_Slave0.setInverted(false);
 
             mRight_Master = new WPI_TalonSRX(RobotConfig.DRIVE_RIGHT_MASTER);
+            mRight_Master.setSafetyEnabled(false);
             mRight_Master.configOpenloopRamp(0.1, 10);
             mRight_Master.setNeutralMode(NeutralMode.Brake);
 
@@ -265,7 +267,7 @@ public class DriveSys extends Subsystem {
     private int mLoopCnt = 0;
     public void arcadeDrive(double mag, double yaw) {
         yaw = yaw * 0.8;        // reduce sensitivity on turn
-        mRoboDrive.arcadeDrive(mag, yaw, true);
+        mRoboDrive.arcadeDrive(-mag, yaw, true);
         if (mLoopCnt++ % 10 == 0) {
 //            logPosn("DrvSys.arcadedrv");
 //           System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw  );

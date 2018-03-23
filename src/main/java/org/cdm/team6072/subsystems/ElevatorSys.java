@@ -15,7 +15,6 @@ import org.cdm.team6072.RobotConfig;
 import org.cdm.team6072.profiles.IMotionProfile;
 import org.cdm.team6072.profiles.MotionProfileController;
 import org.cdm.team6072.profiles.PIDConfig;
-import org.opencv.core.Mat;
 import util.CrashTracker;
 
 
@@ -39,10 +38,10 @@ public class ElevatorSys extends Subsystem {
 
     // scale height in native units from nominal base posn
     // the arm assy is on a 2:1 gearing from the drive motor
-    private static int BASE_POSN = 1 * kUnitsPerInch;
-    private static int SWITCH_POSN_UNITS = 27 * kUnitsPerInch / 2;
+    private static int INTAKE_POSN = 3 * kUnitsPerInch / 2;
+    private static int SWITCH_POSN_UNITS = 35 * kUnitsPerInch / 2;
     private static int SCALELO_POSN_UNITS = 70 * kUnitsPerInch / 2;
-    private static int SCALEHI_POSN_UNITS = 80 * kUnitsPerInch / 2;
+    private static int SCALEHI_POSN_UNITS = 100 * kUnitsPerInch / 2;
 
 
 
@@ -183,7 +182,7 @@ public class ElevatorSys extends Subsystem {
             mTalon.configReverseSoftLimitThreshold(TALON_REVERSE_LIMIT, kTimeoutMs);
             mTalon.configReverseSoftLimitEnable(false, kTimeoutMs);
 
-            mTalon.configOpenloopRamp(0.1, kTimeoutMs);
+            mTalon.configOpenloopRamp(0.5, kTimeoutMs);
             mTalon.setNeutralMode(NeutralMode.Brake);
 
             // see setup for motion magic in s/w manual 12.6
@@ -208,13 +207,19 @@ public class ElevatorSys extends Subsystem {
             //mTalon.configClosedloopRamp(0.1, kTimeoutMs);
 
             // bot to top 29000 in 1 sec = 2900 ticks per 100 ms
-            mTalon.configMotionCruiseVelocity(2900, kTimeoutMs);
-            mTalon.configMotionAcceleration(2000, kTimeoutMs);
+            mTalon.configMotionCruiseVelocity(3500, kTimeoutMs);        // 2900
+            mTalon.configMotionAcceleration(2500, kTimeoutMs);      // 2000
             mTalon.configAllowableClosedloopError(kPIDSlot_Move, TALON_ALLOWED_CLOSELOOP_ERROR, kTimeoutMs);
 
+            // P gain is specified in motor output unit per error unit.
+            //      For example, a value of 102 is ~9.97% (which is 102/1023) motor output per 1 unit of Closed-Loop Error.
+            // I gain is specified in motor output unit per integrated error.
+            //      For example, a value of 10 equates to ~0.97% for each accumulated error (Integral Accumulator).
+            //      Integral accumulation is done every 1ms.
+
             // init PID for moving
-            mTalon.config_kF(kPIDSlot_Move, 0.4429, kTimeoutMs);
-            mTalon.config_kP(kPIDSlot_Move, 0.14, kTimeoutMs);
+            mTalon.config_kF(kPIDSlot_Move, .4429, kTimeoutMs);        // 0.4429
+            mTalon.config_kP(kPIDSlot_Move, 0.14, kTimeoutMs);      // 0.14
             mTalon.config_kI(kPIDSlot_Move, 0.0, kTimeoutMs);
             mTalon.config_kD(kPIDSlot_Move, 0.0, kTimeoutMs);
 
@@ -235,6 +240,14 @@ public class ElevatorSys extends Subsystem {
         } catch (Exception ex) {
             System.out.println("************************** ElevatorSys.ctor Ex: " + ex.getMessage());
         }
+    }
+
+
+    /**
+     * Ensure we are not in MotionMagic or PositionHold mode
+     */
+    public void resetTalon() {
+        mTalon.set(ControlMode.PercentOutput, 0);
     }
 
 
@@ -364,7 +377,7 @@ public class ElevatorSys extends Subsystem {
     public void move(Direction dir, double speed) {
         if (topSwitchSet() || botSwitchSet()) {
             System.out.println("*****************  ElvSys.move:  switch hit:  top:" + mTopCounter.get() + "  bot: " + mBotCounter.get());
-            stop();
+            mTalon.set(ControlMode.PercentOutput, 0);;
             return;
         }
         if (dir == Direction.Down) {
@@ -376,14 +389,28 @@ public class ElevatorSys extends Subsystem {
         }
     }
 
-    /**
-     * Stop movement and move to closed loop position hold
-     */
-    public void stop() {
-//        mTalon.set(ControlMode.PercentOutput, 0);
-        holdPosn();
+
+    public void initStop() {
+        mTalon.set(ControlMode.PercentOutput, 0);
     }
 
+
+    public void stopping() {
+        double output = mTalon.getMotorOutputPercent();
+        double outVolts = mTalon.getMotorOutputVoltage();
+        System.out.printf("ElvSys.stopping:  output%%: %.2f    volts: %.3f  \r\n");
+    }
+
+    public boolean stopComplete() {
+
+        double output = mTalon.getMotorOutputPercent();
+        if (output < 0.1) {
+            System.out.printf("ElvSys.stopComplete:  output%%: %.2f    \r\n");
+            holdPosn();
+            return true;
+        }
+        return false;
+    }
 
     private TalonWatchdog mWatchdog;
 
@@ -433,10 +460,10 @@ public class ElevatorSys extends Subsystem {
     /**
      * Move to the scale height from whatever our current position is
      */
-    public void moveToBase() {
-        moveToTarget(BASE_POSN);
+    public void moveToIntake() {
+        moveToTarget(INTAKE_POSN);
     }
-    public boolean moveToBaseComplete() {
+    public boolean moveToIntakeComplete() {
         return moveToTargetComplete();
     }
 

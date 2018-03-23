@@ -31,13 +31,22 @@ public class ArmSys extends Subsystem {
 
 
     // start position is with cube loaded and arm folded all in
-    private static int POSN_START = 1234;
+    //private static int POSN_START = -1180;
+
+    // measure PW posn at power up - assume we are in the start posn
+    private int mPosn_START;
 
     // intake position
+
+    private static int POSN_INTAKE = 2690;
+    private static int POSN_SHOOT45 = 1473;
+    private static int POSN_SHOOT135 = -400;
+
     // positions are sensor units to move a given angle from START position
-    private static int POSN_INTAKE = 6600;
-    private static int POSN_SHOOT45 = 5650;
-    private static int POSN_SHOOT135 = 3660;
+    private static int POSN_START_DELTA = 0;
+    private static int POSN_INTAKE_DELTA = 3900;
+    private static int POSN_SHOOT45_DELTA = 2800;
+    private static int POSN_SHOOT135_DELTA = 950;
 
 
     /**
@@ -69,9 +78,11 @@ public class ArmSys extends Subsystem {
     //      true inverts the sensor
     private static final boolean TALON_SENSOR_PHASE = false;
 
-    private static final int TALON_FORWARD_LIMIT = -1;
+    private static final int TALON_FORWARD_LIMIT = 1000;
 
-    private static final int TALON_REVERSE_LIMIT = -1;
+    private static final int TALON_REVERSE_LIMIT = 0;
+
+    private static final boolean TALON_ENABLE_SOFT_LIMIT = false;
 
     /*
      * set the allowable closed-loop error, Closed-Loop output will be
@@ -98,8 +109,6 @@ public class ArmSys extends Subsystem {
     private Counter mTopCounter;
     private DigitalInput mBotSwitch;
     private Counter mBotCounter;
-
-    private int mBasePosn;
 
 
     private static ArmSys mInstance = null;
@@ -137,9 +146,9 @@ public class ArmSys extends Subsystem {
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
 
             mTalon.configForwardSoftLimitThreshold(TALON_FORWARD_LIMIT, kTimeoutMs);
-            mTalon.configForwardSoftLimitEnable(false, kTimeoutMs);
+            mTalon.configForwardSoftLimitEnable(TALON_ENABLE_SOFT_LIMIT, kTimeoutMs);
             mTalon.configReverseSoftLimitThreshold(TALON_REVERSE_LIMIT, kTimeoutMs);
-            mTalon.configReverseSoftLimitEnable(false, kTimeoutMs);
+            mTalon.configReverseSoftLimitEnable(TALON_ENABLE_SOFT_LIMIT, kTimeoutMs);
 
             mTalon.configOpenloopRamp(0.1, 10);
 
@@ -151,8 +160,8 @@ public class ArmSys extends Subsystem {
 
             // set acceleration and cruise velocity - see documentation
             // measured velocity 300 units / 100 mSec
-            mTalon.configMotionCruiseVelocity(300, kTimeoutMs);
-            mTalon.configMotionAcceleration(3000, kTimeoutMs);
+            mTalon.configMotionCruiseVelocity(150, kTimeoutMs);
+            mTalon.configMotionAcceleration(1000, kTimeoutMs);
             /*
              * set the allowable closed-loop error, Closed-Loop output will be
              * neutral within this range. See Table in Section 17.2.1 for native units per rotation.
@@ -180,14 +189,26 @@ public class ArmSys extends Subsystem {
         }
     }
 
+    /**
+     * Ensure we are not in MotionMagic or PositionHold mode
+     */
+    public void resetTalon() {
+        mTalon.set(ControlMode.PercentOutput, 0);
+    }
+
+
+    @Override
+    public void initDefaultCommand() {
+    }
+
 
 
     //  grab the 360 degree position of the MagEncoder's absolute position, and set the relative sensor to match.
     // should only be called on robot.init
     public void setSensorStartPosn() {
         mTalon.getSensorCollection().setPulseWidthPosition(0, kTimeoutMs);
-        mBasePosn = mTalon.getSensorCollection().getPulseWidthPosition();
-        int absolutePosition = mBasePosn;
+        mPosn_START = mTalon.getSensorCollection().getPulseWidthPosition();
+        int absolutePosition = mPosn_START;
         /* mask out overflows, keep bottom 12 bits */
         absolutePosition &= 0xFFF;
         if (TALON_SENSOR_PHASE)
@@ -218,14 +239,10 @@ public class ArmSys extends Subsystem {
     }
 
 
-    @Override
-    public void initDefaultCommand() {
-
-    }
-
-
     private int mCounter = 0;
 
+
+    // manual move -----------------------------------------------------------------------
 
     public void initForMove() {
         mCounter = 0;
@@ -241,7 +258,7 @@ public class ArmSys extends Subsystem {
     public void move(ArmSys.Direction dir, double speed) {
         if (topSwitchSet() || botSwitchSet()) {
             System.out.println("*****************  ArmSys.move:  switch hit  top:" + mTopCounter.get() + "  bot: " + mBotCounter.get());
-            stop();
+            mTalon.set(ControlMode.PercentOutput, 0);
             return;
         }
         if (dir == Direction.Down) {
@@ -252,6 +269,9 @@ public class ArmSys extends Subsystem {
             printPosn("move");
         }
     }
+
+
+    // manual stop -----------------------------------------------------
 
     private enum StopMode {
         Moving,
@@ -264,10 +284,53 @@ public class ArmSys extends Subsystem {
     private double mLastError = 0;
     private int mStopCallCount = 0;
 
+
     /**
-     * Stop movement and move to closed loop position hold
+     * Start the stop process, at end move to closed loop position hold
      */
-    public void stop() {
+    public void initStop() {
+        mTalon.set(ControlMode.PercentOutput, 0);
+    }
+
+    public void stopping() {
+        double output = mTalon.getMotorOutputPercent();
+        double outVolts = mTalon.getMotorOutputVoltage();
+        System.out.printf("ElvSys.stopping:  output%%: %.2f    volts: %.3f  \r\n");
+    }
+
+    public boolean stopComplete() {
+
+        double output = mTalon.getMotorOutputPercent();
+        if (output < 0.1) {
+            System.out.printf("ElvSys.stopComplete:  output%%: %.2f    \r\n");
+            holdPosn();
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * Switch to using closed loop position hold at current position
+     */
+    private void holdPosn() {
+        // select the hold PID slot
+        mTalon.selectProfileSlot(kPIDSlot_Hold, 0);
+
+        double curPosn = mTalon.getSelectedSensorPosition(0);
+        //double curPosn = mTalon.getSensorCollection().getPulseWidthPosition();
+        printPosn("holdPosn");
+        int loopCnt = 0;
+        mTalon.set(ControlMode.Position, curPosn);
+//        if (mWatchdog != null) {
+//            // cancel the existing watchdog, set a new one
+//            mWatchdog.Cancel();
+//        }
+        //mWatchdog = TalonWatchdog.SetWatchdog(mTalon, 3, kPIDLoopIdx, TALON_ALLOWED_CLOSELOOP_ERROR + 50);
+    }
+
+
+    public void xxstopping() {
         boolean finished;
         double curPosn;
 
@@ -304,7 +367,7 @@ public class ArmSys extends Subsystem {
         }
     }
 
-    public boolean stopComplete() {
+    public boolean xxstopComplete() {
         return mStopMode == StopMode.StopComplete;
     }
 
@@ -323,28 +386,28 @@ public class ArmSys extends Subsystem {
 
 
     public void moveToStart() {
-        moveToTarget(POSN_START);
+        moveToTarget(POSN_START_DELTA);
     }
     public boolean moveToStartComplete() {
         return moveToTargetComplete();
     }
 
     public void moveToIntake() {
-        moveToTarget(POSN_INTAKE);
+        moveToTarget(POSN_INTAKE_DELTA);
     }
     public boolean moveToIntakeComplete() {
         return moveToTargetComplete();
     }
 
     public void moveToShoot45() {
-        moveToTarget(POSN_SHOOT45);
+        moveToTarget(POSN_SHOOT45_DELTA);
     }
     public boolean moveToShoot45Complete() {
         return moveToTargetComplete();
     }
 
     public void moveToShoot135() {
-        moveToTarget(POSN_SHOOT135);
+        moveToTarget(POSN_SHOOT135_DELTA);
     }
     public boolean moveToShoot135Complete() {
         return moveToTargetComplete();
@@ -352,70 +415,24 @@ public class ArmSys extends Subsystem {
 
 
     private int mCalcTarg;
+    private boolean mMMStarted;
+    private int mLoopCtr = 0;
 
-    private void moveToTarget(int targPosn) {
+    private void moveToTarget(int targPosnDelta) {
         Direction dir;
 
         mTalon.selectProfileSlot(kPIDSlot_Move,0);
-        mCalcTarg = targPosn;// - mBasePosn;
-//        int distToMove = targPosn - getCurPosn();
-//        if (distToMove >= 0) {
-//            dir = Direction.Up;
-//        }
-//        else {
-//            dir = Direction.Down;
-//        }
-        System.out.println("ArmSys.moveToTarget:  mBasePosn: " + mBasePosn + "  targPosn: " + targPosn  + "  calcTarg: " + mCalcTarg+ "  curPosn: " + getCurPosn());
-        initForMagicMove();
-        magicMove(Math.abs(targPosn));
+        mCalcTarg = mPosn_START + targPosnDelta;
+        mMMStartPosn = getCurPosn();
+        System.out.println("ArmSys.moveToTarget:  mPosn_START: " + mPosn_START + "  delta: " + targPosnDelta  + "  calcTarg: " + mCalcTarg+ "  curPosn: " + getCurPosn());
+        mMMStarted = false;
+        mLoopCtr = 0;
+        mTalon.set(ControlMode.MotionMagic, mCalcTarg);
+        mMMStarted = true;
     }
 
 
     public boolean moveToTargetComplete() {
-        return magicMoveComplete();
-    }
-
-
-    private boolean mMMStarted;
-
-    /**
-     * Measured max vel was 1180 native units per 100 mSec
-     *  kF = 1023 / 1180 = 0.867
-     *  Set max cruise to 0.5 * 1180 = 885
-     */
-    public void initForMagicMove() {
-        mMMStartPosn = getCurPosn();
-        mMMStarted = false;
-        mLoopCtr = 0;
-        printPosn("initForMagicMove");
-    }
-
-
-    private int mLoopCtr = 0;
-
-    /**
-     * Use Magic motion profile to move to the specified position
-     * @param targPosn
-     */
-    private void magicMove(double targPosn) {
-        double targetDist;
-        if (!mMMStarted) {
-            mTalon.set(ControlMode.MotionMagic, targPosn);
-            mMMStarted = true;
-        }
-    }
-
-    public void moveStatus() {
-        if (++mLoopCtr % 5 == 0) {
-            printPosn("MM_" + mLoopCtr);
-        }
-    }
-
-    /**
-     * Return true when velocity zero and have moved at least 500 units from start
-     * @return
-     */
-    public boolean magicMoveComplete() {
         double curVel = mTalon.getSelectedSensorVelocity(kPIDSlot_Move);
         int curPosn = Math.abs(getCurPosn());
         boolean end =  (curVel == 0) && (Math.abs(mCalcTarg - curPosn) < 100);
@@ -423,6 +440,80 @@ public class ArmSys extends Subsystem {
             printPosn("magicMoveComplete -------- ");
         }
         return end;
+    }
+
+
+    public void moveStatus() {
+        if (++mLoopCtr % 5 == 0) {
+            printPosn("MM_" + mLoopCtr);
+        }
+    }
+
+
+    // implement target move manually ---------------------------------------------------------
+
+    // full range from start to intake is about 3900 ticks
+
+    private static int TICKS_PER_DEGREE = (int)(3900 / 180);
+
+    // calculate allowed dist error in inches
+    private static final int ALLOWED_DISTERR = 5 * TICKS_PER_DEGREE;
+    private float mDistance;
+
+    private int mStartPosn;
+    private int mTargetDist;
+    private int mTargPosn;
+
+    // set to +1 for forward, -1 for back
+    private int mMotorDirn = 1;
+
+    // set this true when get within ERR of target, to prevent further driving
+    private boolean mHitTarg = false;
+    private int mLastErr;
+    private int mMoveDistLoopCnt;
+
+
+    // use a PW delta from START posn to get target
+    public void startMoveTarget(int targPosnDelta) {
+        mCalcTarg = mPosn_START + targPosnDelta;
+        double curPosn = getCurPosn();
+        if (mCalcTarg > curPosn) {
+            mMotorDirn = 1;
+        }
+        else {
+            mMotorDirn = -1;
+        }
+        mTalon.set(ControlMode.PercentOutput, mMotorDirn * 0.8);
+        System.out.println("AS.startMoveTarget:  mPosn_START: " + mPosn_START + "  delta: " + targPosnDelta  + "  calcTarg: " + mCalcTarg+ "  curPosn: " + getCurPosn());
+        mHitTarg = false;
+        mMoveDistLoopCnt = 0;
+        mLastErr = 99999999;
+    }
+
+
+    /**
+     * Called by the command exec loop
+     * Stop if with error bound of target, OR if error is growing - we went past target
+     */
+    public void moveTargetExec() {
+
+        int curPosn = mTalon.getSensorCollection().getPulseWidthPosition();
+        int curErr = Math.abs(mTargPosn - curPosn);
+        mHitTarg = (curErr < ALLOWED_DISTERR) || curErr > mLastErr;
+        if (mMoveDistLoopCnt++ % 5 == 0) {
+            System.out.printf("AS.moveTargetExec: start: %d   cur: %d   targ: %d  curErr: %d  lastErr: %d  \r\n", mStartPosn, curPosn, mTargPosn, curErr, mLastErr);
+        }
+        mLastErr = curErr;
+        if (mHitTarg) {
+            mTalon.set(ControlMode.PercentOutput, 0);
+            holdPosn();
+        }
+        else {
+            // start slowing down if within 15 degrees of target
+            if (curErr < 15*TICKS_PER_DEGREE) {
+                mTalon.set(ControlMode.PercentOutput, mMotorDirn * 0.3);
+            }
+        }
     }
 
 
@@ -450,10 +541,10 @@ public class ArmSys extends Subsystem {
         }
         int quadPosn = mTalon.getSensorCollection().getQuadraturePosition();
         int pwPosn = mTalon.getSensorCollection().getPulseWidthPosition();
-        int pwDelta = pwPosn - mBasePosn;
+        int pwDelta = pwPosn - mPosn_START;
         double pwVel = mTalon.getSensorCollection().getPulseWidthVelocity();
-        int relDelta = absSensPosn - mBasePosn;
-        int quadDelta = quadPosn - mBasePosn;
+        int relDelta = absSensPosn - mPosn_START;
+        int quadDelta = quadPosn - mPosn_START;
         double vel = mTalon.getSensorCollection().getQuadratureVelocity();
         double mout = mTalon.getMotorOutputPercent();
         double voltOut = mTalon.getMotorOutputVoltage();
@@ -463,7 +554,7 @@ public class ArmSys extends Subsystem {
         mLastQuadPosn = quadPosn;
 //        System.out.println("ArmSys." + caller + ":    topSwitch: " + mTopCounter.get() + "   botSwitch: " + mBotCounter.get());
 //        System.out.println("ArmSys." + caller + ":    Vel: " + vel + "  pwVel: " + pwVel + "  MotorOut: " + mout  +  "  voltOut: " + voltOut+ "  clErr: " + closedLoopErr);
-        System.out.println("ArmSys." + caller + "  base: " + mBasePosn + "  sens: " + sensPosnSign + absSensPosn
+        System.out.println("ArmSys." + caller + "  base: " + mPosn_START + "  sens: " + sensPosnSign + absSensPosn
                 + "  quad: " + quadPosn  +  "  pw: " + pwPosn + "  clErr: " + closedLoopErr);
         //shuffleBd();
     }

@@ -79,7 +79,13 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
-        //DriveSys.getInstance().setupProfile();
+        // ensure the talons are not in MotionMagic or hold modes
+        mElevatorSys.resetTalon();
+        mArmSys.resetTalon();
+
+        // control debug printing
+        System.out.println("6072: disable init -------------------------------------------------");
+        mDisLoopPrintCnt = 0;
     }
 
 
@@ -88,10 +94,11 @@ public class Robot extends TimedRobot {
     private int mDisLoopCnt = 0;
 
     public void disabledPeriodic() {
-        if ((++mDisLoopCnt % (50 * 5) == 0) && (mDisLoopPrintCnt < mDisLoopMAXcnt)) { // limiting the log output
-            mDriveSys.logPosn("Rob.dis");
+
+        if ((++mDisLoopCnt % (50 * 2) == 0) && (mDisLoopPrintCnt < mDisLoopMAXcnt)) { // limiting the log output
+//            mDriveSys.logPosn("Rob.dis");
 //            mElevatorSys.printPosn("Rob.dis");
-//            mArmSys.printPosn("Rob.dis");
+            mArmSys.printPosn("Rob.dis");
 //            System.out.println();
             mDisLoopPrintCnt++;
         }
@@ -105,7 +112,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        System.out.println("6072: teleop init");
+        System.out.println("6072: teleop init -------------------------------------------------");
         mTelopLoopCtr = 0;
 
         NavXSys.getInstance().zeroYawHeading(); // TESTING PURPOSES
@@ -128,7 +135,6 @@ public class Robot extends TimedRobot {
         Scheduler.getInstance().run();
 
         // reset the disabled loop print count to allow a few prints when disabled
-        mDisLoopPrintCnt = 0;
         // update PDP stats every half second
         if (++mTelopLoopCtr % 200 == 0) {
 //            //logNavX()

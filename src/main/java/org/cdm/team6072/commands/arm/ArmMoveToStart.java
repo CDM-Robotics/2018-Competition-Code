@@ -3,14 +3,14 @@ package org.cdm.team6072.commands.arm;
 import edu.wpi.first.wpilibj.command.Command;
 import org.cdm.team6072.subsystems.ArmSys;
 
-public class ArmMoveStart  extends Command {
+public class ArmMoveToStart extends Command {
 
 
     private ArmSys mArmSys;
 
 
-    public ArmMoveStart() {
-        System.out.println("ArmMoveStart: ");
+    public ArmMoveToStart() {
+        System.out.println("ArmMoveToStart: ");
         requires(ArmSys.getInstance());
         mArmSys = ArmSys.getInstance();
     }

@@ -6,6 +6,7 @@ import org.cdm.team6072.autonomous.routines.subroutines.PositionIntake;
 import org.cdm.team6072.autonomous.routines.subroutines.PositionScaleShooter;
 import org.cdm.team6072.autonomous.routines.subroutines.PositionSwitchShooter;
 import org.cdm.team6072.commands.drive.DriveDistCmd;
+import org.cdm.team6072.commands.drive.DriveToggleGearCmd;
 import org.cdm.team6072.commands.drive.DriveTurnYawCmd;
 import org.cdm.team6072.commands.elevator.*;
 import org.cdm.team6072.commands.intake.*;
@@ -151,34 +152,35 @@ public class ControlBoard {
 //        drive_buttons[ELEVATOR_MOVE_MM_DOWN-1].whenReleased(new StopElevatorCmd());
 
 //        drive_buttons[ELEVATOR_MOVETO_BASE-1] = new JoystickButton(drive_stick, ELEVATOR_MOVETO_BASE);
-//        drive_buttons[ELEVATOR_MOVETO_BASE-1].whenPressed(new ElvMoveToBaseCmd(ElevatorSys.Direction.Down, 1));
-
-        drive_buttons[EXTREME_BUT_7 -1] = new JoystickButton(drive_stick, EXTREME_BUT_7);     // 9
-        drive_buttons[EXTREME_BUT_7 -1].whenPressed(new DriveDistCmd(4));
-
-        drive_buttons[EXTREME_BUT_8 -1] = new JoystickButton(drive_stick, EXTREME_BUT_8);     // 9
-        drive_buttons[EXTREME_BUT_8 -1].whenPressed(new DriveTurnYawCmd(90));
-
-        drive_buttons[EXTREME_BUT_9 -1] = new JoystickButton(drive_stick, EXTREME_BUT_9);     // 9
-        drive_buttons[EXTREME_BUT_9 -1].whenPressed(new ArmMoveTo45());
-
-        drive_buttons[EXTREME_BUT_10 -1] = new JoystickButton(drive_stick, EXTREME_BUT_10);     // 9
-        drive_buttons[EXTREME_BUT_10 -1].whenPressed(new ArmMoveTo135());
+//        drive_buttons[ELEVATOR_MOVETO_BASE-1].whenPressed(new ElvMoveToIntakeCmd(ElevatorSys.Direction.Down, 1));
 
 //        drive_buttons[EXTREME_BUT_7 -1] = new JoystickButton(drive_stick, EXTREME_BUT_7);     // 9
-//        drive_buttons[EXTREME_BUT_7 -1].whenPressed(new ArmMoveToIntake());
+//        drive_buttons[EXTREME_BUT_7 -1].whenPressed(new DriveDistCmd(4));
 //
 //        drive_buttons[EXTREME_BUT_8 -1] = new JoystickButton(drive_stick, EXTREME_BUT_8);     // 9
-//        drive_buttons[EXTREME_BUT_8 -1].whenPressed(new ArmMoveTo45());
+//        drive_buttons[EXTREME_BUT_8 -1].whenPressed(new DriveTurnYawCmd(90));
 //
 //        drive_buttons[EXTREME_BUT_9 -1] = new JoystickButton(drive_stick, EXTREME_BUT_9);     // 9
-//        drive_buttons[EXTREME_BUT_9 -1].whenPressed(new ArmMoveTo135());
+//        drive_buttons[EXTREME_BUT_9 -1].whenPressed(new ArmMoveTo45());
 //
+//        drive_buttons[EXTREME_BUT_10 -1] = new JoystickButton(drive_stick, EXTREME_BUT_10);     // 9
+//        drive_buttons[EXTREME_BUT_10 -1].whenPressed(new ArmMoveTo135());
+
+        drive_buttons[EXTREME_BUT_7 -1] = new JoystickButton(drive_stick, EXTREME_BUT_7);     // 9
+        drive_buttons[EXTREME_BUT_7 -1].whenPressed(new ArmMoveToIntake());
+
+        drive_buttons[EXTREME_BUT_8 -1] = new JoystickButton(drive_stick, EXTREME_BUT_8);     // 9
+        drive_buttons[EXTREME_BUT_8 -1].whenPressed(new ArmMoveTo45());
+
+        drive_buttons[EXTREME_BUT_9 -1] = new JoystickButton(drive_stick, EXTREME_BUT_9);     // 9
+        drive_buttons[EXTREME_BUT_9 -1].whenPressed(new ArmMoveTo135());
+//
+
+        drive_buttons[EXTREME_BUT_10 -1] = new JoystickButton(drive_stick, EXTREME_BUT_10);  // 10
+        drive_buttons[EXTREME_BUT_10 -1].whenPressed(new ElvMoveToIntakeCmd());
+
         drive_buttons[EXTREME_BUT_11 -1] = new JoystickButton(drive_stick, EXTREME_BUT_11);  // 10
         drive_buttons[EXTREME_BUT_11 -1].whenPressed(new ElvMoveToSwitchCmd());
-
-//        drive_buttons[EXTREME_BUT_11 -1] = new JoystickButton(drive_stick, EXTREME_BUT_11);  // 11
-//        drive_buttons[EXTREME_BUT_11 -1].whenPressed(new ElvMoveToScaleLoCmd());
 
         drive_buttons[EXTREME_BUT_12-1] = new JoystickButton(drive_stick, EXTREME_BUT_12);  // 12
         drive_buttons[EXTREME_BUT_12-1].whenPressed(new ElvMoveToScaleHiCmd());
@@ -198,7 +200,9 @@ public class ControlBoard {
 //        drive_buttons[INTAKE_WHEELS_OUT_BTN-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out));
 //        drive_buttons[INTAKE_WHEELS_OUT_BTN-1].whenReleased(new IntakeRunWheelsInLoCmd());
 
-        // control systems using usb1
+
+        // control systems using usb1  ---------------------------------------------------------------------------
+
         control_stick = new Joystick(CONTROL_USB_PORT);
         control_buttons = new JoystickButton[12];
 
@@ -234,7 +238,7 @@ public class ControlBoard {
 
         // intake wheels IN
         control_buttons[EXTREME_BUT_TRIGGER-1] = new JoystickButton(control_stick, EXTREME_BUT_TRIGGER);
-        control_buttons[EXTREME_BUT_TRIGGER-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In, 0.6));
+        control_buttons[EXTREME_BUT_TRIGGER-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In, 1.0));
         control_buttons[EXTREME_BUT_TRIGGER-1].whenReleased(new IntakeRunWheelsInLoCmd());
 
         // intake wheels OUT
@@ -242,17 +246,34 @@ public class ControlBoard {
         control_buttons[EXTREME_BUT_THUMB-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
         control_buttons[EXTREME_BUT_THUMB-1].whenReleased(new IntakeRunWheelsInLoCmd());
 
-        // intake OPEN
-        control_buttons[EXTREME_BUT_12-1] = new JoystickButton(control_stick, EXTREME_BUT_12);
-        control_buttons[EXTREME_BUT_12-1].whenPressed(new PositionScaleShooter());       //new OpenIntakeCmd());
+        // position SWITCH
+        control_buttons[EXTREME_BUT_7 -1] = new JoystickButton(control_stick, EXTREME_BUT_7);
+        control_buttons[EXTREME_BUT_7 -1].whenPressed(new PositionSwitchShooter());
+
+        // position SCALE
+        control_buttons[EXTREME_BUT_8-1] = new JoystickButton(control_stick, EXTREME_BUT_8);
+        control_buttons[EXTREME_BUT_8-1].whenPressed(new PositionScaleShooter());
+
+        // position INTAKE
+        control_buttons[EXTREME_BUT_9 -1] = new JoystickButton(control_stick, EXTREME_BUT_9);
+        control_buttons[EXTREME_BUT_9 -1].whenPressed(new PositionIntake());       //new CloseIntakeLoCmd());
+
+
+ 
 
         // intake CLOSE LO
         control_buttons[EXTREME_BUT_10 -1] = new JoystickButton(control_stick, EXTREME_BUT_10);
-        control_buttons[EXTREME_BUT_10 -1].whenPressed(new PositionIntake());       //new CloseIntakeLoCmd());
+//        control_buttons[EXTREME_BUT_10 -1].whenPressed(new PositionIntake());       //new CloseIntakeLoCmd());
+        control_buttons[EXTREME_BUT_10 -1].whenPressed(new CloseIntakeLoCmd());
 
         // intake CLOSE HI
         control_buttons[EXTREME_BUT_11 -1] = new JoystickButton(control_stick, EXTREME_BUT_11);
-        control_buttons[EXTREME_BUT_11 -1].whenPressed(new PositionSwitchShooter());       //new CloseIntakeHiCmd());
+        control_buttons[EXTREME_BUT_11 -1].whenPressed(new CloseIntakeHiCmd());   //new PositionSwitchShooter());
+
+        // intake OPEN
+        control_buttons[EXTREME_BUT_12-1] = new JoystickButton(control_stick, EXTREME_BUT_12);
+        //control_buttons[EXTREME_BUT_12-1].whenPressed(new PositionScaleShooter()); // new OpenIntakeCmd());
+        control_buttons[EXTREME_BUT_12-1].whenPressed(new OpenIntakeCmd());
 
     }
 
