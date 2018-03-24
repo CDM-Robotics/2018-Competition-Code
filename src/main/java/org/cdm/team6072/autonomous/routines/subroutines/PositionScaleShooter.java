@@ -8,6 +8,7 @@ import org.cdm.team6072.commands.intake.CloseIntakeHiCmd;
 public class PositionScaleShooter extends CommandGroup {
 
     public PositionScaleShooter() {
+        System.out.println("PositionScaleShooter: ");
         addSequential(new CloseIntakeHiCmd());
         addParallel(new ElvMoveToScaleHiCmd());
         addParallel(new ArmMoveTo45());

@@ -8,9 +8,10 @@ import org.cdm.team6072.commands.intake.CloseIntakeHiCmd;
 public class PositionSwitchShooter extends CommandGroup {
 
     public PositionSwitchShooter() {
+        System.out.println("PositionSwitchShooter:  ");
         addSequential(new CloseIntakeHiCmd());
         addParallel(new ElvMoveToSwitchCmd());
-        //addParallel(new ArmMoveTo45());
+        addParallel(new ArmMoveTo45());
     }
 
 

@@ -5,7 +5,10 @@ import org.cdm.team6072.autonomous.routines.subroutines.PositionSwitchShooter;
 import org.cdm.team6072.commands.drive.DriveDistCmd;
 import org.cdm.team6072.commands.drive.DriveTurnYawCmd;
 import org.cdm.team6072.commands.elevator.ElvMoveToSwitchCmd;
+import org.cdm.team6072.commands.intake.RunIntakeWheelsCmd;
+import org.cdm.team6072.subsystems.ArmSys;
 import org.cdm.team6072.subsystems.DriveSys;
+import org.cdm.team6072.subsystems.IntakeMotorSys;
 
 public class GoToSwitch extends CommandGroup {
 
@@ -20,14 +23,18 @@ public class GoToSwitch extends CommandGroup {
         LEFT, RIGHT
     }
 
-    private float midChannelDist = (float) 4.9;
+    private float midChannelDist = (float) 12;
     private float midChannelToSwitchDist = 3;
+
+    private ALLIANCE_SIDE mSide;
 
     // startBox options are 1, 2, 3
     public GoToSwitch(int startBox, ALLIANCE_SIDE side) {
         System.out.println("GoToSwitch: startBox -> " + startBox + ", side -> " + side);
 
-        switch (startBox) {
+        mSide = side;
+
+        switch (3) {
             case 1:
                 // do something
                 if (side == ALLIANCE_SIDE.LEFT) {
@@ -54,9 +61,13 @@ public class GoToSwitch extends CommandGroup {
 
     private void goFromPosThreeToRight() {
         addSequential(new DriveDistCmd(12));
-        addSequential(new DriveTurnYawCmd(-90));
+        //addSequential(new DriveTurnYawCmd(-90));
         addParallel(new PositionSwitchShooter());
-        addSequential(new DriveDistCmd((float)2.95));
+        if (mSide == ALLIANCE_SIDE.RIGHT) {
+            System.out.println("goFromPosThreeToRight:");
+            //addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
+        }
+        //addSequential(new DriveDistCmd((float)2.95));
     }
 
     // go straight, 90 degree turn to right, straight, 90 degree turn left, straight to finish at switch
@@ -80,11 +91,11 @@ public class GoToSwitch extends CommandGroup {
 
     private void goFromPosThreeToLeft() {
         addSequential(new DriveDistCmd(midChannelDist));
-        addSequential(new DriveTurnYawCmd(-90));
-        addSequential(new DriveDistCmd((float)10.5));
-        addSequential(new DriveTurnYawCmd(90));
-        addParallel(new PositionSwitchShooter());
-        addSequential(new DriveDistCmd(midChannelToSwitchDist));
+//        addSequential(new DriveTurnYawCmd(-90));
+//        addSequential(new DriveDistCmd((float)10.5));
+//        addSequential(new DriveTurnYawCmd(90));
+//        addParallel(new PositionSwitchShooter());
+//        addSequential(new DriveDistCmd(midChannelToSwitchDist));
     }
 
     private void goFromPosTwoToLeft() {

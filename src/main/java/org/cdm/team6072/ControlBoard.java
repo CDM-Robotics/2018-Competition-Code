@@ -121,16 +121,22 @@ public class ControlBoard {
 
 
     private ControlBoard () {
+
+        // drive comp setup  ------------------------
         drive_stick = new Joystick(DRIVE_USB_PORT);
         drive_buttons = new JoystickButton[12];
+
+        // toggle hi lo gear
+        drive_buttons[EXTREME_BUT_8-1] = new JoystickButton(drive_stick, EXTREME_BUT_8);
+        drive_buttons[EXTREME_BUT_8-1].whenPressed(new DriveToggleGearCmd(drive_stick));
+
+        // end drive  comp setup  -------------------------------------------------
 
         // test drive forward
 //        drive_buttons[EXTREME_BUT_THUMB-1] = new JoystickButton(drive_stick, EXTREME_BUT_THUMB);
 //        drive_buttons[EXTREME_BUT_THUMB-1].whenPressed(new TestDriveForward());
 
-        // toggle hi lo gear
-        drive_buttons[EXTREME_BUT_8-1] = new JoystickButton(drive_stick, EXTREME_BUT_8);
-        drive_buttons[EXTREME_BUT_8-1].whenPressed(new DriveToggleGearCmd(drive_stick));
+
 
 //        drive_buttons[DRIVE_TEST-1] = new JoystickButton(drive_stick, DRIVE_TEST);
 //        drive_buttons[DRIVE_TEST-1].whenPressed(new TestDriveForward());
@@ -169,11 +175,11 @@ public class ControlBoard {
 //        drive_buttons[EXTREME_BUT_7 -1] = new JoystickButton(drive_stick, EXTREME_BUT_7);     // 9
 //        drive_buttons[EXTREME_BUT_7 -1].whenPressed(new ArmMoveToIntake());
 //
-//        drive_buttons[EXTREME_BUT_8 -1] = new JoystickButton(drive_stick, EXTREME_BUT_8);     // 9
-//        drive_buttons[EXTREME_BUT_8 -1].whenPressed(new ArmMoveTo45());
-//
-//        drive_buttons[EXTREME_BUT_9 -1] = new JoystickButton(drive_stick, EXTREME_BUT_9);     // 9
-//        drive_buttons[EXTREME_BUT_9 -1].whenPressed(new ArmMoveTo135());
+        drive_buttons[EXTREME_BUT_11 -1] = new JoystickButton(drive_stick, EXTREME_BUT_11);     // 9
+        drive_buttons[EXTREME_BUT_11 -1].whenPressed(new ArmMoveTo45());
+
+        drive_buttons[EXTREME_BUT_12 -1] = new JoystickButton(drive_stick, EXTREME_BUT_12);     // 9
+        drive_buttons[EXTREME_BUT_12 -1].whenPressed(new ArmMoveTo135());
 ////
 //
 //        drive_buttons[EXTREME_BUT_10 -1] = new JoystickButton(drive_stick, EXTREME_BUT_10);  // 10
@@ -182,8 +188,8 @@ public class ControlBoard {
 //        drive_buttons[EXTREME_BUT_11 -1] = new JoystickButton(drive_stick, EXTREME_BUT_11);  // 10
 //        drive_buttons[EXTREME_BUT_11 -1].whenPressed(new ElvMoveToSwitchCmd());
 //
-        drive_buttons[EXTREME_BUT_12-1] = new JoystickButton(drive_stick, EXTREME_BUT_12);  // 12
-        drive_buttons[EXTREME_BUT_12-1].whenPressed(new PositionScaleShooter());
+//        drive_buttons[EXTREME_BUT_12-1] = new JoystickButton(drive_stick, EXTREME_BUT_12);  // 12
+//        drive_buttons[EXTREME_BUT_12-1].whenPressed(new PositionScaleShooter());
 
 //        drive_buttons[ELEVATOR_MOVE_DELTA-1] = new JoystickButton(drive_stick, ELEVATOR_MOVE_DELTA);
 //        drive_buttons[ELEVATOR_MOVE_DELTA-1].whenPressed(new ElvMoveDeltaCmd(ElevatorSys.Direction.Up, 10, 0.5));
@@ -206,6 +212,8 @@ public class ControlBoard {
         control_stick = new Joystick(CONTROL_USB_PORT);
         control_buttons = new JoystickButton[12];
 
+        // control comp setup  --------------------------------------
+
         // elevator move up
         control_buttons[EXTREME_BUT_LEFT_TOP-1] = new JoystickButton(control_stick, EXTREME_BUT_LEFT_TOP);
         control_buttons[EXTREME_BUT_LEFT_TOP-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Up, 0.8));
@@ -216,8 +224,6 @@ public class ControlBoard {
         control_buttons[EXTREME_BUT_LEFT_BOT-1].whenPressed(new MoveElevatorCmd(ElevatorSys.Direction.Down, 0.6));
         control_buttons[EXTREME_BUT_LEFT_BOT-1].whenReleased(new StopElevatorCmd());
 
-//        control_buttons[ELEVATOR_RESET_START-1] = new JoystickButton(control_stick, ELEVATOR_RESET_START);
-//        control_buttons[ELEVATOR_RESET_START-1].whenPressed(new ElvResetCmd());
 
         // move arm up
         control_buttons[EXTREME_BUT_RIGHT_TOP-1] = new JoystickButton(control_stick, EXTREME_BUT_RIGHT_TOP);
@@ -228,12 +234,6 @@ public class ControlBoard {
         control_buttons[EXTREME_BUT_RIGHT_BOT-1] = new JoystickButton(control_stick, EXTREME_BUT_RIGHT_BOT);
         control_buttons[EXTREME_BUT_RIGHT_BOT-1].whenPressed(new ArmMoveCmd(ArmSys.Direction.Down, 0.5));
         control_buttons[EXTREME_BUT_RIGHT_BOT-1].whenReleased(new ArmStopCmd());
-
-//        control_buttons[ARM_RESET_START-1] = new JoystickButton(control_stick, ARM_RESET_START);
-//        control_buttons[ARM_RESET_START-1].whenPressed(new ArmResetCmd());
-
-
-
 
         // intake wheels IN
         control_buttons[EXTREME_BUT_TRIGGER-1] = new JoystickButton(control_stick, EXTREME_BUT_TRIGGER);
@@ -246,28 +246,20 @@ public class ControlBoard {
         control_buttons[EXTREME_BUT_THUMB-1].whenReleased(new IntakeRunWheelsInLoCmd());
 
 //        // position SWITCH
-//        control_buttons[EXTREME_BUT_7 -1] = new JoystickButton(control_stick, EXTREME_BUT_7);
-//        control_buttons[EXTREME_BUT_7 -1].whenPressed(new PositionSwitchShooter());
-//
-//        // position SCALE
-//        control_buttons[EXTREME_BUT_8-1] = new JoystickButton(control_stick, EXTREME_BUT_8);
-//        control_buttons[EXTREME_BUT_8-1].whenPressed(new PositionScaleShooter());
+        control_buttons[EXTREME_BUT_7 -1] = new JoystickButton(control_stick, EXTREME_BUT_7);
+        control_buttons[EXTREME_BUT_7 -1].whenPressed(new PositionSwitchShooter());
+
+        // position SCALE
+        control_buttons[EXTREME_BUT_8-1] = new JoystickButton(control_stick, EXTREME_BUT_8);
+        control_buttons[EXTREME_BUT_8-1].whenPressed(new PositionScaleShooter());
 
         // position INTAKE
         control_buttons[EXTREME_BUT_9 -1] = new JoystickButton(control_stick, EXTREME_BUT_9);
         control_buttons[EXTREME_BUT_9 -1].whenPressed(new PositionIntake());
 
 
-        control_buttons[EXTREME_BUT_7-1] = new JoystickButton(control_stick, EXTREME_BUT_7);
-        control_buttons[EXTREME_BUT_7-1].whenPressed(new ArmMoveTo45());
-
-        control_buttons[EXTREME_BUT_8-1] = new JoystickButton(control_stick, EXTREME_BUT_8);
-        control_buttons[EXTREME_BUT_8-1].whenPressed(new ArmMoveTo135());
-
-
         // intake CLOSE LO
         control_buttons[EXTREME_BUT_10 -1] = new JoystickButton(control_stick, EXTREME_BUT_10);
-//        control_buttons[EXTREME_BUT_10 -1].whenPressed(new PositionIntake());       //new CloseIntakeLoCmd());
         control_buttons[EXTREME_BUT_10 -1].whenPressed(new CloseIntakeLoCmd());
 
         // intake CLOSE HI
@@ -276,8 +268,25 @@ public class ControlBoard {
 
         // intake OPEN
         control_buttons[EXTREME_BUT_12-1] = new JoystickButton(control_stick, EXTREME_BUT_12);
-        //control_buttons[EXTREME_BUT_12-1].whenPressed(new PositionScaleShooter()); // new OpenIntakeCmd());
         control_buttons[EXTREME_BUT_12-1].whenPressed(new OpenIntakeCmd());
+
+        // end control comp setup  -----------------------------------------------------
+
+
+//        control_buttons[ELEVATOR_RESET_START-1] = new JoystickButton(control_stick, ELEVATOR_RESET_START);
+//        control_buttons[ELEVATOR_RESET_START-1].whenPressed(new ElvResetCmd());
+
+
+
+//        control_buttons[ARM_RESET_START-1] = new JoystickButton(control_stick, ARM_RESET_START);
+//        control_buttons[ARM_RESET_START-1].whenPressed(new ArmResetCmd());
+
+
+//        control_buttons[EXTREME_BUT_7-1] = new JoystickButton(control_stick, EXTREME_BUT_7);
+//        control_buttons[EXTREME_BUT_7-1].whenPressed(new ArmMoveTo45());
+//
+//        control_buttons[EXTREME_BUT_8-1] = new JoystickButton(control_stick, EXTREME_BUT_8);
+//        control_buttons[EXTREME_BUT_8-1].whenPressed(new ArmMoveTo135());
 
     }
 
