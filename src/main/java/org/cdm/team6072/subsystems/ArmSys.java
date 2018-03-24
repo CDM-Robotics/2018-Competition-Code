@@ -179,9 +179,9 @@ public class ArmSys extends Subsystem {
 
             // PID values for moving
             mTalon.config_kF(kPIDSlot_Move, 0.0, kTimeoutMs);             // 1023/1180
-            mTalon.config_kP(kPIDSlot_Move, 0.2, kTimeoutMs);             // 1023 / 400  * 0.1
+            mTalon.config_kP(kPIDSlot_Move, 0.5, kTimeoutMs);             // 1023 / 400  * 0.1
             mTalon.config_kI(kPIDSlot_Move, 0.0, kTimeoutMs);
-            mTalon.config_kD(kPIDSlot_Move, 0.0, kTimeoutMs);
+            mTalon.config_kD(kPIDSlot_Move, 5.0, kTimeoutMs);
 
             setSensorStartPosn();
 

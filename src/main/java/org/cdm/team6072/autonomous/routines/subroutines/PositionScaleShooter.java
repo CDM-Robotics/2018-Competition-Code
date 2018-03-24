@@ -10,6 +10,6 @@ public class PositionScaleShooter extends CommandGroup {
     public PositionScaleShooter() {
         addSequential(new CloseIntakeHiCmd());
         addParallel(new ElvMoveToScaleHiCmd());
-        //addParallel(new ArmMoveTo45());
+        addParallel(new ArmMoveTo45());
     }
 }

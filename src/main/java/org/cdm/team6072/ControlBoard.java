@@ -182,8 +182,8 @@ public class ControlBoard {
 //        drive_buttons[EXTREME_BUT_11 -1] = new JoystickButton(drive_stick, EXTREME_BUT_11);  // 10
 //        drive_buttons[EXTREME_BUT_11 -1].whenPressed(new ElvMoveToSwitchCmd());
 //
-//        drive_buttons[EXTREME_BUT_12-1] = new JoystickButton(drive_stick, EXTREME_BUT_12);  // 12
-//        drive_buttons[EXTREME_BUT_12-1].whenPressed(new ElvMoveToScaleHiCmd());
+        drive_buttons[EXTREME_BUT_12-1] = new JoystickButton(drive_stick, EXTREME_BUT_12);  // 12
+        drive_buttons[EXTREME_BUT_12-1].whenPressed(new PositionScaleShooter());
 
 //        drive_buttons[ELEVATOR_MOVE_DELTA-1] = new JoystickButton(drive_stick, ELEVATOR_MOVE_DELTA);
 //        drive_buttons[ELEVATOR_MOVE_DELTA-1].whenPressed(new ElvMoveDeltaCmd(ElevatorSys.Direction.Up, 10, 0.5));
