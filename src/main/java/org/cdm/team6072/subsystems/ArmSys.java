@@ -89,7 +89,7 @@ public class ArmSys extends Subsystem {
      * set the allowable closed-loop error, Closed-Loop output will be
      * neutral within this range. See Table in Section 17.2.1 for native units per rotation.
      */
-    private static final int TALON_ALLOWED_CLOSELOOP_ERROR = 0;
+    private static final int TALON_ALLOWED_CLOSELOOP_ERROR = 220;
 
 
     /**
@@ -438,9 +438,9 @@ public class ArmSys extends Subsystem {
     public boolean moveToTargetComplete() {
         double curVel = mTalon.getSelectedSensorVelocity(kPIDSlot_Move);
         int curPosn = Math.abs(getCurPosn());
-        boolean end =  (curVel == 0) && (Math.abs(mCalcTarg - curPosn) < 100);
+        boolean end =  (curVel == 0) && (Math.abs(mCalcTarg - curPosn) < 300);
         if (end) {
-            printPosn("magicMoveComplete -------- ");
+            printPosn("moveToTargetComplete -------- ");
         }
         return end;
     }
@@ -448,7 +448,7 @@ public class ArmSys extends Subsystem {
 
     public void moveStatus() {
         if (++mLoopCtr % 5 == 0) {
-            printPosn("MM_" + mLoopCtr);
+            printPosn("MS_" + mLoopCtr);
         }
     }
 

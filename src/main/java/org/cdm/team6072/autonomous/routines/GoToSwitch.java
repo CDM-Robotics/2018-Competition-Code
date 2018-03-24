@@ -60,13 +60,15 @@ public class GoToSwitch extends CommandGroup {
     }
 
     private void goFromPosThreeToRight() {
-        addSequential(new DriveDistCmd(12));
+        System.out.println("goFromPos3 called");
+        addSequential(new DriveDistCmd(18));
         //addSequential(new DriveTurnYawCmd(-90));
-        addParallel(new PositionSwitchShooter());
-        if (mSide == ALLIANCE_SIDE.RIGHT) {
+        addSequential(new PositionSwitchShooter());
+        /*if (mSide == ALLIANCE_SIDE.RIGHT) {
             System.out.println("goFromPosThreeToRight:");
-            //addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
-        }
+            addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
+        }*/
+        //addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
         //addSequential(new DriveDistCmd((float)2.95));
     }
 

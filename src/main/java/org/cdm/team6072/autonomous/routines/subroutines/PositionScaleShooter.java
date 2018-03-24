@@ -11,6 +11,6 @@ public class PositionScaleShooter extends CommandGroup {
         System.out.println("PositionScaleShooter: ");
         addSequential(new CloseIntakeHiCmd());
         addParallel(new ElvMoveToScaleHiCmd());
-        addParallel(new ArmMoveTo45());
+        //addParallel(new ArmMoveTo45());
     }
 }
