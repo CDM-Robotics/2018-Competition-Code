@@ -39,15 +39,15 @@ public class ArmSys extends Subsystem {
 
     // intake position
 
-    private static int POSN_INTAKE = 2690;
-    private static int POSN_SHOOT45 = 1473;
-    private static int POSN_SHOOT135 = -400;
+//    private static int POSN_INTAKE = 2690;
+//    private static int POSN_SHOOT45 = 1473;
+//    private static int POSN_SHOOT135 = -400;
 
     // positions are sensor units to move a given angle from START position
     private static int POSN_START_DELTA = 0;
-    private static int POSN_INTAKE_DELTA = 3900;
-    private static int POSN_SHOOT45_DELTA = 2800;
-    private static int POSN_SHOOT135_DELTA = 950;
+    private static int POSN_INTAKE_DELTA = 4100;
+    private static int POSN_SHOOT45_DELTA = 2998;
+    private static int POSN_SHOOT135_DELTA = 1172;
 
 
     /**
@@ -77,7 +77,7 @@ public class ArmSys extends Subsystem {
     private static final boolean TALON_INVERT = true;
     //  The sensor position must move in a positive direction as the motor controller drives positive output (and LEDs are green)
     //      true inverts the sensor
-    private static final boolean TALON_SENSOR_PHASE = false;
+    private static final boolean TALON_SENSOR_PHASE = true;
 
     private static final int TALON_FORWARD_LIMIT = 1000;
 
@@ -143,13 +143,13 @@ public class ArmSys extends Subsystem {
             mTalon.setSensorPhase(TALON_SENSOR_PHASE);
             mTalon.setInverted(TALON_INVERT);
 
-            mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, kPIDLoopIdx, kTimeoutMs);
+            mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
 
-            mTalon.configForwardSoftLimitThreshold(TALON_FORWARD_LIMIT, kTimeoutMs);
-            mTalon.configForwardSoftLimitEnable(TALON_ENABLE_SOFT_LIMIT, kTimeoutMs);
-            mTalon.configReverseSoftLimitThreshold(TALON_REVERSE_LIMIT, kTimeoutMs);
-            mTalon.configReverseSoftLimitEnable(TALON_ENABLE_SOFT_LIMIT, kTimeoutMs);
+            //mTalon.configForwardSoftLimitThreshold(TALON_FORWARD_LIMIT, kTimeoutMs);
+            //mTalon.configForwardSoftLimitEnable(TALON_ENABLE_SOFT_LIMIT, kTimeoutMs);
+            //mTalon.configReverseSoftLimitThreshold(TALON_REVERSE_LIMIT, kTimeoutMs);
+            //mTalon.configReverseSoftLimitEnable(TALON_ENABLE_SOFT_LIMIT, kTimeoutMs);
 
             mTalon.configOpenloopRamp(0.1, 10);
 
@@ -173,13 +173,13 @@ public class ArmSys extends Subsystem {
 
             // set PID values for postion hold closed loop
             mTalon.config_kF(kPIDSlot_Hold, 0.0, kTimeoutMs);             // 1023/1180
-            mTalon.config_kP(kPIDSlot_Hold, 0.8, kTimeoutMs);             // 1023 / 400  * 0.1
+            mTalon.config_kP(kPIDSlot_Hold, 0.8, kTimeoutMs);  // original val 0.8            // 1023 / 400  * 0.1
             mTalon.config_kI(kPIDSlot_Hold, 0.0, kTimeoutMs);
             mTalon.config_kD(kPIDSlot_Hold, 0.0, kTimeoutMs);
 
             // PID values for moving
-            mTalon.config_kF(kPIDSlot_Move, 3.0, kTimeoutMs);             // 1023/1180
-            mTalon.config_kP(kPIDSlot_Move, 0.3, kTimeoutMs);             // 1023 / 400  * 0.1
+            mTalon.config_kF(kPIDSlot_Move, 0.0, kTimeoutMs);             // 1023/1180
+            mTalon.config_kP(kPIDSlot_Move, 0.2, kTimeoutMs);             // 1023 / 400  * 0.1
             mTalon.config_kI(kPIDSlot_Move, 0.0, kTimeoutMs);
             mTalon.config_kD(kPIDSlot_Move, 0.0, kTimeoutMs);
 
@@ -208,7 +208,7 @@ public class ArmSys extends Subsystem {
     // should only be called on robot.init
     public void setSensorStartPosn() {
         mTalon.getSensorCollection().setPulseWidthPosition(0, kTimeoutMs);
-        mPosn_START = mTalon.getSensorCollection().getPulseWidthPosition();
+        mPosn_START = mTalon.getSensorCollection().getQuadraturePosition();
         int absolutePosition = mPosn_START;
         /* mask out overflows, keep bottom 12 bits */
         absolutePosition &= 0xFFF;
@@ -382,7 +382,8 @@ public class ArmSys extends Subsystem {
      * @return the current absolute position - pulsewidth
      */
     private int getCurPosn() {
-        return mTalon.getSensorCollection().getPulseWidthPosition();
+        //return mTalon.getSensorCollection().getPulseWidthPosition();
+        return mTalon.getSensorCollection().getQuadraturePosition();
     }
 
 
@@ -429,7 +430,7 @@ public class ArmSys extends Subsystem {
         System.out.println("ArmSys.moveToTarget:  mPosn_START: " + mPosn_START + "  delta: " + targPosnDelta  + "  calcTarg: " + mCalcTarg+ "  curPosn: " + getCurPosn());
         mMMStarted = false;
         mLoopCtr = 0;
-        mTalon.set(ControlMode.MotionMagic, mCalcTarg);
+        mTalon.set(ControlMode.Position, mCalcTarg);
         mMMStarted = true;
     }
 
@@ -478,7 +479,7 @@ public class ArmSys extends Subsystem {
     // use a PW delta from START posn to get target
     public void startMoveTarget(int targPosnDelta) {
         mHitTarg = false;
-        mCalcTarg = mPosn_START + targPosnDelta;
+        mCalcTarg = mPosn_START - targPosnDelta;
         double curPosn = getCurPosn();
         if (mCalcTarg > curPosn) {
             mMotorDirn = 1;
@@ -504,7 +505,8 @@ public class ArmSys extends Subsystem {
         int curErr = Math.abs(mTargPosn - curPosn);
         mHitTarg = (curErr < ALLOWED_DISTERR) || curErr > mLastErr;
         if (mMoveDistLoopCnt++ % 5 == 0) {
-            System.out.printf("AS.moveTargetExec: start: %d   cur: %d   targ: %d  curErr: %d  lastErr: %d  \r\n", mStartPosn, curPosn, mTargPosn, curErr, mLastErr);
+            //System.out.printf("AS.moveTargetExec: start: %d   cur: %d   targ: %d  curErr: %d  lastErr: %d  \r\n", mStartPosn, curPosn, mTargPosn, curErr, mLastErr);
+            System.out.println("Arm.moveTargetExec: curPos: " + getCurPosn() + ", target: " + mMMTargetPosn + ", distLeft: " + (mTargPosn - getCurPosn()));
         }
         mLastErr = curErr;
         if (mHitTarg) {
@@ -560,7 +562,7 @@ public class ArmSys extends Subsystem {
         mLastQuadPosn = quadPosn;
 //        System.out.println("ArmSys." + caller + ":    topSwitch: " + mTopCounter.get() + "   botSwitch: " + mBotCounter.get());
 //        System.out.println("ArmSys." + caller + ":    Vel: " + vel + "  pwVel: " + pwVel + "  MotorOut: " + mout  +  "  voltOut: " + voltOut+ "  clErr: " + closedLoopErr);
-        System.out.println("ArmSys." + caller + "  base: " + mPosn_START + "  sens: " + sensPosnSign + absSensPosn
+        System.out.println("ArmSys." + caller + "  base: " + mPosn_START + "  sens: " + sensPosnSign + absSensPosn + ", currPos: " + getCurPosn()
                 + "  quad: " + quadPosn  +  "  pw: " + pwPosn + "  clErr: " + closedLoopErr);
         //shuffleBd();
     }

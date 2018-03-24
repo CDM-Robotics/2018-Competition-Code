@@ -245,25 +245,25 @@ public class ControlBoard {
         control_buttons[EXTREME_BUT_THUMB-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
         control_buttons[EXTREME_BUT_THUMB-1].whenReleased(new IntakeRunWheelsInLoCmd());
 
-        // position SWITCH
-        control_buttons[EXTREME_BUT_7 -1] = new JoystickButton(control_stick, EXTREME_BUT_7);
-        control_buttons[EXTREME_BUT_7 -1].whenPressed(new PositionSwitchShooter());
-
-        // position SCALE
-        control_buttons[EXTREME_BUT_8-1] = new JoystickButton(control_stick, EXTREME_BUT_8);
-        control_buttons[EXTREME_BUT_8-1].whenPressed(new PositionScaleShooter());
+//        // position SWITCH
+//        control_buttons[EXTREME_BUT_7 -1] = new JoystickButton(control_stick, EXTREME_BUT_7);
+//        control_buttons[EXTREME_BUT_7 -1].whenPressed(new PositionSwitchShooter());
+//
+//        // position SCALE
+//        control_buttons[EXTREME_BUT_8-1] = new JoystickButton(control_stick, EXTREME_BUT_8);
+//        control_buttons[EXTREME_BUT_8-1].whenPressed(new PositionScaleShooter());
 
         // position INTAKE
         control_buttons[EXTREME_BUT_9 -1] = new JoystickButton(control_stick, EXTREME_BUT_9);
         control_buttons[EXTREME_BUT_9 -1].whenPressed(new PositionIntake());
 
 
-//        control_buttons[EXTREME_BUT_7-1] = new JoystickButton(control_stick, EXTREME_BUT_7);
-//        control_buttons[EXTREME_BUT_7-1].whenPressed(new ArmMoveTo45());
-//
-//        control_buttons[EXTREME_BUT_8-1] = new JoystickButton(control_stick, EXTREME_BUT_8);
-//        control_buttons[EXTREME_BUT_8-1].whenPressed(new ArmMoveTo135());
-//
+        control_buttons[EXTREME_BUT_7-1] = new JoystickButton(control_stick, EXTREME_BUT_7);
+        control_buttons[EXTREME_BUT_7-1].whenPressed(new ArmMoveTo45());
+
+        control_buttons[EXTREME_BUT_8-1] = new JoystickButton(control_stick, EXTREME_BUT_8);
+        control_buttons[EXTREME_BUT_8-1].whenPressed(new ArmMoveTo135());
+
 
         // intake CLOSE LO
         control_buttons[EXTREME_BUT_10 -1] = new JoystickButton(control_stick, EXTREME_BUT_10);
