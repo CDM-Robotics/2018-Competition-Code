@@ -573,7 +573,6 @@ public class DriveSys extends Subsystem {
     }
 
 
-
     public MotionProfileManager getMotionProfileManager() {
         return this.mMotionProfileManager;
     }

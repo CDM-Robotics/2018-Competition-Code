@@ -20,8 +20,7 @@ import org.cdm.team6072.autonomous.routines.tests.TestSwitchRoutine;
 import org.cdm.team6072.commands.drive.*;
 import org.cdm.team6072.commands.auton.*;
 import org.cdm.team6072.subsystems.*;
-
-
+import util.ControlledLogger;
 
 
 /**
@@ -39,11 +38,6 @@ public class Robot extends TimedRobot {
 
     // ControlBoard holds the operator interface code such as JoyStick
     private ControlBoard mControlBoard  = ControlBoard.getInstance();
-
-    private CommandGroup mAutonCmdGrp;
-    private SendableChooser<Integer> mChooser = new SendableChooser<>();
-
-
     private UsbCamera cam;
 
 
@@ -69,13 +63,6 @@ public class Robot extends TimedRobot {
         // must initialize nav system here for the navX-MXP
         NavXSys.getInstance();
 
-        // set up the autonomous options on dashboard
-        mChooser.addDefault("Option  1: Run TEST Auton",      1);
-        mChooser.addObject( "Option  2: Run to Switch",       2);
-        mChooser.addObject( "Option  3: Run to Scale",        3);
-//        mChooser.addObject( "Option  4: Left Outer -  Switch - Cross Field",       4);
-//        mChooser.addObject( "Option  5: Left Outer -  Switch - Don't cross Field", 5);
-        SmartDashboard.putData("Auto mode", mChooser);
     }
 
     @Override
@@ -86,23 +73,18 @@ public class Robot extends TimedRobot {
 
         // control debug printing
         System.out.println("6072: disable init -------------------------------------------------");
-        mDisLoopPrintCnt = 0;
     }
 
 
-    private int mDisLoopMAXcnt = 3;
-    private int mDisLoopPrintCnt=0;
-    private int mDisLoopCnt = 0;
-
     public void disabledPeriodic() {
 
-        if ((++mDisLoopCnt % (50 * 2) == 0) && (mDisLoopPrintCnt < mDisLoopMAXcnt)) { // limiting the log output
-//            mDriveSys.logPosn("Rob.dis");
-//            mElevatorSys.printPosn("Rob.dis");
-            mArmSys.printPosn("Rob.dis");
-//            System.out.println();
-            mDisLoopPrintCnt++;
-        }
+        new ControlledLogger().print(100, new Runnable() {
+            @Override
+            public void run() {
+                mArmSys.printPosn("Rob.dis");
+            }
+        });
+
     }
 
 
@@ -117,6 +99,7 @@ public class Robot extends TimedRobot {
         mTelopLoopCtr = 0;
 
         NavXSys.getInstance().zeroYawHeading(); // TESTING PURPOSES
+
         ArcadeDriveCmd  mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(mArcadeDriveCmd);
@@ -139,10 +122,12 @@ public class Robot extends TimedRobot {
 
         // reset the disabled loop print count to allow a few prints when disabled
         // update PDP stats every half second
-        if (++mTelopLoopCtr % 200 == 0) {
-//            //logNavX()
-            NavXSys.getInstance().outputAngles();
-        }
+        new ControlledLogger().print(200, new Runnable() {
+            @Override
+            public void run() {
+                NavXSys.getInstance().outputAngles();
+            }
+        });
     }
 
 
@@ -154,10 +139,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        super.autonomousInit();
+
         DriverStation ds = DriverStation.getInstance();
         CameraManager.getInstance().runCameras();
 
-        super.autonomousInit();
         System.out.println("auto init (6072)  ------------------------------------------------------------");
         NavXSys.getInstance().zeroYawHeading();
 
@@ -165,31 +151,6 @@ public class Robot extends TimedRobot {
         autoChooser.runChooser();
     }
 
-    public void initSwitchRoutine(int startBox, char switchSide) {
-        GoToSwitch switchRoutine;
-        GoToSwitch.ALLIANCE_SIDE side = null;
-
-        if (switchSide == 'L') {
-            side = GoToSwitch.ALLIANCE_SIDE.LEFT;
-        } else if (switchSide == 'R') {
-            side = GoToSwitch.ALLIANCE_SIDE.RIGHT;
-        }
-        switchRoutine = new GoToSwitch(startBox, side);
-        switchRoutine.start();
-    }
-
-    public void initScaleRoutine(int startBox, char scaleSide) {
-        GoToScale switchRoutine;
-        GoToScale.ALLIANCE_SIDE side = null;
-
-        if (scaleSide == 'L') {
-            side = GoToScale.ALLIANCE_SIDE.LEFT;
-        } else if (scaleSide == 'R') {
-            side = GoToScale.ALLIANCE_SIDE.RIGHT;
-        }
-        switchRoutine = new GoToScale(startBox, side);
-        switchRoutine.start();
-    }
 
     @Override
     public void autonomousPeriodic() {
@@ -208,27 +169,10 @@ public class Robot extends TimedRobot {
     @Override
     public void testInit() {
         System.out.println("testInit: --------------------");
-        mCounter = 0;
-//        mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
-//        Scheduler.getInstance().removeAll();
-//        Scheduler.getInstance().add(mArcadeDriveCmd);
     }
 
     @Override public void testPeriodic() {
         Scheduler.getInstance().run();
-        /*if (mCounter < 500) {
-            mCounter++;
-            mDriveSys.arcadeDrive(-0.4,0);
-
-        }
-        if (mCounter%5==0 && mCounter<500) {
-            System.out.println(ControlBoard.getInstance().drive_stick.getY() + "       " + ControlBoard.getInstance().drive_stick.getZ());
-            SmartDashboard.putNumber("Counter: ", mCounter);
-        }*/
-        /*if (mCounter==500) {
-
-            disabledPeriodic();
-        }*/
 
     }
 
@@ -240,14 +184,6 @@ public class Robot extends TimedRobot {
         Path logFile;
 
         try {
-//            logFile = FileSystems.getDefault().getPath("/home/lvuser/logs", "PDP_Log.csv");
-//            System.out.println("-------  Logging: path: " + logFile.toString() + " : " + logFile.toAbsolutePath().toString());
-//            if (Files.notExists(logFile)) {
-//                logFile = Files.createFile(logFile);
-//                List<String> line = new ArrayList<String>();
-//                line.add("time, DriveLeft, DriveRight, Elev, Arm");
-//                Files.write(logFile, line, StandardCharsets.UTF_8);
-//            }
 
             double elvCurrent = 0; //mPDP.getCurrent(RobotConfig.ELEVATOR_TALON_PDP);
             double armCurrent = 0; //mPDP.getCurrent(RobotConfig.ARM_TALON_PDP);
@@ -261,13 +197,6 @@ public class Robot extends TimedRobot {
 
             String logmsg = String.format("lCur: %.3f, rCur: %.3f, elvCur: %.3f, armCur: %.3f", driveLeftCurrent, driveRightCurrent, elvCurrent, armCurrent);
 
-//            System.out.println(logmsg);
-
-            //SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//dd/MM/yyyy
-//            Date now = new Date();
-//            List<String> line = new ArrayList<String>();
-//            line.add(logmsg);
-//            Files.write(logFile, line, StandardCharsets.UTF_8);
         }
         catch (Exception ex) {
             System.out.println( "*******  Logging ex: "+ ex.getClass().getName() + "   msg: " + ex.getMessage() + " ");
