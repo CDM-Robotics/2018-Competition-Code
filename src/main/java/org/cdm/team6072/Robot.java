@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import org.cdm.team6072.autonomous.GameChooser;
 import org.cdm.team6072.autonomous.routines.GoToScale;
 import org.cdm.team6072.autonomous.routines.GoToSwitch;
 import org.cdm.team6072.autonomous.routines.tests.TestSwitchRoutine;
@@ -160,58 +161,8 @@ public class Robot extends TimedRobot {
         System.out.println("auto init (6072)  ------------------------------------------------------------");
         NavXSys.getInstance().zeroYawHeading();
 
-        // how to get what color we are - could be useful for object recog
-        DriverStation.Alliance color;
-        color = DriverStation.getInstance().getAlliance();
-        if(color == DriverStation.Alliance.Blue){
-        }
-        String gameData = "";
-        int station = 9;
-        char switchSide = 'X';
-        char scaleSide = 'X';
-        char farSwitchSide = 'X';
-        if (true ) { //ds.isFMSAttached()) {
-            gameData = ds.getGameSpecificMessage();
-            station = ds.getLocation();
-            if (gameData.length() < 3) {
-                System.out.println("**********************  NO GAME DATA  *********************************************");
-            }
-            switchSide = gameData.charAt(0);
-            scaleSide = gameData.charAt(1);
-            farSwitchSide = gameData.charAt(2);
-        }
-        mAutonCmdGrp = new CommandGroup();
-        int option = mChooser.getSelected();
-        System.out.println("-----------------------------------------------------------------------");
-        System.out.printf("AutoInit: chooser: %d   station: %d   switchSide: %s   scaleSide: %s \r\n", option, station, switchSide, scaleSide);
-        System.out.println("-----------------------------------------------------------------------");
-        option = 2;
-        switch (option) {
-            case 1:
-                TestSwitchRoutine test = new TestSwitchRoutine();
-                test.start();
-                break;
-            case 2:
-                initSwitchRoutine(station, switchSide);
-                break;
-            case 3:
-                initScaleRoutine(station, scaleSide);
-                break;
-//            case 4:
-//                if ((switchSide == 'L') && (scaleSide == 'L')) {
-//                    mAutonCmd = new Auto05L();
-//                } else if ((switchSide == 'L') && (scaleSide == 'R')) {
-//                    mAutonCmd = new Auto05L();
-//                } else if ((switchSide == 'R') && (scaleSide == 'L')) {
-//                    mAutonCmd = new Auto02();
-//                } else if ((switchSide == 'R') && (scaleSide == 'R')) {
-//                    mAutonCmd = new Auto02();
-//                }
-//                break;
-            default:
-//                mAutonCmdGrp.addSequential(new PF_AutoDriveStraightCmd());;
-                break;
-        }
+        GameChooser autoChooser = new GameChooser();
+        autoChooser.runChooser();
     }
 
     public void initSwitchRoutine(int startBox, char switchSide) {
