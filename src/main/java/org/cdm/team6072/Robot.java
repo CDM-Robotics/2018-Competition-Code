@@ -119,6 +119,8 @@ public class Robot extends TimedRobot {
         ArcadeDriveCmd  mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(mArcadeDriveCmd);
+
+       // CameraManager.getInstance().runCameras();
     }
 
 
@@ -152,6 +154,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         DriverStation ds = DriverStation.getInstance();
+        CameraManager.getInstance().runCameras();
 
         super.autonomousInit();
         System.out.println("auto init (6072)  ------------------------------------------------------------");
@@ -163,11 +166,11 @@ public class Robot extends TimedRobot {
         if(color == DriverStation.Alliance.Blue){
         }
         String gameData = "";
-        int station = 1;
-        char switchSide = 'L';
-        char scaleSide = 'L';
-        char farSwitchSide = 'L';
-        if (ds.isFMSAttached()) {
+        int station = 9;
+        char switchSide = 'X';
+        char scaleSide = 'X';
+        char farSwitchSide = 'X';
+        if (true ) { //ds.isFMSAttached()) {
             gameData = ds.getGameSpecificMessage();
             station = ds.getLocation();
             if (gameData.length() < 3) {
@@ -179,8 +182,10 @@ public class Robot extends TimedRobot {
         }
         mAutonCmdGrp = new CommandGroup();
         int option = mChooser.getSelected();
-        System.out.printf("AutoInit: chooser: %d   station: %d   switchSide: %s   scaleSide: %s ", option, station, switchSide, scaleSide);
-
+        System.out.println("-----------------------------------------------------------------------");
+        System.out.printf("AutoInit: chooser: %d   station: %d   switchSide: %s   scaleSide: %s \r\n", option, station, switchSide, scaleSide);
+        System.out.println("-----------------------------------------------------------------------");
+        option = 2;
         switch (option) {
             case 1:
                 TestSwitchRoutine test = new TestSwitchRoutine();

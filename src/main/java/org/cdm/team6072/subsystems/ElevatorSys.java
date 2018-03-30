@@ -41,7 +41,7 @@ public class ElevatorSys extends Subsystem {
     private static int INTAKE_POSN = 3 * kUnitsPerInch / 2;
     private static int SWITCH_POSN_UNITS = 35 * kUnitsPerInch / 2;
     private static int SCALELO_POSN_UNITS = 70 * kUnitsPerInch / 2;
-    private static int SCALEHI_POSN_UNITS = 100 * kUnitsPerInch / 2;
+    private static int SCALEHI_POSN_UNITS = 90 * kUnitsPerInch / 2;
 
 
 
@@ -182,7 +182,7 @@ public class ElevatorSys extends Subsystem {
             mTalon.configReverseSoftLimitThreshold(TALON_REVERSE_LIMIT, kTimeoutMs);
             mTalon.configReverseSoftLimitEnable(false, kTimeoutMs);
 
-            mTalon.configOpenloopRamp(0.5, kTimeoutMs);
+            mTalon.configOpenloopRamp(0.1, kTimeoutMs);
             mTalon.setNeutralMode(NeutralMode.Brake);
 
             // see setup for motion magic in s/w manual 12.6
@@ -190,8 +190,8 @@ public class ElevatorSys extends Subsystem {
             mTalon.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
 
             // set up current limits
-            mTalon.configContinuousCurrentLimit(10, kTimeoutMs);
-            mTalon.configPeakCurrentLimit(15, kTimeoutMs);
+            mTalon.configContinuousCurrentLimit(30, kTimeoutMs);
+            mTalon.configPeakCurrentLimit(40, kTimeoutMs);
             mTalon.configPeakCurrentDuration(200, kTimeoutMs);
             mTalon.enableCurrentLimit(true);
 
@@ -373,6 +373,7 @@ public class ElevatorSys extends Subsystem {
     }
 
     private int mMoveLoopCtr  = 0;
+    private int holdPos = 0;
 
     public void move(Direction dir, double speed) {
         if (topSwitchSet() || botSwitchSet()) {
@@ -382,6 +383,10 @@ public class ElevatorSys extends Subsystem {
         }
         if (dir == Direction.Down) {
             speed = -speed;
+            System.out.println("dirn down  " + speed);
+        }
+        else {
+            System.out.println("dirn up  " + speed);
         }
         mTalon.set(ControlMode.PercentOutput, speed);
         if (++mMoveLoopCtr % 5 == 0) {
@@ -392,20 +397,20 @@ public class ElevatorSys extends Subsystem {
 
     public void initStop() {
         mTalon.set(ControlMode.PercentOutput, 0);
+        holdPos = getCurPosn();
     }
 
 
     public void stopping() {
         double output = mTalon.getMotorOutputPercent();
         double outVolts = mTalon.getMotorOutputVoltage();
-        System.out.printf("ElvSys.stopping:  output%%: %.2f    volts: %.3f  \r\n");
+        System.out.printf("ElvSys.stopping:  output%%: %.2f    volts: %.3f  \r\n", output, outVolts);
     }
 
     public boolean stopComplete() {
-
         double output = mTalon.getMotorOutputPercent();
         if (output < 0.1) {
-            System.out.printf("ElvSys.stopComplete:  output%%: %.2f    \r\n");
+            System.out.printf("ElvSys.stopComplete:  output%%: %.2f    \r\n", output);
             holdPosn();
             return true;
         }
@@ -423,6 +428,7 @@ public class ElevatorSys extends Subsystem {
 
         double curPosn = mTalon.getSelectedSensorPosition(0);
         //double curPosn = mTalon.getSensorCollection().getPulseWidthPosition();
+        //double curPosn = holdPos;
         printPosn("holdPosn.before");
         int loopCnt = 0;
         // In Position mode, output value is in encoder ticks or an analog value, depending on the sensor.

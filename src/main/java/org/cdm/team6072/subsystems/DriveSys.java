@@ -533,9 +533,9 @@ public class DriveSys extends Subsystem {
         double mag = mDrivePIDOut.getVal();
         double yaw = mGyroPIDOut.getVal();
         if (mMoveDistLoopCnt++ % 5 == 0) {
-            System.out.printf("DS.moveDistPIDExec: start: %d   cur: %d   targ: %d   mag: %.3f  yaw: %.3f  \r\n", mStartPosn, curPosn, mTargPosn, mag, yaw);
+//            System.out.printf("DS.moveDistPIDExec: start: %d   cur: %d   targ: %d   mag: %.3f  yaw: %.3f  \r\n", mStartPosn, curPosn, mTargPosn, mag, yaw);
         }
-        mRoboDrive.arcadeDrive(-mag, yaw, false);
+        mRoboDrive.arcadeDrive(mag, yaw, false);
         mHitTarg = mDrivePID.onTarget();
     }
 
