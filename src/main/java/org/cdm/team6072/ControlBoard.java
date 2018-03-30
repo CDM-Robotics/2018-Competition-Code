@@ -258,6 +258,7 @@ public class ControlBoard {
         control_buttons[EXTREME_BUT_9 -1].whenPressed(new PositionIntake());
 
 
+        /* TEMP COMMENT OUT FOR AUTO TESTING
         // intake CLOSE LO
         control_buttons[EXTREME_BUT_10 -1] = new JoystickButton(control_stick, EXTREME_BUT_10);
         control_buttons[EXTREME_BUT_10 -1].whenPressed(new CloseIntakeLoCmd());
@@ -269,8 +270,17 @@ public class ControlBoard {
         // intake OPEN
         control_buttons[EXTREME_BUT_12-1] = new JoystickButton(control_stick, EXTREME_BUT_12);
         control_buttons[EXTREME_BUT_12-1].whenPressed(new OpenIntakeCmd());
+        */
 
         // end control comp setup  -----------------------------------------------------
+        control_buttons[EXTREME_BUT_10 - 1] = new JoystickButton(control_stick, EXTREME_BUT_10);
+        control_buttons[EXTREME_BUT_10 - 1].whenPressed(new DriveTurnYawCmd(90));
+
+        control_buttons[EXTREME_BUT_11 - 1] = new JoystickButton(control_stick, EXTREME_BUT_11);
+        control_buttons[EXTREME_BUT_11 - 1].whenPressed(new DriveDistCmd(5));
+
+        control_buttons[EXTREME_BUT_12 - 1] = new JoystickButton(control_stick, EXTREME_BUT_12);
+        control_buttons[EXTREME_BUT_12 - 1].whenPressed(new DriveTurnYawCmd(-90));
 
 
 //        control_buttons[ELEVATOR_RESET_START-1] = new JoystickButton(control_stick, ELEVATOR_RESET_START);
