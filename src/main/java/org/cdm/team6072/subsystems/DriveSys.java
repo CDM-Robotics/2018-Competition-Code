@@ -15,23 +15,15 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.command.Subsystem;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.PIDController;
-import edu.wpi.first.wpilibj.PIDOutput;
-import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.SendableBase;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.cdm.team6072.ControlBoard;
-import org.cdm.team6072.Robot;
 import org.cdm.team6072.RobotConfig;
 import org.cdm.team6072.commands.drive.ArcadeDriveCmd;
-import org.cdm.team6072.commands.drive.TankDriveCmd;
 import org.cdm.team6072.profiles.Constants;
 import org.cdm.team6072.autonomous.MotionProfileManager;
 import org.cdm.team6072.profiles.drive.DrivetrainProfile;
-import org.opencv.core.Mat;
 
 
 /**
@@ -138,42 +130,6 @@ public class DriveSys extends Subsystem {
     }
 
 
-    /*
-     * raise P constant until controller oscillates. If oscillation too much,
-     * lower constant a bit raise D constant to damp oscillation, causing it to
-     * converge. D also slows controller's approach to setpoint so will need to
-     * tweak balance of P and D if P + D are tuned and it oscillates +
-     * converges, but not to correct setpoint, increase I = steady-state error -
-     * positive, nonzero integral constant will cause controller to correct for
-     * it
-     */
-    static final double kP = 0.03;
-    static final double kI = 0.00;
-    static final double kD = 0.00;
-    static final double kF = 0.00;
-    /* This tuning parameter indicates how close to "on target" the    */
-    /* PID Controller will attempt to get.                             */
-    static final double kToleranceDegrees = 2.0f;
-
-
-    private AHRS  mAhrs;
-    private PIDController mGyroPID;
-    private PIDOutReceiver mGyroPIDOut;
-
-
-    private void initGyroPID() {
-        mGyroPIDOut = new PIDOutReceiver();
-        mGyroPID = new PIDController(kP, kI, kD, kF, mAhrs, mGyroPIDOut);
-        mGyroPID.setInputRange(-180.0f,  180.0f);
-        mGyroPID.setOutputRange(-1.0, 1.0);
-        // Makes PIDController.onTarget() return True when PIDInput is within the Setpoint +/- the absolute tolerance.
-        mGyroPID.setAbsoluteTolerance(kToleranceDegrees);
-        // Treats the input ranges as the same, continuous point rather than two boundaries, so it can calculate shorter routes.
-        // For example, in a gyro, 0 and 360 are the same point, and should be continuous. Needs setInputRanges.
-        mGyroPID.setContinuous(true);
-        mGyroPID.setName("DriveSys.GyroPID");
-        System.out.println("DriveSys.initGyroPID:  AHRS.SrcType: " + mAhrs.getPIDSourceType().name());
-    }
 
 
 
@@ -533,7 +489,7 @@ public class DriveSys extends Subsystem {
         double mag = mDrivePIDOut.getVal();
         double yaw = mGyroPIDOut.getVal();
         if (mMoveDistLoopCnt++ % 5 == 0) {
-//            System.out.printf("DS.moveDistPIDExec: start: %d   cur: %d   targ: %d   mag: %.3f  yaw: %.3f  \r\n", mStartPosn, curPosn, mTargPosn, mag, yaw);
+           System.out.printf("DS.moveDistPIDExec: start: %d   cur: %d   targ: %d   mag: %.3f  yaw: %.3f  \r\n", mStartPosn, curPosn, mTargPosn, mag, yaw);
         }
         mRoboDrive.arcadeDrive(mag, yaw, false);
         mHitTarg = mDrivePID.onTarget();
@@ -554,22 +510,75 @@ public class DriveSys extends Subsystem {
 
 
 
-    private int mTurnYaw;
+    /*
+     * raise P constant until controller oscillates. If oscillation too much,
+     * lower constant a bit raise D constant to damp oscillation, causing it to
+     * converge. D also slows controller's approach to setpoint so will need to
+     * tweak balance of P and D if P + D are tuned and it oscillates +
+     * converges, but not to correct setpoint, increase I = steady-state error -
+     * positive, nonzero integral constant will cause controller to correct for
+     * it
+     */
+    static final double kP = 0.04;
+    static final double kI = 0.00;
+    static final double kD = 0.1;
+    static final double kF = 0.00;
+    /* This tuning parameter indicates how close to "on target" the    */
+    /* PID Controller will attempt to get.                             */
+    static final double kToleranceDegrees = 2.0f;
+
+
+    private AHRS  mAhrs;
+    private PIDController mGyroPID;
+    private PIDOutReceiver mGyroPIDOut;
+
+
+    private void initGyroPID() {
+        mGyroPIDOut = new PIDOutReceiver();
+        mGyroPID = new PIDController(kP, kI, kD, kF, mAhrs, mGyroPIDOut);
+        mGyroPID.setInputRange(-180.0f,  180.0f);
+        mGyroPID.setOutputRange(-0.5, 0.5);
+        // Makes PIDController.onTarget() return True when PIDInput is within the Setpoint +/- the absolute tolerance.
+        mGyroPID.setAbsoluteTolerance(kToleranceDegrees);
+        // Treats the input ranges as the same, continuous point rather than two boundaries, so it can calculate shorter routes.
+        // For example, in a gyro, 0 and 360 are the same point, and should be continuous. Needs setInputRanges.
+        mGyroPID.setContinuous(true);
+        mGyroPID.setName("DriveSys.GyroPID");
+        System.out.println("DriveSys.initGyroPID:  AHRS.SrcType: " + mAhrs.getPIDSourceType().name());
+    }
+
+
+
+    private double mTargYaw;
+    private int mTurnLoopCtr = 0;
 
     public void initTurnYaw(int yaw) {
-            mTurnYaw = yaw;
-            mGyroPID.setSetpoint(yaw);
-            mGyroPID.enable();
+        double curYaw = mAhrs.getYaw();
+        System.out.printf("DS.initTurnYaw: curYaw: %.3f   targYaw: %d \r\n", curYaw, yaw);
+        mTurnLoopCtr = 0;
+        mTargYaw = yaw;
+        mGyroPID.setSetpoint(yaw);
+        mGyroPID.enable();
     }
 
 
     public void turnYawExec() {
-        double val = mGyroPIDOut.getVal();
-        mRoboDrive.arcadeDrive(-0, val, false);
+        int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
+        double curYaw = mAhrs.getYaw();
+        double pidYaw = mGyroPIDOut.getVal();   // scaled for motor output
+        if (mMoveDistLoopCnt++ % 5 == 0) {
+            System.out.printf("DS.turnYawExec:  curYaw: %.3f   pidYaw: %.3f   targYaw: %.3f  \r\n", curYaw, pidYaw, mTargYaw);
+        }
+        mRoboDrive.arcadeDrive(-0, pidYaw, false);
     }
 
     public boolean turnYawComplete() {
-        return mGyroPID.onTarget();
+        boolean onTarg =  mGyroPID.onTarget();
+        if (onTarg) {
+            double curYaw = mAhrs.getYaw();
+            System.out.printf("DS.turnYawComplete: final yaw: %.3f  targYaw: %.3f\r\n", curYaw, mTargYaw);
+        }
+        return onTarg;
     }
 
 

@@ -139,8 +139,8 @@ public class Robot extends TimedRobot {
         // reset the disabled loop print count to allow a few prints when disabled
         // update PDP stats every half second
         if (++mTelopLoopCtr % 200 == 0) {
-//            //logNavX()
-            NavXSys.getInstance().outputAngles();
+            double curYaw = NavXSys.getInstance().getAHRS().getYaw();
+            System.out.printf("Robot.telPer:  curYaw: %.3f  \r\n", curYaw);
         }
     }
 
