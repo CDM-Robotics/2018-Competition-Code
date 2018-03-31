@@ -411,8 +411,8 @@ public class DriveSys extends Subsystem {
     private static double DRIVE_NEGBOUND = -0.12;
     private static double DRIVE_POSBOUND = 0.12;
 
-    private static double TURN_NEGBAND = -0.15;
-    private static double TURN_POSBAND = 0.15;
+    private static double TURN_NEGBAND = -0.17;
+    private static double TURN_POSBAND = 0.17;
 
     static final double kF_drive = 2.0;
     static final double kP_drive = 0.5;

@@ -43,7 +43,9 @@ public class GameChooser {
                 test.start();
                 break;
             case 2:
-                initSwitchRoutine(this.stationNum, switchSide);
+                //initSwitchRoutine(this.stationNum, switchSide);
+                System.out.println("TEST: EXECUTING INIT SWITCH ROUTINE BOX TO SIDE RIGHT");
+                initSwitchRoutine(2, 'R');
                 break;
             case 3:
                 initScaleRoutine(this.stationNum, scaleSide);

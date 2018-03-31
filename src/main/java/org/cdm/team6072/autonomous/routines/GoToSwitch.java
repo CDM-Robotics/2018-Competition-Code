@@ -34,7 +34,7 @@ public class GoToSwitch extends CommandGroup {
 
         mSide = side;
 
-        switch (3) {
+        switch (2) {
             case 1:
                 // do something
                 if (side == ALLIANCE_SIDE.LEFT) {
@@ -47,6 +47,7 @@ public class GoToSwitch extends CommandGroup {
                 if (side == ALLIANCE_SIDE.LEFT) {
                     goFromPosTwoToLeft();
                 } else {
+                    System.out.println("going from pos 2 to right");
                     goFromPosTwoToRight();
                 }
             case 3:
@@ -74,12 +75,12 @@ public class GoToSwitch extends CommandGroup {
 
     // go straight, 90 degree turn to right, straight, 90 degree turn left, straight to finish at switch
     private void goFromPosTwoToRight() {
-        addSequential(new DriveDistCmd(midChannelDist));
-        addSequential(new DriveTurnYawCmd(90));
-        addSequential(new DriveDistCmd((float)5.7));
-        addSequential(new DriveTurnYawCmd(-90));
-        addParallel(new PositionSwitchShooter());
-        addSequential(new DriveDistCmd(midChannelToSwitchDist));
+        addSequential(new DriveDistCmd(2));
+        addSequential(new DriveTurnYawCmd(45));
+        addSequential(new DriveDistCmd(5));
+        addSequential(new DriveTurnYawCmd(0));
+        //addParallel(new PositionSwitchShooter());
+        addSequential(new DriveDistCmd(2));
     }
 
     private void goFromPosOneToRight() {
@@ -87,8 +88,8 @@ public class GoToSwitch extends CommandGroup {
         addSequential(new DriveTurnYawCmd(90));
         addSequential(new DriveDistCmd((float)10.5));
         addSequential(new DriveTurnYawCmd(-90));
-        addParallel(new PositionSwitchShooter());
-        addSequential(new DriveDistCmd(midChannelToSwitchDist));
+        //addParallel(new PositionSwitchShooter());
+        addSequential(new DriveDistCmd((float)2.7));
     }
 
     private void goFromPosThreeToLeft() {
