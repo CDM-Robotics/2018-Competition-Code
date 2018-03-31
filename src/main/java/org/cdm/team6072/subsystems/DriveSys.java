@@ -221,14 +221,20 @@ public class DriveSys extends Subsystem {
     }
 
     private int mLoopCnt = 0;
+
     public void arcadeDrive(double mag, double yaw) {
-        yaw = yaw * 0.8;        // reduce sensitivity on turn
-        mRoboDrive.arcadeDrive(-mag, yaw, true);
+ //         PRODUCTION ROBO
+//        yaw = yaw * 0.8;        // reduce sensitivity on turn
+//        mRoboDrive.arcadeDrive(-mag, yaw, true);
+
+        mRoboDrive.arcadeDrive(mag, yaw, false);        // TEST ROBOT
         if (mLoopCnt++ % 10 == 0) {
+            System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw + "  navYaw: " + mAhrs.getYaw());
+            printPosn("arcadeDrive");
 //            logPosn("DrvSys.arcadedrv");
 //           System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw  );
 //                    + "  navAngle: " + mAhrs.getAngle() + "  navYaw: " + mAhrs.getYaw()
-//                    + "  PIDOut: " + mGyroPIDOut.getVal() + "  PID.kP: " + mGyroPID.getP());
+//                    + "  PIDOut: " + mGyroPIDOut.getVal() + "  PID.kP_turn: " + mGyroPID.getP());
 
 //            SmartDashboard.putNumber("DriveSys.arc.mag", mag);
 //            SmartDashboard.putNumber("DriveSys.arc.yaw", yaw);
@@ -346,7 +352,7 @@ public class DriveSys extends Subsystem {
         if (mLoopCnt++ % 10 == 0) {
 //           System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw  );
 //                    + "  navAngle: " + mAhrs.getAngle() + "  navYaw: " + mAhrs.getYaw()
-//                    + "  PIDOut: " + mGyroPIDOut.getVal() + "  PID.kP: " + mGyroPID.getP());
+//                    + "  PIDOut: " + mGyroPIDOut.getVal() + "  PID.kP_turn: " + mGyroPID.getP());
 
 //            SmartDashboard.putNumber("DriveSys.arc.mag", mag);
 //            SmartDashboard.putNumber("DriveSys.arc.yaw", yaw);
@@ -400,16 +406,45 @@ public class DriveSys extends Subsystem {
 
     // calculate allowed dist error in inches
     private static final int ALLOWED_DISTERR = (int) (6 / (Math.PI * 6) * 4096);
+
+
+    private static double DRIVE_NEGBOUND = -0.12;
+    private static double DRIVE_POSBOUND = 0.12;
+
+    private static double TURN_NEGBAND = -0.15;
+    private static double TURN_POSBAND = 0.15;
+
+    static final double kF_drive = 2.0;
+    static final double kP_drive = 0.5;
+    static final double kI_drive = 0.0;
+    static final double kD_drive = 1.50;
+
+    /*
+     * raise P constant until controller oscillates. If oscillation too much,
+     * lower constant a bit raise D constant to damp oscillation, causing it to
+     * converge. D also slows controller's approach to setpoint so will need to
+     * tweak balance of P and D if P + D are tuned and it oscillates +
+     * converges, but not to correct setpoint, increase I = steady-state error -
+     * positive, nonzero integral constant will cause controller to correct for
+     * it
+     */
+    private static final double kP_turn = 0.04;
+    private static final double kI_turn = 0.00;
+    private static final double kD_turn = 0.1;
+    private static final double kF_turn = 0.00;
+
+    /* This tuning parameter indicates how close to "on target" the    */
+    /* PID Controller will attempt to get.                             */
+    static final double kToleranceDegrees = 2.0f;
+
+
     private float mDistance;
 
     private int mStartPosn;
     private int mTargetDist;
     private int mTargPosn;
 
-    static final double kF_drive = 2.0;
-    static final double kP_drive = 1.0;
-    static final double kI_drive = 1.0;
-    static final double kD_drive = 0.00;
+
 
     /* This tuning parameter indicates how close to "on target" the    */
     /* PID Controller will attempt to get.                             */
@@ -420,6 +455,7 @@ public class DriveSys extends Subsystem {
     private PIDOutReceiver mDrivePIDOut;
 
     private PIDSourceTalonPW mTalonPIDSource;
+
 
 
     private void initDrivePID() {
@@ -466,66 +502,65 @@ public class DriveSys extends Subsystem {
      * Called by the command exec loop
      * Stop if with error bound of taarget, OR if error is growing - we went past target
      */
-    public void moveDistanceExec() {
-
-        int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
-        int curErr = Math.abs(mTargPosn - curPosn);
-        mHitTarg = (curErr < ALLOWED_DISTERR) || curErr > mLastErr;
-        double yaw = mGyroPIDOut.getVal();
-        if (mMoveDistLoopCnt++ % 5 == 0) {
-            System.out.printf("DS.moveDistExec: start: %d   cur: %d   targ: %d   yaw: %.3f  curErr: %d  lastErr: %d  \r\n", mStartPosn, curPosn, mTargPosn, yaw, curErr, mLastErr);
-        }
-        mLastErr = curErr;
-        if (!mHitTarg) {
-            mRoboDrive.arcadeDrive(-0.5, yaw, false);
-        } else {
-            mRoboDrive.arcadeDrive(-0.0, 0, false);
-            System.out.printf("DS.moveDistExec: start: %d   cur: %d   targ: %d   yaw: %.3f  curErr: %d  lastErr: %d  ------------\r\n", mStartPosn, curPosn, mTargPosn, yaw, curErr, mLastErr);
-        }
-    }
+//    public void moveDistanceExec() {
+//
+//        int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
+//        int curErr = Math.abs(mTargPosn - curPosn);
+//        mHitTarg = (curErr < ALLOWED_DISTERR) || curErr > mLastErr;
+//        double yaw = mGyroPIDOut.getVal();
+//        if (mMoveDistLoopCnt++ % 5 == 0) {
+//            System.out.printf("DS.moveDistExec: start: %d   cur: %d   targ: %d   yaw: %.3f  curErr: %d  lastErr: %d  \r\n", mStartPosn, curPosn, mTargPosn, yaw, curErr, mLastErr);
+//        }
+//        mLastErr = curErr;
+//        if (!mHitTarg) {
+//            mRoboDrive.arcadeDrive(-0.5, yaw, false);
+//        } else {
+//            mRoboDrive.arcadeDrive(-0.0, 0, false);
+//            System.out.printf("DS.moveDistExec: start: %d   cur: %d   targ: %d   yaw: %.3f  curErr: %d  lastErr: %d  ------------\r\n", mStartPosn, curPosn, mTargPosn, yaw, curErr, mLastErr);
+//        }
+//    }
 
     public void moveDistancePIDExec() {
         int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
         double mag = mDrivePIDOut.getVal();
+        mag = mag / 2;      // slow it down
+        mag = checkDeadband(mag, DRIVE_NEGBOUND, DRIVE_POSBOUND);
         double yaw = mGyroPIDOut.getVal();
         if (mMoveDistLoopCnt++ % 5 == 0) {
            System.out.printf("DS.moveDistPIDExec: start: %d   cur: %d   targ: %d   mag: %.3f  yaw: %.3f  \r\n", mStartPosn, curPosn, mTargPosn, mag, yaw);
         }
-        mRoboDrive.arcadeDrive(mag, yaw, false);
+        mRoboDrive.arcadeDrive(-mag, yaw, false);       // PROD is +mag,   TEST is -mag
         mHitTarg = mDrivePID.onTarget();
+        if (mHitTarg) {
+            printPosn("moveDistancePIDExec_hit");
+        }
     }
 
     public boolean moveDistComplete() {
+        mHitTarg = mDrivePID.onTarget();
         if (mHitTarg) {
-            int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
-            int dist = curPosn - mStartPosn;
-            double distRevs = dist / 4096;
-            double distFeet = distRevs * 1.5708;
-            double distErr = dist / mTargetDist;
-            System.out.printf("DS.moveDistExec: start: %d   cur: %d   targ: %d   lastErr: %d  distEnc: %d   distRevs: %.3f  distFeet: %.3f   distErr: %.2f\r\n",
-                    mStartPosn, curPosn, mTargPosn, mLastErr, dist, distRevs, distFeet, distErr) ;
+            printPosn("moveDistComplete");
         }
         return mHitTarg;
     }
 
 
+    private void printPosn(String caller) {
+        int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
+        double yaw = mAhrs.getYaw();
+        int dist = curPosn - mStartPosn;
+        double distRevs = dist / 4096;
+        double distFeet = distRevs * 1.5708;
+        double distErr = 0;
+        if (mTargPosn != 0) {
+            distErr = dist / mTargetDist;
+        }
+        System.out.printf("DS. %s : start: %d   cur: %d   targ: %d   distEnc: %d   distRevs: %.3f  distFeet: %.3f   distErr: %.2f   yaw:  %.3f \r\n",
+                caller, mStartPosn, curPosn, mTargPosn, dist, distRevs, distFeet, distErr, yaw) ;
+    }
 
-    /*
-     * raise P constant until controller oscillates. If oscillation too much,
-     * lower constant a bit raise D constant to damp oscillation, causing it to
-     * converge. D also slows controller's approach to setpoint so will need to
-     * tweak balance of P and D if P + D are tuned and it oscillates +
-     * converges, but not to correct setpoint, increase I = steady-state error -
-     * positive, nonzero integral constant will cause controller to correct for
-     * it
-     */
-    static final double kP = 0.04;
-    static final double kI = 0.00;
-    static final double kD = 0.1;
-    static final double kF = 0.00;
-    /* This tuning parameter indicates how close to "on target" the    */
-    /* PID Controller will attempt to get.                             */
-    static final double kToleranceDegrees = 2.0f;
+
+
 
 
     private AHRS  mAhrs;
@@ -535,7 +570,7 @@ public class DriveSys extends Subsystem {
 
     private void initGyroPID() {
         mGyroPIDOut = new PIDOutReceiver();
-        mGyroPID = new PIDController(kP, kI, kD, kF, mAhrs, mGyroPIDOut);
+        mGyroPID = new PIDController(kP_turn, kI_turn, kD_turn, kF_turn, mAhrs, mGyroPIDOut);
         mGyroPID.setInputRange(-180.0f,  180.0f);
         mGyroPID.setOutputRange(-0.5, 0.5);
         // Makes PIDController.onTarget() return True when PIDInput is within the Setpoint +/- the absolute tolerance.
@@ -552,6 +587,7 @@ public class DriveSys extends Subsystem {
     private double mTargYaw;
     private int mTurnLoopCtr = 0;
 
+
     public void initTurnYaw(int yaw) {
         double curYaw = mAhrs.getYaw();
         System.out.printf("DS.initTurnYaw: curYaw: %.3f   targYaw: %d \r\n", curYaw, yaw);
@@ -566,6 +602,7 @@ public class DriveSys extends Subsystem {
         int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
         double curYaw = mAhrs.getYaw();
         double pidYaw = mGyroPIDOut.getVal();   // scaled for motor output
+        pidYaw = checkDeadband(pidYaw, TURN_NEGBAND, TURN_POSBAND);
         if (mMoveDistLoopCnt++ % 5 == 0) {
             System.out.printf("DS.turnYawExec:  curYaw: %.3f   pidYaw: %.3f   targYaw: %.3f  \r\n", curYaw, pidYaw, mTargYaw);
         }
@@ -579,6 +616,17 @@ public class DriveSys extends Subsystem {
             System.out.printf("DS.turnYawComplete: final yaw: %.3f  targYaw: %.3f\r\n", curYaw, mTargYaw);
         }
         return onTarg;
+    }
+
+
+    private double checkDeadband(double val, double negBand, double posBand) {
+        if (val > 0 && val < posBand) {
+            return posBand;
+        }
+        if (val < 0 && val > negBand) {
+            return negBand;
+        }
+        return val;
     }
 
 

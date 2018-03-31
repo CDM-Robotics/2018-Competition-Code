@@ -226,7 +226,7 @@ public class ElevatorSys extends Subsystem {
             // init PID for hold
             mTalon.configAllowableClosedloopError(kPIDSlot_Hold, TALON_ALLOWED_CLOSELOOP_ERROR, kTimeoutMs);
             mTalon.config_kF(kPIDSlot_Hold, 0.0, kTimeoutMs);        // normally 0 for position hold but putting in small 0.1 damps oscillation
-            mTalon.config_kP(kPIDSlot_Hold, 2.0, kTimeoutMs);        // kP 1.0 used on elevator 2018-02-17
+            mTalon.config_kP(kPIDSlot_Hold, 2.0, kTimeoutMs);        // kP_turn 1.0 used on elevator 2018-02-17
             mTalon.config_kI(kPIDSlot_Hold, 0.0, kTimeoutMs);
             mTalon.config_kD(kPIDSlot_Hold, 20.0, kTimeoutMs);
 
