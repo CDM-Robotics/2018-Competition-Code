@@ -5,15 +5,16 @@ import org.cdm.team6072.autonomous.routines.GoToScale;
 import org.cdm.team6072.autonomous.routines.GoToSwitch;
 import org.cdm.team6072.autonomous.routines.tests.TestSwitchRoutine;
 
+// used to select autonomous routine at the beginning of the match based
+// on the game data returned from the field management system
 public class GameChooser {
 
     private DriverStation.Alliance allianceColor;
-
-
     private char switchSide;
     private char scaleSide;
     private char farSwitchSide;
     private int stationNum;
+
 
     public GameChooser() {
 
@@ -66,7 +67,7 @@ public class GameChooser {
     }
 
     public void initScaleRoutine(int startBox, char scaleSide) {
-        GoToScale switchRoutine;
+        GoToScale scaleRoutine;
         GoToScale.ALLIANCE_SIDE side = null;
 
         if (scaleSide == 'L') {
@@ -74,7 +75,7 @@ public class GameChooser {
         } else if (scaleSide == 'R') {
             side = GoToScale.ALLIANCE_SIDE.RIGHT;
         }
-        switchRoutine = new GoToScale(startBox, side);
-        switchRoutine.start();
+        scaleRoutine = new GoToScale(startBox, side);
+        scaleRoutine.start();
     }
 }
