@@ -43,6 +43,13 @@ public class ElevatorSys extends Subsystem {
     private static int SCALELO_POSN_UNITS = 70 * kUnitsPerInch / 2;
     private static int SCALEHI_POSN_UNITS = 90 * kUnitsPerInch / 2;
 
+    // if using Position PID, measure these values as delat from the absolute start position
+    // then change the values in the moveToXXX() methods
+    private static int INTAKE_POSN_DELTA = 3 * kUnitsPerInch / 2;
+    private static int SWITCH_POSN_UNITS_DELTA = 35 * kUnitsPerInch / 2;
+    private static int SCALELO_POSN_UNITS_DELTA = 70 * kUnitsPerInch / 2;
+    private static int SCALEHI_POSN_UNITS_DELAT = 90 * kUnitsPerInch / 2;
+
 
 
     /**
@@ -510,6 +517,9 @@ public class ElevatorSys extends Subsystem {
             dir = Direction.Down;
         }
         System.out.println("ElvSys.moveToTarget:  mBasePosn: " + mBasePosn + "  targPosn: " + targPosn + "  curPosn: " + getCurPosn() + "  distToMove: " + distToMove);
+
+        // change here to switch to using Position PID
+        // NOTE NOTE - magic move is using targPosn, but Position is using a delta
         initForMagicMove();
         magicMove(dir, Math.abs(targPosn));
     }
@@ -519,6 +529,8 @@ public class ElevatorSys extends Subsystem {
     }
 
 
+
+    // code for magic move  --------------------------------------------------------------------------
 
     private double mMMTargetPosn = -1;
 
@@ -587,6 +599,42 @@ public class ElevatorSys extends Subsystem {
         //holdPosn();
         printPosn("magicMoveStop -------- ");
     }
+
+
+    // code for moving using Position mode instead of magic move  ----------------------------------------
+
+
+    private int mPosn_START;
+    private int mCalcTarg;
+
+
+    private void moveToTargetPosn(int targPosnDelta) {
+        Direction dir;
+
+        mTalon.selectProfileSlot(kPIDSlot_Move,0);
+        mCalcTarg = mPosn_START + targPosnDelta;
+        mMMStartPosn = getCurPosn();
+        System.out.println("ElvSys.moveToTarget:  mPosn_START: " + mPosn_START + "  delta: " + targPosnDelta  + "  calcTarg: " + mCalcTarg+ "  curPosn: " + getCurPosn());
+        mMMStarted = false;
+        mLoopCtr = 0;
+        mTalon.set(ControlMode.Position, mCalcTarg);
+        mMMStarted = true;
+    }
+
+
+    public boolean moveToTargetPosnComplete() {
+        double curVel = mTalon.getSelectedSensorVelocity(kPIDSlot_Move);
+        int curPosn = Math.abs(getCurPosn());
+        boolean end =  (curVel == 0) && (Math.abs(mCalcTarg - curPosn) < 300);
+        if (end) {
+            printPosn("moveToTargetComplete -------- ");
+        }
+        return end;
+    }
+
+
+
+    // end  moving using Position mode instead of magic move  ----------------------------------------
 
 
     //  code for fixed move  -----------------------------------------------------------------------
