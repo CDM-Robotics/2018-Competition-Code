@@ -67,6 +67,7 @@ public class DriveDistCmd extends Command {
     protected synchronized boolean isTimedOut() {
         if (super.isTimedOut()) {
             System.out.println("DriveDistCmd.isTimedOut ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+            mDriveSys.arcadeDrive(0, 0);
         }
         return super.isTimedOut();
     }

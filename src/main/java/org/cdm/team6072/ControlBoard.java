@@ -2,6 +2,7 @@ package org.cdm.team6072;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
+import edu.wpi.first.wpilibj.command.CommandGroup;
 import org.cdm.team6072.autonomous.routines.subroutines.PositionIntake;
 import org.cdm.team6072.autonomous.routines.subroutines.PositionScaleShooter;
 import org.cdm.team6072.autonomous.routines.subroutines.PositionSwitchShooter;
@@ -281,8 +282,14 @@ public class ControlBoard {
         control_buttons[EXTREME_BUT_11 - 1] = new JoystickButton(control_stick, EXTREME_BUT_11);
         control_buttons[EXTREME_BUT_11 - 1].whenPressed(new DriveTurnYawCmd(45));
 
+
+        CommandGroup test = new CommandGroup();
+        test.addSequential(new DriveDistCmd(100), 2000);
+        test.addSequential(new DriveDistCmd(100), 2000);
+        test.addSequential(new DriveDistCmd(200), 2000);
+
         control_buttons[EXTREME_BUT_12 - 1] = new JoystickButton(control_stick, EXTREME_BUT_12);
-        control_buttons[EXTREME_BUT_12 - 1].whenPressed(new DriveDistCmd(100, 2, "testStraight"));//whenPressed(new DriveTurnYawCmd(-45));
+        control_buttons[EXTREME_BUT_12 - 1].whenPressed(test);//whenPressed(new DriveTurnYawCmd(-45));
 
 
 //        control_buttons[ELEVATOR_RESET_START-1] = new JoystickButton(control_stick, ELEVATOR_RESET_START);
