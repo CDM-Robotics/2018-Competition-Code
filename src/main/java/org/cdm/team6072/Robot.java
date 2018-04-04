@@ -142,7 +142,7 @@ public class Robot extends TimedRobot {
         super.autonomousInit();
 
         DriverStation ds = DriverStation.getInstance();
-        CameraManager.getInstance().runCameras();
+        //CameraManager.getInstance().runCameras();
 
         System.out.println("auto init (6072)  ------------------------------------------------------------");
         NavXSys.getInstance().zeroYawHeading();

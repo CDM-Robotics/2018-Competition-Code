@@ -2,6 +2,7 @@ package org.cdm.team6072.commands.drive;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.command.Command;
+import org.cdm.team6072.subsystems.CmdWatchdog;
 import org.cdm.team6072.subsystems.DriveSys;
 
 public class DriveDistCmd extends Command {
@@ -13,6 +14,10 @@ public class DriveDistCmd extends Command {
 
     private float mDistInFeet;
 
+    private int timeout = -1;
+
+    private CmdWatchdog mWatchDog;
+
 
     /**
      * Specify the the command requires the DriveSys subsystem
@@ -22,11 +27,23 @@ public class DriveDistCmd extends Command {
         mDistInFeet = distInFeeet;
     }
 
+    public DriveDistCmd(float distInFeeet, int milliSecs, String cmdName) {
+        requires(DriveSys.getInstance());
+        this.setName(cmdName);
+        mDistInFeet = distInFeeet;
+//        mWatchDog = CmdWatchdog.SetWatchdog(this, milliSecs);
+        this.timeout = milliSecs;
+    }
+
 
     @Override
     protected void initialize() {
         mDriveSys = DriveSys.getInstance();
         mDriveSys.startMoveDistance(mDistInFeet);
+
+        if (timeout != -1) {
+            this.setTimeout(timeout/1000);
+        }
     }
 
 
@@ -45,8 +62,16 @@ public class DriveDistCmd extends Command {
      */
     @Override
     protected boolean isFinished() {
+        if (timeout != -1) {
+            return mDriveSys.moveDistComplete() || isTimedOut();
+        }
         return mDriveSys.moveDistComplete();
     }
+
+//    @Override
+//    protected boolean isCanceled() {
+//        return false;is
+//    }
 
 
 }

@@ -80,7 +80,7 @@ public class GoToSwitch extends CommandGroup {
         addSequential(new DriveDistCmd(5));
         addSequential(new DriveTurnYawCmd(0));
         //addParallel(new PositionSwitchShooter());
-        addSequential(new DriveDistCmd(2));
+        addSequential(new DriveDistCmd(2, 2000, "goPosTwoRight_final_drive_distance"));
     }
 
     private void goFromPosOneToRight() {
@@ -102,12 +102,14 @@ public class GoToSwitch extends CommandGroup {
     }
 
     private void goFromPosTwoToLeft() {
-        addSequential(new DriveDistCmd(midChannelDist));
-        addSequential(new DriveTurnYawCmd(-90));
-        addSequential(new DriveDistCmd((float)5.7));
-        addSequential(new DriveTurnYawCmd(90));
-        addParallel(new PositionSwitchShooter());
-        addSequential(new DriveDistCmd(midChannelToSwitchDist));
+        addSequential(new DriveDistCmd(2));
+        addSequential(new DriveTurnYawCmd(-50));
+        addSequential(new DriveDistCmd((float)7));
+        addSequential(new DriveTurnYawCmd(0));
+        //addParallel(new PositionSwitchShooter()); TEMP
+        addSequential(new DriveDistCmd(this.inchesToFeet(30)), 2.0);
+        //addSequential(new DriveDistCmd(this.inchesToFeet(10)));
+        System.out.println("end of goFromPosTwoToLeft **************");
     }
 
     private void goFromPosOnetoLeft() {
@@ -118,9 +120,15 @@ public class GoToSwitch extends CommandGroup {
     }
 
     public void testSwitch() {
+        DriveDistCmd cmd = new DriveDistCmd(12);
         addSequential(new DriveDistCmd(1));
         addSequential(new DriveTurnYawCmd(90));
         addParallel(new PositionSwitchShooter());
         addSequential(new DriveDistCmd(1));
+    }
+
+    public float inchesToFeet(int inches) {
+        System.out.println("inches to feet: " + (float)(inches/12));
+        return (float)(inches/12);
     }
 }

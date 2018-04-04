@@ -411,8 +411,8 @@ public class DriveSys extends Subsystem {
     private static double DRIVE_NEGBOUND = -0.12;
     private static double DRIVE_POSBOUND = 0.12;
 
-    private static double TURN_NEGBAND = -0.17;
-    private static double TURN_POSBAND = 0.17;
+    private static double TURN_NEGBAND = -0.19;
+    private static double TURN_POSBAND = 0.19;
 
     static final double kF_drive = 2.0;
     static final double kP_drive = 0.5;
@@ -523,7 +523,7 @@ public class DriveSys extends Subsystem {
     public void moveDistancePIDExec() {
         int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
         double mag = mDrivePIDOut.getVal();
-        mag = mag / 2;      // slow it down
+        mag = (mag/1.5); //2;      // slow it down
         mag = checkDeadband(mag, DRIVE_NEGBOUND, DRIVE_POSBOUND);
         double yaw = mGyroPIDOut.getVal();
         if (mMoveDistLoopCnt++ % 5 == 0) {
@@ -546,7 +546,7 @@ public class DriveSys extends Subsystem {
 
 
     private void printPosn(String caller) {
-        int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
+        /*int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
         double yaw = mAhrs.getYaw();
         int dist = curPosn - mStartPosn;
         double distRevs = dist / 4096;
@@ -556,7 +556,7 @@ public class DriveSys extends Subsystem {
             distErr = dist / mTargetDist;
         }
         System.out.printf("DS. %s : start: %d   cur: %d   targ: %d   distEnc: %d   distRevs: %.3f  distFeet: %.3f   distErr: %.2f   yaw:  %.3f \r\n",
-                caller, mStartPosn, curPosn, mTargPosn, dist, distRevs, distFeet, distErr, yaw) ;
+                caller, mStartPosn, curPosn, mTargPosn, dist, distRevs, distFeet, distErr, yaw) ;*/
     }
 
 
