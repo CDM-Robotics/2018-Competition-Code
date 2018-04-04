@@ -25,11 +25,11 @@ public class GoToScale extends CommandGroup {
 
     private void goFromPosTwoToRight() {
         addSequential(new DriveDistCmd((float)1.5));
-        addSequential(new DriveTurnYawCmd(45));
+        addSequential(new DriveTurnYawCmd(45), 2);
         addSequential(new DriveDistCmd(this.inchesToFeet(154)));
-        addSequential(new DriveTurnYawCmd(0));
+        addSequential(new DriveTurnYawCmd(0), 2);
         addSequential(new DriveDistCmd(this.inchesToFeet(208)));
-        addSequential(new DriveTurnYawCmd(-90));
+        addSequential(new DriveTurnYawCmd(-90), 2);
         addSequential(new DriveDistCmd((float)0.1));
     }
 

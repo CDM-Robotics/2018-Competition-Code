@@ -76,9 +76,9 @@ public class GoToSwitch extends CommandGroup {
     // go straight, 90 degree turn to right, straight, 90 degree turn left, straight to finish at switch
     private void goFromPosTwoToRight() {
         addSequential(new DriveDistCmd(2));
-        addSequential(new DriveTurnYawCmd(45));
+        addSequential(new DriveTurnYawCmd(45), 2); // need a timeout on the turn in case the pid gets close and can't actually drive the motor
         addSequential(new DriveDistCmd(5));
-        addSequential(new DriveTurnYawCmd(0));
+        addSequential(new DriveTurnYawCmd(0),2);
         //addParallel(new PositionSwitchShooter());
         addSequential(new DriveDistCmd(2), 3);
     }
@@ -103,9 +103,9 @@ public class GoToSwitch extends CommandGroup {
 
     private void goFromPosTwoToLeft() {
         addSequential(new DriveDistCmd(2));
-        addSequential(new DriveTurnYawCmd(-50));
+        addSequential(new DriveTurnYawCmd(-50),2);
         addSequential(new DriveDistCmd((float)7));
-        addSequential(new DriveTurnYawCmd(0));
+        addSequential(new DriveTurnYawCmd(0),2);
         //addParallel(new PositionSwitchShooter()); TEMP
         addSequential(new DriveDistCmd(this.inchesToFeet(30)), 2.0);
         //addSequential(new DriveDistCmd(this.inchesToFeet(10)));
