@@ -57,6 +57,20 @@ public class DriveDistCmd extends Command {
     }
 
 
+    @Override
+    protected void interrupted() {
+        System.out.println("DriveDistCmd.interrrupted@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        super.interrupted();
+    }
+
+    @Override
+    protected synchronized boolean isTimedOut() {
+        if (super.isTimedOut()) {
+            System.out.println("DriveDistCmd.isTimedOut ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+        }
+        return super.isTimedOut();
+    }
+
     /**
      * @return Return true when command is completed
      */

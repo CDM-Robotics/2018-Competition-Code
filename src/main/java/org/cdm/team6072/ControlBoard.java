@@ -282,7 +282,7 @@ public class ControlBoard {
         control_buttons[EXTREME_BUT_11 - 1].whenPressed(new DriveTurnYawCmd(45));
 
         control_buttons[EXTREME_BUT_12 - 1] = new JoystickButton(control_stick, EXTREME_BUT_12);
-        control_buttons[EXTREME_BUT_12 - 1].whenPressed(new DriveTurnYawCmd(-45));
+        control_buttons[EXTREME_BUT_12 - 1].whenPressed(new DriveDistCmd(100, 2, "testStraight"));//whenPressed(new DriveTurnYawCmd(-45));
 
 
 //        control_buttons[ELEVATOR_RESET_START-1] = new JoystickButton(control_stick, ELEVATOR_RESET_START);
