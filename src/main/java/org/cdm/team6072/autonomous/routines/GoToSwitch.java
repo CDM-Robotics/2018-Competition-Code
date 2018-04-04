@@ -80,7 +80,7 @@ public class GoToSwitch extends CommandGroup {
         addSequential(new DriveDistCmd(5));
         addSequential(new DriveTurnYawCmd(0));
         //addParallel(new PositionSwitchShooter());
-        addSequential(new DriveDistCmd(2, 2000, "goPosTwoRight_final_drive_distance"));
+        addSequential(new DriveDistCmd(2), 3);
     }
 
     private void goFromPosOneToRight() {
