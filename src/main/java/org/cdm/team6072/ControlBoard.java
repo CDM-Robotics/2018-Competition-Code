@@ -284,9 +284,12 @@ public class ControlBoard {
 
 
         CommandGroup test = new CommandGroup();
-        test.addSequential(new DriveDistCmd(100), 2000);
-        test.addSequential(new DriveDistCmd(100), 2000);
-        test.addSequential(new DriveDistCmd(200), 2000);
+        test.addSequential(new DriveDistCmd(100), 2);
+        System.out.println("Cmd 1 ended-----------------------------------------------------------");
+        test.addSequential(new DriveDistCmd(100), 2);
+        System.out.println("Cmd 2 ended-  ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,");
+        test.addSequential(new DriveDistCmd(200), 2);
+        System.out.println("Cmd 3 ended>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 
         control_buttons[EXTREME_BUT_12 - 1] = new JoystickButton(control_stick, EXTREME_BUT_12);
         control_buttons[EXTREME_BUT_12 - 1].whenPressed(test);//whenPressed(new DriveTurnYawCmd(-45));

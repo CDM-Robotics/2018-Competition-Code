@@ -59,7 +59,8 @@ public class DriveDistCmd extends Command {
 
     @Override
     protected void interrupted() {
-        System.out.println("DriveDistCmd.interrrupted@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        System.out.println("DriveDistCmd.interrrupted   @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        mDriveSys.arcadeDrive(0, 0);
         super.interrupted();
     }
 
@@ -78,6 +79,9 @@ public class DriveDistCmd extends Command {
     @Override
     protected boolean isFinished() {
         if (timeout != -1) {
+            if (isTimedOut()) {
+                System.out.println("DriveDistCmd.isFinished -- isTimedOut is true  ----------------------------");
+            }
             return mDriveSys.moveDistComplete() || isTimedOut();
         }
         return mDriveSys.moveDistComplete();
