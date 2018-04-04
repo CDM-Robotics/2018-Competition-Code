@@ -39,6 +39,11 @@ public class DriveTurnYawCmd extends Command {
         mDriveSys.turnYawExec();
     }
 
+    @Override
+    protected void interrupted() {
+        mDriveSys.arcadeDrive(0, 0);
+        super.interrupted();
+    }
 
     /**
      * @return Return true when command is completed
