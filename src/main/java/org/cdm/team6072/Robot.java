@@ -20,7 +20,9 @@ import org.cdm.team6072.autonomous.routines.tests.TestSwitchRoutine;
 import org.cdm.team6072.commands.drive.*;
 import org.cdm.team6072.commands.auton.*;
 import org.cdm.team6072.subsystems.*;
+import sun.rmi.runtime.Log;
 import util.ControlledLogger;
+import util.Logger;
 
 
 /**
@@ -41,14 +43,11 @@ public class Robot extends TimedRobot {
     private UsbCamera cam;
 
 
-    /**
-     * Initialize all the subsystems in Robot init
-     */
+    // ********************************************** //
+    // ENABLE/DISABLE MODE
+    // ********************************************* //
     @Override
     public void robotInit() {
-        System.out.println("6072: robotInit");
-//        CameraManager.getInstance().runCameras();
-//        CameraManager.getInstance().runFilter();
         mDriveSys = DriveSys.getInstance();
         mElevatorSys = ElevatorSys.getInstance();
         mIntakeMotorSys = IntakeMotorSys.getInstance();
@@ -58,56 +57,42 @@ public class Robot extends TimedRobot {
         mElevatorSys.setSensorStartPosn();
         mArmSys.setSensorStartPosn();
 
-        //mPDP = new PowerDistributionPanel(RobotConfig.PDP_ID);
-
         // must initialize nav system here for the navX-MXP
         NavXSys.getInstance();
-
     }
 
     @Override
     public void disabledInit() {
+        Logger.getInstance().printBanner("DISABLED INIT");
         // ensure the talons are not in MotionMagic or hold modes
         mElevatorSys.resetTalon();
         mArmSys.resetTalon();
-
-        // control debug printing
-        System.out.println("6072: disable init -------------------------------------------------");
     }
 
-
     public void disabledPeriodic() {
-
         new ControlledLogger().print(100, new Runnable() {
             @Override
             public void run() {
                 mArmSys.printPosn("Rob.dis");
             }
         });
-
     }
 
-
-    //  TELEOP MODE  ---------------------------------------------------------------
-
-
-    private int mTelopLoopCtr = 0;
-
+    // ******************************************** //
+    // TELEOP MODE
+    // ******************************************* //
     @Override
     public void teleopInit() {
-        System.out.println("6072: teleop init -------------------------------------------------");
-        mTelopLoopCtr = 0;
+        Logger.getInstance().printBanner("TELEOP INIT");
 
-        NavXSys.getInstance().zeroYawHeading(); // TESTING PURPOSES
+        NavXSys.getInstance().zeroYawHeading();
 
         ArcadeDriveCmd  mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(mArcadeDriveCmd);
 
-       // CameraManager.getInstance().runCameras();
+        // CameraManager.getInstance().runCameras();
     }
-
-
 
     /**
      * teleopPeriodic is called about every 20mSec
@@ -131,26 +116,22 @@ public class Robot extends TimedRobot {
     }
 
 
-    //  AUTONOMOUS MODE  ---------------------------------------------------------------
-
-
-    private PathFinderDriveSys mPathFinderDriveSys;
-
-
+    //******************************************** //
+    // AUTONOMOUS MODE
+    //******************************************* //
     @Override
     public void autonomousInit() {
         super.autonomousInit();
+        Logger.getInstance().printBanner("AUTO INIT");
 
         DriverStation ds = DriverStation.getInstance();
         //CameraManager.getInstance().runCameras();
 
-        System.out.println("auto init (6072)  ------------------------------------------------------------");
         NavXSys.getInstance().zeroYawHeading();
 
         GameChooser autoChooser = new GameChooser();
         autoChooser.runChooser();
     }
-
 
     @Override
     public void autonomousPeriodic() {
@@ -158,51 +139,16 @@ public class Robot extends TimedRobot {
     }
 
 
-    //  TEST MODE  ---------------------------------------------------------------
-
-    private int mCounter;
-
-    private TestDriveForward mTestFwdCmd;
-    private TestDriveGyro mTestDriveGyro;
-
-
+    //******************************************* //
+    // TEST MODE
+    //****************************************** //
     @Override
     public void testInit() {
-        System.out.println("testInit: --------------------");
+        Logger.getInstance().printBanner("TEST INIT");
     }
 
     @Override public void testPeriodic() {
         Scheduler.getInstance().run();
-
     }
-
-
-    // UTILS  ----------------------------------------------------------------------------------------
-
-
-    private void Logging() {
-        Path logFile;
-
-        try {
-
-            double elvCurrent = 0; //mPDP.getCurrent(RobotConfig.ELEVATOR_TALON_PDP);
-            double armCurrent = 0; //mPDP.getCurrent(RobotConfig.ARM_TALON_PDP);
-            double driveLeftCurrent = 0; //mPDP.getCurrent(RobotConfig.DRIVE_LEFT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_LEFT_SLAVE0_PDP);
-            double driveRightCurrent = 0; //mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_MASTER_PDP) + mPDP.getCurrent(RobotConfig.DRIVE_RIGHT_SLAVE0_PDP);
-
-            SmartDashboard.putNumber("PDP.ElevCurrent", elvCurrent);
-            SmartDashboard.putNumber("PDP.ArmElevCurrent", armCurrent);
-            SmartDashboard.putNumber("PDP.DriveLeftCurrent", driveLeftCurrent);
-            SmartDashboard.putNumber("PDP.DriveRightCurrent", driveRightCurrent);
-
-            String logmsg = String.format("lCur: %.3f, rCur: %.3f, elvCur: %.3f, armCur: %.3f", driveLeftCurrent, driveRightCurrent, elvCurrent, armCurrent);
-
-        }
-        catch (Exception ex) {
-            System.out.println( "*******  Logging ex: "+ ex.getClass().getName() + "   msg: " + ex.getMessage() + " ");
-        }
-    }
-
-
 
 }
