@@ -12,6 +12,7 @@ import org.cdm.team6072.RobotConfig;
 import org.cdm.team6072.profiles.MotionProfileController;
 import org.cdm.team6072.profiles.PIDConfig;
 import org.omg.IOP.TAG_MULTIPLE_COMPONENTS;
+import util.ControlledLogger;
 import util.CrashTracker;
 
 /**
@@ -21,15 +22,10 @@ import util.CrashTracker;
  */
 public class ArmSys extends Subsystem {
 
-
-    /**
-     * Specify the direction the ARM should move
-     */
     public static enum Direction {
         Up,
         Down
     }
-
 
     // start position is with cube loaded and arm folded all in
     //private static int POSN_START = -1180;
@@ -44,13 +40,11 @@ public class ArmSys extends Subsystem {
 //    private static int POSN_SHOOT135 = -400;
 
 
-
     // positions are sensor units to move a given angle from START position
     private static int POSN_START_DELTA = 0;
     private static int POSN_INTAKE_DELTA = 4100;
     private static int POSN_SHOOT45_DELTA = 2998;
     private static int POSN_SHOOT135_DELTA = 1172;
-
 
     /**
      * Talon SRX/ Victor SPX will supported multiple (cascaded) PID loops.
@@ -80,11 +74,8 @@ public class ArmSys extends Subsystem {
     //  The sensor position must move in a positive direction as the motor controller drives positive output (and LEDs are green)
     //      true inverts the sensor
     private static final boolean TALON_SENSOR_PHASE = true;
-
     private static final int TALON_FORWARD_LIMIT = 1000;
-
     private static final int TALON_REVERSE_LIMIT = 0;
-
     private static final boolean TALON_ENABLE_SOFT_LIMIT = false;
 
     /*
@@ -112,7 +103,6 @@ public class ArmSys extends Subsystem {
     private Counter mTopCounter;
     private DigitalInput mBotSwitch;
     private Counter mBotCounter;
-
 
     private static ArmSys mInstance = null;
     public static ArmSys getInstance() {
@@ -245,7 +235,9 @@ public class ArmSys extends Subsystem {
     private int mCounter = 0;
 
 
-    // manual move -----------------------------------------------------------------------
+    // ************************************************************ //
+    // MANUAL ARM MOVE
+    // ************************************************************ //
 
     public void initForMove() {
         mCounter = 0;
@@ -274,8 +266,9 @@ public class ArmSys extends Subsystem {
     }
 
 
-    // manual stop -----------------------------------------------------
-
+    // *************************************************** //
+    // MANUAL STOP
+    // *************************************************** //
     private enum StopMode {
         Moving,
         Stopping,
@@ -325,62 +318,13 @@ public class ArmSys extends Subsystem {
         printPosn("holdPosn");
         int loopCnt = 0;
         mTalon.set(ControlMode.Position, curPosn);
-//        if (mWatchdog != null) {
-//            // cancel the existing watchdog, set a new one
-//            mWatchdog.Cancel();
-//        }
-        //mWatchdog = TalonWatchdog.SetWatchdog(mTalon, 3, kPIDLoopIdx, TALON_ALLOWED_CLOSELOOP_ERROR + 50);
     }
 
-
-    public void xxstopping() {
-        boolean finished;
-        double curPosn;
-
-        curPosn = mTalon.getSelectedSensorPosition(0);
-        if (mStopMode == StopMode.Moving) {
-
-            mTalon.set(ControlMode.PercentOutput, 0);
-            printPosn("Arm.stop.before");
-            // In Position mode, output value is in encoder ticks or an analog value, depending on the sensor.
-            mTalon.selectProfileSlot(kPIDSlot_Hold, 0);
-            mTalon.set(ControlMode.Position, curPosn);
-            mLastError = -1;
-            mStopCallCount = 0;
-            mStopMode = StopMode.Stopping;
-        }
-        else if (mStopMode == StopMode.Stopping) {
-            // see if the hold is complete
-            double curError = mTalon.getClosedLoopError(0);
-            if (mLastError != -1) {
-                finished = (Math.abs(curError - mLastError) < 100);
-                if (finished) {
-                    mStopMode = StopMode.StopComplete;
-                    //System.out.println("Arm.stop.StopComplete   curErr: " + curError + "   lastErr: " + mLastError );
-                    printPosn("Arm.stop.StopComplete_" + mStopCallCount);
-                }
-            }
-            if (++mStopCallCount % 5 == 0) {
-                printPosn("Arm.stop.after_" + mStopCallCount);
-            }
-            mLastError = curError;
-        }
-        else {
-            printPosn("Arm.stop.  STOPPED  ----------------------------------------------" );
-        }
-    }
-
-    public boolean xxstopComplete() {
-        return mStopMode == StopMode.StopComplete;
-    }
-
-
-
-    // target moving        --------------------------------------------------------------------
-
+    // ***************************************************** //
+    // ARM TO TARGET POSITIONS
+    // ***************************************************** //
 
     /**
-     *
      * @return the current absolute position - pulsewidth
      */
     private int getCurPosn() {
@@ -419,7 +363,6 @@ public class ArmSys extends Subsystem {
 
 
     private int mCalcTarg;
-    private boolean mMMStarted;
     private int mLoopCtr = 0;
 
     private void moveToTarget(int targPosnDelta) {
@@ -430,10 +373,8 @@ public class ArmSys extends Subsystem {
 //        mCalcTarg = mPosn_START + targPosnDelta - getCurPosn();
         mMMStartPosn = getCurPosn();
         System.out.println("ArmSys.moveToTarget:  mPosn_START: " + mPosn_START + "  delta: " + targPosnDelta  + "  calcTarg: " + mCalcTarg+ "  curPosn: " + getCurPosn());
-        mMMStarted = false;
         mLoopCtr = 0;
         mTalon.set(ControlMode.Position, mCalcTarg);
-        mMMStarted = true;
     }
 
 
@@ -449,16 +390,20 @@ public class ArmSys extends Subsystem {
 
 
     public void moveStatus() {
-        if (++mLoopCtr % 5 == 0) {
-            printPosn("MS_" + mLoopCtr);
-        }
+        new ControlledLogger().print(5, new Runnable() {
+            @Override
+            public void run() {
+                printPosn("MS_" + mLoopCtr);
+            }
+        });
     }
 
 
-    // implement target move manually ---------------------------------------------------------
+    // ***************************************************************** //
+    // MANUAL TARGET MOVE
+    // **************************************************************** //
 
     // full range from start to intake is about 3900 ticks
-
     private static int TICKS_PER_DEGREE = (int)(3900 / 180);
 
     // calculate allowed dist error in inches
@@ -528,11 +473,10 @@ public class ArmSys extends Subsystem {
 
 
 
-    // utils ---------------------------------------------------------------------------------------
 
-
-    //  shuffleboard setup ---------------------------------------------------
-
+    // ***************************************************************** //
+    // UTILITY METHODS
+    // ***************************************************************** //
 
     private double mLastRelPosn;
     private double mLastQuadPosn;
@@ -562,11 +506,8 @@ public class ArmSys extends Subsystem {
         double closedLoopErr = mTalon.getClosedLoopError(0);
 
         mLastQuadPosn = quadPosn;
-//        System.out.println("ArmSys." + caller + ":    topSwitch: " + mTopCounter.get() + "   botSwitch: " + mBotCounter.get());
-//        System.out.println("ArmSys." + caller + ":    Vel: " + vel + "  pwVel: " + pwVel + "  MotorOut: " + mout  +  "  voltOut: " + voltOut+ "  clErr: " + closedLoopErr);
         System.out.println("ArmSys." + caller + "  base: " + mPosn_START + "  sens: " + sensPosnSign + absSensPosn + ", currPos: " + getCurPosn()
                 + "  quad: " + quadPosn  +  "  pw: " + pwPosn + "  clErr: " + closedLoopErr);
-        //shuffleBd();
     }
 
 

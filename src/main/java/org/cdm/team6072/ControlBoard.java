@@ -83,8 +83,8 @@ public class ControlBoard {
 
     private ControlBoard () {
         this.initSticks();
-        this.setupProductionControls();
-        //this.setupTestControls();
+        //this.setupProductionControls();
+        this.setupTestControls();
 
     }
 

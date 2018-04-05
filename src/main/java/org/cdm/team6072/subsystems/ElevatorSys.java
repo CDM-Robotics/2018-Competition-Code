@@ -21,20 +21,13 @@ import util.CrashTracker;
 
 public class ElevatorSys extends Subsystem {
 
-    /**
-     * How many sensor units per rotation.
-     * @link https://github.com/CrossTheRoadElec/Phoenix-Documentation#what-are-the-units-of-my-sensor
-     */
     public static final int kCTREUnitsPerRotation = 4096; // 4096;
-    
     public static final int kUnitsPerRotation = kCTREUnitsPerRotation;
     
     // inches of elevator travel per complete rotation of encoder
     // gear is 1 inch diameter
     public static final double kDistancePerRotation = 1.75 * Math.PI;
-
     public static final int kUnitsPerInch = (int)Math.round(kUnitsPerRotation / kDistancePerRotation);
-
 
     // scale height in native units from nominal base posn
     // the arm assy is on a 2:1 gearing from the drive motor
@@ -82,25 +75,19 @@ public class ElevatorSys extends Subsystem {
 
     private WPI_TalonSRX mTalon;
 
-    private static final boolean TALON_INVERT = true;
-    //  The sensor position must move in a positive direction as the motor controller drives positive output (and LEDs are green)
-    //      true inverts the sensor
-    private static final boolean TALON_SENSOR_PHASE = true;
+    private static final boolean TALON_INVERT = true;  //  The sensor position must move in a positive direction as the motor controller drives positive output (and LEDs are green)
+    private static final boolean TALON_SENSOR_PHASE = true; // true inverts the sensor
     private static final int TALON_FORWARD_LIMIT = -1;
     private static final int TALON_REVERSE_LIMIT = -1;
 
-    /*
-     * set the allowable closed-loop error, Closed-Loop output will be
-     * neutral within this range. See Table in Section 17.2.1 for native units per rotation.
-     */
-    private static final int TALON_ALLOWED_CLOSELOOP_ERROR = 0;
 
-     // Motor deadband, set to 1%.
-    public static final double kNeutralDeadband = 0.01;
-    /**
-     * Which PID slot to pull gains from.  Starting 2018, you can choose
-     * from 0,1,2 or 3.  Only the first two (0,1) are visible in web-based configuration.
-     */
+    // set the allowable closed-loop error, Closed-Loop output will be
+    // neutral within this range. See Table in Section 17.2.1 for native units per rotation.
+    private static final int TALON_ALLOWED_CLOSELOOP_ERROR = 0;
+    public static final double kNeutralDeadband = 0.01;  // Motor deadband, set to 1%.
+
+    // Which PID slot to pull gains from.  Starting 2018, you can choose
+    //from 0,1,2 or 3.  Only the first two (0,1) are visible in web-based configuration.
     public static final int kPIDSlot_Move = 1;
     public static final int kPIDSlot_Hold = 0;
     public static final int kPIDSlot_2 = 2;
@@ -122,11 +109,7 @@ public class ElevatorSys extends Subsystem {
     private Counter mBotCounter;
 
 
-
-    // singleton constructor  -------------------------------------------------
-
     private static ElevatorSys mInstance;
-
     public static ElevatorSys getInstance() {
         if (mInstance == null) {
             mInstance = new ElevatorSys();
@@ -155,29 +138,20 @@ public class ElevatorSys extends Subsystem {
     private ElevatorSys() {
         CrashTracker.logMessage("ElevatorSys.ctor: initializing");
         try {
-            // set up the limit switches - counter is used to detect switch closing because might be too fast
-            mTopSwitch = new DigitalInput(RobotConfig.ELEVATOR_SWITCH_TOP);
-            mTopCounter = new Counter(mTopSwitch);
-            mBotSwitch = new DigitalInput(RobotConfig.ELEVATOR_SWITCH_BOT);
-            mBotCounter = new Counter(mBotSwitch);
-            mTopCounter.reset();
-            mBotCounter.reset();
-            System.out.println("ElevatorSys.ctor:  topSw: " + mTopSwitch.getChannel() + "  botSw: " + mBotSwitch.getChannel());
 
             mTalon = new WPI_TalonSRX(RobotConfig.ELEVATOR_TALON);
             mTalon.setName(String.format("%d: Elevator", RobotConfig.ELEVATOR_TALON));
+
+            this.initLimitSwitches();
+
             // in case we are in magic motion or position hold mode
             mTalon.set(ControlMode.PercentOutput, 0);
-
             mTalon.setSensorPhase(TALON_SENSOR_PHASE);
             mTalon.setInverted(TALON_INVERT);
             mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
 
-            mTalon.configForwardSoftLimitThreshold(TALON_FORWARD_LIMIT, kTimeoutMs);
-            mTalon.configForwardSoftLimitEnable(false, kTimeoutMs);
-            mTalon.configReverseSoftLimitThreshold(TALON_REVERSE_LIMIT, kTimeoutMs);
-            mTalon.configReverseSoftLimitEnable(false, kTimeoutMs);
+            this.initSoftLimits();
 
             mTalon.configOpenloopRamp(0.1, kTimeoutMs);
             mTalon.setNeutralMode(NeutralMode.Brake);
@@ -186,57 +160,78 @@ public class ElevatorSys extends Subsystem {
             mTalon.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, kTimeoutMs);
             mTalon.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, kTimeoutMs);
 
-            // set up current limits
-            mTalon.configContinuousCurrentLimit(30, kTimeoutMs);
-            mTalon.configPeakCurrentLimit(40, kTimeoutMs);
-            mTalon.configPeakCurrentDuration(200, kTimeoutMs);
-            mTalon.enableCurrentLimit(true);
+            this.initCurrentLimits();
+            this.initDeadbandNominalConfig();
 
-            // the nominal values are used in closed loop when in deadband
-            mTalon.configNominalOutputForward(0, kTimeoutMs);
-            mTalon.configNominalOutputReverse(0, kTimeoutMs);
-            mTalon.configPeakOutputForward(1.0, kTimeoutMs);
-            mTalon.configPeakOutputReverse(-1.0, kTimeoutMs);
-
-            // PID settings
-
-            // ramping can interfere with the PID: https://www.chiefdelphi.com/forums/showthread.php?p=1748993#post1748993
-            //mTalon.configClosedloopRamp(0.1, kTimeoutMs);
 
             // bot to top 29000 in 1 sec = 2900 ticks per 100 ms
             mTalon.configMotionCruiseVelocity(3500, kTimeoutMs);        // 2900
             mTalon.configMotionAcceleration(2500, kTimeoutMs);      // 2000
             mTalon.configAllowableClosedloopError(kPIDSlot_Move, TALON_ALLOWED_CLOSELOOP_ERROR, kTimeoutMs);
 
-            // P gain is specified in motor output unit per error unit.
-            //      For example, a value of 102 is ~9.97% (which is 102/1023) motor output per 1 unit of Closed-Loop Error.
-            // I gain is specified in motor output unit per integrated error.
-            //      For example, a value of 10 equates to ~0.97% for each accumulated error (Integral Accumulator).
-            //      Integral accumulation is done every 1ms.
-
-            // init PID for moving
-            mTalon.config_kF(kPIDSlot_Move, .4429, kTimeoutMs);        // 0.4429
-            mTalon.config_kP(kPIDSlot_Move, 0.14, kTimeoutMs);      // 0.14
-            mTalon.config_kI(kPIDSlot_Move, 0.0, kTimeoutMs);
-            mTalon.config_kD(kPIDSlot_Move, 0.0, kTimeoutMs);
-
-            // init PID for hold
-            mTalon.configAllowableClosedloopError(kPIDSlot_Hold, TALON_ALLOWED_CLOSELOOP_ERROR, kTimeoutMs);
-            mTalon.config_kF(kPIDSlot_Hold, 0.0, kTimeoutMs);        // normally 0 for position hold but putting in small 0.1 damps oscillation
-            mTalon.config_kP(kPIDSlot_Hold, 2.0, kTimeoutMs);        // kP_turn 1.0 used on elevator 2018-02-17
-            mTalon.config_kI(kPIDSlot_Hold, 0.0, kTimeoutMs);
-            mTalon.config_kD(kPIDSlot_Hold, 20.0, kTimeoutMs);
-
+            this.initPIDValues();
             setSensorStartPosn();
 
-            // test  motion profile --------------
-//            System.out.println("ElevatorSys.setMPProfile:  setting Talon control mode to MotionProfile ");
-//            mTalon.set(ControlMode.MotionProfile, SetValueMotionProfile.Disable.value);
-//            System.out.println("ElevatorSys.setMPProfile:  back from setting Talon ");
 
         } catch (Exception ex) {
             System.out.println("************************** ElevatorSys.ctor Ex: " + ex.getMessage());
         }
+    }
+
+
+    // P gain is specified in motor output unit per error unit.
+    //      For example, a value of 102 is ~9.97% (which is 102/1023) motor output per 1 unit of Closed-Loop Error.
+    // I gain is specified in motor output unit per integrated error.
+    //      For example, a value of 10 equates to ~0.97% for each accumulated error (Integral Accumulator).
+    //      Integral accumulation is done every 1ms.
+    private void initPIDValues() {
+
+        // Move slot configuration
+        mTalon.config_kF(kPIDSlot_Move, .4429, kTimeoutMs);        // 0.4429
+        mTalon.config_kP(kPIDSlot_Move, 0.14, kTimeoutMs);      // 0.14
+        mTalon.config_kI(kPIDSlot_Move, 0.0, kTimeoutMs);
+        mTalon.config_kD(kPIDSlot_Move, 0.0, kTimeoutMs);
+
+        // Hold slot configuration
+        mTalon.configAllowableClosedloopError(kPIDSlot_Hold, TALON_ALLOWED_CLOSELOOP_ERROR, kTimeoutMs);
+        mTalon.config_kF(kPIDSlot_Hold, 0.0, kTimeoutMs);        // normally 0 for position hold but putting in small 0.1 damps oscillation
+        mTalon.config_kP(kPIDSlot_Hold, 2.0, kTimeoutMs);        // kP_turn 1.0 used on elevator 2018-02-17
+        mTalon.config_kI(kPIDSlot_Hold, 0.0, kTimeoutMs);
+        mTalon.config_kD(kPIDSlot_Hold, 20.0, kTimeoutMs);
+    }
+
+    private void initSoftLimits() {
+        mTalon.configForwardSoftLimitThreshold(TALON_FORWARD_LIMIT, kTimeoutMs);
+        mTalon.configForwardSoftLimitEnable(false, kTimeoutMs);
+        mTalon.configReverseSoftLimitThreshold(TALON_REVERSE_LIMIT, kTimeoutMs);
+        mTalon.configReverseSoftLimitEnable(false, kTimeoutMs);
+    }
+
+    private void initLimitSwitches() {
+        // set up the limit switches - counter is used to detect switch closing because might be too fast
+        mTopSwitch = new DigitalInput(RobotConfig.ELEVATOR_SWITCH_TOP);
+        mTopCounter = new Counter(mTopSwitch);
+        mBotSwitch = new DigitalInput(RobotConfig.ELEVATOR_SWITCH_BOT);
+        mBotCounter = new Counter(mBotSwitch);
+        mTopCounter.reset();
+        mBotCounter.reset();
+        System.out.println("ElevatorSys.ctor:  topSw: " + mTopSwitch.getChannel() + "  botSw: " + mBotSwitch.getChannel());
+    }
+
+    private void initCurrentLimits() {
+        // set up current limits
+        mTalon.configContinuousCurrentLimit(30, kTimeoutMs);
+        mTalon.configPeakCurrentLimit(40, kTimeoutMs);
+        mTalon.configPeakCurrentDuration(200, kTimeoutMs);
+        mTalon.enableCurrentLimit(true);
+    }
+
+    private void initDeadbandNominalConfig() {
+        // the nominal values are used in closed loop when in deadband
+        mTalon.configNominalOutputForward(0, kTimeoutMs);
+        mTalon.configNominalOutputReverse(0, kTimeoutMs);
+        mTalon.configPeakOutputForward(1.0, kTimeoutMs);
+        mTalon.configPeakOutputReverse(-1.0, kTimeoutMs);
     }
 
 
@@ -290,13 +285,7 @@ public class ElevatorSys extends Subsystem {
 
 
     // moveTo Base command implementation       --------------------------------------------------------------
-
     private boolean mFindBaseComplete = false;
-    public void initMoveToBase() {
-        initBotSwitch();
-        mFindBaseComplete = false;
-    }
-
 
     private void sleep(int milliSecs) {
         try {
@@ -586,8 +575,9 @@ public class ElevatorSys extends Subsystem {
     }
 
 
-    // code for moving using Position mode instead of magic move  ----------------------------------------
-
+    // ********************************************************************** //
+    // POSITION MODE FOR MOVING TO TARGET
+    // ********************************************************************** //
 
     private int mPosn_START;
     private int mCalcTarg;
@@ -714,25 +704,15 @@ public class ElevatorSys extends Subsystem {
         }
         int quadPosn = mTalon.getSensorCollection().getQuadraturePosition();
         int pwPosn = mTalon.getSensorCollection().getPulseWidthPosition();
-        int pwDelta = pwPosn - mBasePosn;
-        double pwVel = mTalon.getSensorCollection().getPulseWidthVelocity();
         int relDelta = absSensPosn - mBasePosn;
         int quadDelta = quadPosn - mBasePosn;
-        double vel = mTalon.getSensorCollection().getQuadratureVelocity();
-        double mout = mTalon.getMotorOutputPercent();
-        double voltOut = mTalon.getMotorOutputVoltage();
-        double curOut = mTalon.getOutputCurrent();
         mLastSensPosn = absSensPosn;
         double closedLoopErr = mTalon.getClosedLoopError(0);
 
         mLastQuadPosn = quadPosn;
-//        System.out.println("ArmSys." + caller + ":    topSwitch: " + mTopCounter.get() + "   botSwitch: " + mBotCounter.get());
-//        System.out.println("ArmSys." + caller + ":    Vel: " + vel + "  pwVel: " + pwVel + "  MotorOut: " + mout  +  "  voltOut: " + voltOut+ "  clErr: " + closedLoopErr);
         System.out.println("ElvSys." + caller + ":  base: " + mBasePosn + "  sens: " + sensPosnSign + absSensPosn + "  rDelta: " + relDelta
                 + "  quad: " + quadPosn  + "  qDelta: " + quadDelta + "  pw: " + pwPosn + "  clErr: " + closedLoopErr);
 
-        //        System.out.println("  out%: " + mout + "   volt: " + voltOut + "   curOut: " + curOut);
-        //shuffleBd();
     }
 
 

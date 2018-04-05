@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import org.cdm.team6072.autonomous.routines.GoToScale;
 import org.cdm.team6072.autonomous.routines.GoToSwitch;
 import org.cdm.team6072.autonomous.routines.tests.TestSwitchRoutine;
+import util.Logger;
 
 // used to select autonomous routine at the beginning of the match based
 // on the game data returned from the field management system
@@ -29,7 +30,7 @@ public class GameChooser {
             this.scaleSide = gameData.charAt(1);
             this.farSwitchSide = gameData.charAt(2);
         } catch (IndexOutOfBoundsException ex) {
-            System.out.println("GAME CHOOSER -> CANNOT GET GAME DATA");
+            Logger.getInstance().printError("Game Chooser cannot parse game data");
         }
     }
 
@@ -64,6 +65,8 @@ public class GameChooser {
         } else if (switchSide == 'R') {
             side = GoToSwitch.ALLIANCE_SIDE.RIGHT;
         }
+
+        Logger.getInstance().printRobotAction("GameChooser.initSwitchRoutine startBox: " + startBox + ", side: " + side.toString());
         switchRoutine = new GoToSwitch(startBox, side);
         switchRoutine.start();
     }
