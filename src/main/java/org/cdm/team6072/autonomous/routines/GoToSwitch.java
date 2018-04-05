@@ -34,7 +34,7 @@ public class GoToSwitch extends CommandGroup {
 
         mSide = side;
 
-        switch (2) {
+        switch (2) { // this really should be read from a GUI
             case 1:
                 // do something
                 if (side == ALLIANCE_SIDE.LEFT) {
@@ -47,7 +47,6 @@ public class GoToSwitch extends CommandGroup {
                 if (side == ALLIANCE_SIDE.LEFT) {
                     goFromPosTwoToLeft();
                 } else {
-                    System.out.println("going from pos 2 to right");
                     goFromPosTwoToRight();
                 }
             case 3:
@@ -61,16 +60,8 @@ public class GoToSwitch extends CommandGroup {
     }
 
     private void goFromPosThreeToRight() {
-        System.out.println("goFromPos3 called");
-        addSequential(new DriveDistCmd(18));
-        //addSequential(new DriveTurnYawCmd(-90));
+        addSequential(new DriveDistCmd(18), 10);
         addSequential(new PositionSwitchShooter());
-        /*if (mSide == ALLIANCE_SIDE.RIGHT) {
-            System.out.println("goFromPosThreeToRight:");
-            addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
-        }*/
-        //addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
-        //addSequential(new DriveDistCmd((float)2.95));
     }
 
     // go straight, 90 degree turn to right, straight, 90 degree turn left, straight to finish at switch
@@ -79,8 +70,9 @@ public class GoToSwitch extends CommandGroup {
         addSequential(new DriveTurnYawCmd(45), 2); // need a timeout on the turn in case the pid gets close and can't actually drive the motor
         addSequential(new DriveDistCmd(5));
         addSequential(new DriveTurnYawCmd(0),2);
-        addSequential(new DriveDistCmd(2), 3);
-        //addSequential(new PositionSwitchShooter());
+        addSequential(new DriveDistCmd(2), 2);
+        addSequential(new PositionSwitchShooter(), 3);
+        addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
     }
 
     private void goFromPosOneToRight() {
@@ -108,15 +100,15 @@ public class GoToSwitch extends CommandGroup {
         addSequential(new DriveTurnYawCmd(0),2);
         //addParallel(new PositionSwitchShooter()); TEMP
         addSequential(new DriveDistCmd(this.inchesToFeet(30)), 2.0);
+        addSequential(new PositionSwitchShooter(), 3);
+        addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
         //addSequential(new DriveDistCmd(this.inchesToFeet(10)));
         System.out.println("end of goFromPosTwoToLeft **************");
     }
 
     private void goFromPosOnetoLeft() {
-        addSequential(new DriveDistCmd(12));
-        addSequential(new DriveTurnYawCmd(90));
-        addParallel(new PositionSwitchShooter());
-        addSequential(new DriveDistCmd((float)2.95));
+        addSequential(new DriveDistCmd(18), 10);
+        addSequential(new PositionSwitchShooter());
     }
 
     public void testSwitch() {

@@ -16,8 +16,8 @@ public class PositionSwitchShooter extends CommandGroup {
         addSequential(new CloseIntakeHiCmd());
         addSequential(new ElvMoveToSwitchCmd());
         addSequential(new ArmMoveToIntake());
-        System.out.println("about to fire");
-        addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
+        //System.out.println("about to fire");
+        //addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
     }
 
 

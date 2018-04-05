@@ -36,6 +36,7 @@ public class GameChooser {
 
     public void runChooser() {
         this.parseGameData();
+        Logger.getInstance().printBanner("GAME DATA SWITCH SIDE: " + this.switchSide);
 
         int option = 2;
         switch (option) {
@@ -46,7 +47,7 @@ public class GameChooser {
             case 2:
                 //initSwitchRoutine(this.stationNum, switchSide);
                 System.out.println("TEST: EXECUTING INIT SWITCH ROUTINE BOX TO SIDE RIGHT");
-                initSwitchRoutine(2, 'L');
+                initSwitchRoutine(3, this.switchSide);
                 break;
             case 3:
                 initScaleRoutine(this.stationNum, scaleSide);
