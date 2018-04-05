@@ -1,6 +1,7 @@
 package org.cdm.team6072.subsystems;
 
 import java.util.ArrayList;
+import util.Logger;
 
 import com.ctre.phoenix.motion.SetValueMotionProfile;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -130,9 +131,6 @@ public class DriveSys extends Subsystem {
     }
 
 
-
-
-
     private void sleep(int milliSecs) {
         try {
             Thread.sleep(milliSecs);
@@ -171,11 +169,9 @@ public class DriveSys extends Subsystem {
 
 
 
-
     // gear shifting code  ----------------------------------------------------------------------------------
 
     private DoubleSolenoid mSol_GearShift;
-
     private boolean mIsHiGear = true;
 
     /**
@@ -192,16 +188,14 @@ public class DriveSys extends Subsystem {
         }
     }
 
-
     private void setGearLo() {
-        System.out.println("DriveSys.setGearLo  <<<<<");
+        Logger.getInstance().printRobotAction("DriveSys.setGearLo");
         mSol_GearShift.set(DoubleSolenoid.Value.kForward);
         mIsHiGear = false;
     }
 
-
     private void setGearHi() {
-        System.out.println("DriveSys.setGearHi  >>>>>");
+        Logger.getInstance().printRobotAction("DriveSys.setGearHi");
         mSol_GearShift.set(DoubleSolenoid.Value.kReverse);
         mIsHiGear = true;
     }
@@ -223,25 +217,10 @@ public class DriveSys extends Subsystem {
     private int mLoopCnt = 0;
 
     public void arcadeDrive(double mag, double yaw) {
- //         PRODUCTION ROBO
-//        yaw = yaw * 0.8;        // reduce sensitivity on turn
-//        mRoboDrive.arcadeDrive(-mag, yaw, true);
-
-        mRoboDrive.arcadeDrive(mag, yaw, false);        // TEST ROBOT
+        mRoboDrive.arcadeDrive(mag, yaw, false);
         if (mLoopCnt++ % 10 == 0) {
             System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw + "  navYaw: " + mAhrs.getYaw());
             printPosn("arcadeDrive");
-//            logPosn("DrvSys.arcadedrv");
-//           System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw  );
-//                    + "  navAngle: " + mAhrs.getAngle() + "  navYaw: " + mAhrs.getYaw()
-//                    + "  PIDOut: " + mGyroPIDOut.getVal() + "  PID.kP_turn: " + mGyroPID.getP());
-
-//            SmartDashboard.putNumber("DriveSys.arc.mag", mag);
-//            SmartDashboard.putNumber("DriveSys.arc.yaw", yaw);
-//            SmartDashboard.putNumber("DriveSys.arc.navAngle", mAhrs.getAngle());
-//            SmartDashboard.putNumber("DriveSys.arc.navYaw",  mAhrs.getYaw());
-//            SmartDashboard.putNumber("DriveSys.arc.PIDOut", mGyroPIDOut.getVal());
-//            SmartDashboard.putNumber("DriveSys.arc.PID_kP",  mGyroPID.getP());
         }
     }
 
@@ -249,22 +228,13 @@ public class DriveSys extends Subsystem {
         int lSens = mLeft_Master.getSelectedSensorPosition(0);
         int lQuad = mLeft_Master.getSensorCollection().getQuadraturePosition();
         int lPW = mLeft_Master.getSensorCollection().getPulseWidthPosition();
-        int lQuadVel = mLeft_Master.getSensorCollection().getQuadratureVelocity();
-        int lPWVel = mLeft_Master.getSensorCollection().getPulseWidthVelocity();
         int rSens = mRight_Master.getSelectedSensorPosition(0);
         int rQuad = mRight_Master.getSensorCollection().getQuadraturePosition();
         int rPW = mRight_Master.getSensorCollection().getPulseWidthPosition();
-        int rQuadVel = mRight_Master.getSensorCollection().getQuadratureVelocity();
-        int rPWVel = mRight_Master.getSensorCollection().getPulseWidthVelocity();
-
-        //String msg = String.format("%s:  lQuad: %5d lPW: %5d  lQdVel: %5d  lPWVel: %5d ", caller, lQuad, lPW, lQuadVel, lPWVel);
 
         String msg = String.format("%s:  lSens: %5d lQuad: %5d lPW: %5d  rSens: %5d  rQuad: %5d  rPW: %5d ", caller, lSens, lQuad, lPW, rSens, rQuad, rPW);
         System.out.println(msg);
     }
-
-
-    private int mStateTransitionCtr;
 
     private enum AdsState {
         Straight,
@@ -347,31 +317,10 @@ public class DriveSys extends Subsystem {
                 // not in deadband - keep turning
             }
         }
-
         mRoboDrive.arcadeDrive(-mag, yaw, false);
-        if (mLoopCnt++ % 10 == 0) {
-//           System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw  );
-//                    + "  navAngle: " + mAhrs.getAngle() + "  navYaw: " + mAhrs.getYaw()
-//                    + "  PIDOut: " + mGyroPIDOut.getVal() + "  PID.kP_turn: " + mGyroPID.getP());
-
-//            SmartDashboard.putNumber("DriveSys.arc.mag", mag);
-//            SmartDashboard.putNumber("DriveSys.arc.yaw", yaw);
-//            SmartDashboard.putNumber("DriveSys.arc.navAngle", mAhrs.getAngle());
-//            SmartDashboard.putNumber("DriveSys.arc.navYaw",  mAhrs.getYaw());
-//            SmartDashboard.putNumber("DriveSys.arc.PIDOut", mGyroPIDOut.getVal());
-//            SmartDashboard.putNumber("DriveSys.arc.PID_kP",  mGyroPID.getP());
-        }
     }
-
-    private void printStatus() {
-
-    }
-
-
 
     // motion profile code
-
-
     public void setupProfile() {
         // temporarily setting the profile here
         mMotionProfileManager.loadMotionProfile(DrivetrainProfile.getInstance());
@@ -393,9 +342,6 @@ public class DriveSys extends Subsystem {
 
     public void updateProfileValue() {
         SetValueMotionProfile setOutput = this.mMotionProfileManager.getSetValue();
-
-        System.out.println("val: " + setOutput.value);
-
         for (int i = 0; i < mMasterTalons.size(); i++) {
             this.mMasterTalons.get(i).set(ControlMode.MotionProfile, setOutput.value);
         }
@@ -406,7 +352,6 @@ public class DriveSys extends Subsystem {
 
     // calculate allowed dist error in inches
     private static final int ALLOWED_DISTERR = (int) (6 / (Math.PI * 6) * 4096);
-
 
     private static double DRIVE_NEGBOUND = -0.12;
     private static double DRIVE_POSBOUND = 0.12;
@@ -437,26 +382,15 @@ public class DriveSys extends Subsystem {
     /* PID Controller will attempt to get.                             */
     static final double kToleranceDegrees = 2.0f;
 
-
-    private float mDistance;
-
     private int mStartPosn;
     private int mTargetDist;
     private int mTargPosn;
 
-
-
     /* This tuning parameter indicates how close to "on target" the    */
     /* PID Controller will attempt to get.                             */
-
-
-    
     private PIDController mDrivePID;
     private PIDOutReceiver mDrivePIDOut;
-
     private PIDSourceTalonPW mTalonPIDSource;
-
-
 
     private void initDrivePID() {
         mDrivePIDOut = new PIDOutReceiver();
@@ -470,7 +404,7 @@ public class DriveSys extends Subsystem {
         // For example, in a Drive, 0 and 360 are the same point, and should be continuous. Needs setInputRanges.
         mDrivePID.setContinuous(false);
         mDrivePID.setName("DriveSys.DrivePID");
-        System.out.println("DriveSys.initDrivePID:  ");
+        Logger.getInstance().printRobotAction("DriveSys.initDrivePID");
     }
 
 
@@ -493,9 +427,7 @@ public class DriveSys extends Subsystem {
 
     // set this true when get within ERR of target, to prevent further driving
     private boolean mHitTarg = false;
-
     private int mLastErr;
-
     private int mMoveDistLoopCnt;
 
     /**
@@ -567,7 +499,6 @@ public class DriveSys extends Subsystem {
     private PIDController mGyroPID;
     private PIDOutReceiver mGyroPIDOut;
 
-
     private void initGyroPID() {
         mGyroPIDOut = new PIDOutReceiver();
         mGyroPID = new PIDController(kP_turn, kI_turn, kD_turn, kF_turn, mAhrs, mGyroPIDOut);
@@ -579,19 +510,16 @@ public class DriveSys extends Subsystem {
         // For example, in a gyro, 0 and 360 are the same point, and should be continuous. Needs setInputRanges.
         mGyroPID.setContinuous(true);
         mGyroPID.setName("DriveSys.GyroPID");
-        System.out.println("DriveSys.initGyroPID:  AHRS.SrcType: " + mAhrs.getPIDSourceType().name());
+        Logger.getInstance().printRobotAction("DriveSys.initGyroPID");
     }
 
 
 
     private double mTargYaw;
-    private int mTurnLoopCtr = 0;
-
-
     public void initTurnYaw(int yaw) {
         double curYaw = mAhrs.getYaw();
         System.out.printf("DS.initTurnYaw: curYaw: %.3f   targYaw: %d \r\n", curYaw, yaw);
-        mTurnLoopCtr = 0;
+
         mTargYaw = yaw;
         mGyroPID.setSetpoint(yaw);
         mGyroPID.enable();
@@ -618,7 +546,6 @@ public class DriveSys extends Subsystem {
         return onTarg;
     }
 
-
     private double checkDeadband(double val, double negBand, double posBand) {
         if (val > 0 && val < posBand) {
             return posBand;
@@ -633,6 +560,4 @@ public class DriveSys extends Subsystem {
     public MotionProfileManager getMotionProfileManager() {
         return this.mMotionProfileManager;
     }
-
-
 }

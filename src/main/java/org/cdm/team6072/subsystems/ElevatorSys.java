@@ -51,14 +51,12 @@ public class ElevatorSys extends Subsystem {
     private static int SCALEHI_POSN_UNITS_DELAT = 90 * kUnitsPerInch / 2;
 
 
-
     /**
      * Base trajectory period to add to each individual
      * trajectory point's unique duration.  This can be set
      * to any value within [0,255]ms.
      */
     public static final int kBaseTrajPeriodMs = 0;
-
 
     /**
      * Specify the direction the elevator should move
@@ -68,7 +66,6 @@ public class ElevatorSys extends Subsystem {
         Up,
         Down
     }
-
 
     /**
      * Specify the target position we want to reach.
@@ -89,9 +86,7 @@ public class ElevatorSys extends Subsystem {
     //  The sensor position must move in a positive direction as the motor controller drives positive output (and LEDs are green)
     //      true inverts the sensor
     private static final boolean TALON_SENSOR_PHASE = true;
-
     private static final int TALON_FORWARD_LIMIT = -1;
-
     private static final int TALON_REVERSE_LIMIT = -1;
 
     /*
@@ -117,12 +112,7 @@ public class ElevatorSys extends Subsystem {
     // paramter to the configXXX() methods. Set to non-zero to have talon wait to check and report error
     public static final int kTimeoutMs = 10;
 
-
-
-
-
     private MotionProfileController mMPController;
-
     private PIDConfig mPIDConfig;
 
     // set up the top and bottom limit switches and the related counters
@@ -258,7 +248,6 @@ public class ElevatorSys extends Subsystem {
     }
 
 
-
     //  grab the 360 degree position of the MagEncoder's absolute position, and set the relative sensor to match.
     // should only be called on robot.init
     public void setSensorStartPosn() {
@@ -364,11 +353,7 @@ public class ElevatorSys extends Subsystem {
         return mFindBaseComplete;
     }
 
-
-
     // ------------- code for open loop target  -----------------------------------------------
-
-
     public void initForMove() {
         mLastSensPosn = mTalon.getSelectedSensorPosition(0);
         mLastQuadPosn = mTalon.getSensorCollection().getQuadraturePosition();
@@ -704,21 +689,6 @@ public class ElevatorSys extends Subsystem {
     public void runProfile() {
         mMPController.control();
     }
-
-
-//    public void updateTalonRequiredMPState() {
-//        SetValueMotionProfile setOutput = this.mMPController.getRequiredTalonMPState();
-//        //System.out.println("ElevatorSys.updateTalonRequiredMPState: elevator val: " + setOutput.value);
-//        mTalon.vv
-//    }
-
-
-
-    // --------------------------------------------------------------------
-
-
-
-    //  shuffleboard setup ---------------------------------------------------
 
 
     /**

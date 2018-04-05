@@ -9,15 +9,10 @@ public class DriveDistCmd extends Command {
 
 
     private Joystick mStick;
-
     private DriveSys mDriveSys;
-
     private float mDistInFeet;
-
     private int timeout = -1;
-
     private CmdWatchdog mWatchDog;
-
 
     /**
      * Specify the the command requires the DriveSys subsystem
@@ -31,7 +26,6 @@ public class DriveDistCmd extends Command {
         requires(DriveSys.getInstance());
         this.setName(cmdName);
         mDistInFeet = distInFeeet;
-//        mWatchDog = CmdWatchdog.SetWatchdog(this, milliSecs);
         this.timeout = milliSecs;
     }
 
@@ -40,12 +34,10 @@ public class DriveDistCmd extends Command {
     protected void initialize() {
         mDriveSys = DriveSys.getInstance();
         mDriveSys.startMoveDistance(mDistInFeet);
-
         if (timeout != -1) {
             this.setTimeout(timeout/1000);
         }
     }
-
 
     /**
      * Execute is called by the scheduler until the command returns finished
@@ -85,11 +77,4 @@ public class DriveDistCmd extends Command {
         }
         return mDriveSys.moveDistComplete();
     }
-
-//    @Override
-//    protected boolean isCanceled() {
-//        return false;is
-//    }
-
-
 }

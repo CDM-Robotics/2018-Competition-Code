@@ -19,4 +19,8 @@ public class Logger {
         System.out.println("   " + message);
         System.out.println("*********************************");
     }
+
+    public void printRobotAction(String message) {
+        System.out.println(">>> " + message);
+    }
 }
