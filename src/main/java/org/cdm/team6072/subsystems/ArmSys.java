@@ -260,7 +260,7 @@ public class ArmSys extends Subsystem {
 
     public boolean stopComplete() {
         double output = mTalon.getMotorOutputPercent();
-        if (output > 0.1) {
+        if (output < 0.1) {
             System.out.printf("ElvSys.stopComplete:  output%%: %.2f    \r\n", output);
             holdPosn();
             return true;
