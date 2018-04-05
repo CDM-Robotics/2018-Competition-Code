@@ -83,8 +83,8 @@ public class ControlBoard {
 
     private ControlBoard () {
         this.initSticks();
-        //this.setupProductionControls();
-        this.setupTestControls();
+        this.setupProductionControls();
+        //this.setupTestControls();
 
     }
 
@@ -193,6 +193,13 @@ public class ControlBoard {
         // *************************************** //
         // CONTROL STICK
         // ************************************** //
+
+        control_buttons[EXTREME_BUT_8 - 1] = new JoystickButton(control_stick, EXTREME_BUT_8);
+        control_buttons[EXTREME_BUT_8 - 1].whenPressed(new ElvMoveToSwitchCmd());
+
+        control_buttons[EXTREME_BUT_9 - 1] = new JoystickButton(control_stick, EXTREME_BUT_9);
+        control_buttons[EXTREME_BUT_9 - 1].whenPressed(new PositionSwitchShooter());
+
         control_buttons[EXTREME_BUT_10 - 1] = new JoystickButton(control_stick, EXTREME_BUT_10);
         control_buttons[EXTREME_BUT_10 - 1].whenPressed(new DriveDistCmd(6));
 

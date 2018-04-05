@@ -22,13 +22,13 @@ public class ControlledLogger {
 
     public void print(int strike, Runnable func) {
         count++;
-        if (count % strike == 0) {
+        /*if (count % strike == 0) {
             try {
                 func.run();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
+        }*/ // might be causing loopFunc error
     }
 
     // UTILS  ----------------------------------------------------------------------------------------

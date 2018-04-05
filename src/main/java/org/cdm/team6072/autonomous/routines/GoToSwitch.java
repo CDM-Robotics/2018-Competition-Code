@@ -79,8 +79,8 @@ public class GoToSwitch extends CommandGroup {
         addSequential(new DriveTurnYawCmd(45), 2); // need a timeout on the turn in case the pid gets close and can't actually drive the motor
         addSequential(new DriveDistCmd(5));
         addSequential(new DriveTurnYawCmd(0),2);
-        //addParallel(new PositionSwitchShooter());
         addSequential(new DriveDistCmd(2), 3);
+        //addSequential(new PositionSwitchShooter());
     }
 
     private void goFromPosOneToRight() {

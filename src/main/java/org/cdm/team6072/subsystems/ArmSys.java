@@ -17,7 +17,6 @@ import util.CrashTracker;
 
 /**
  * ArmSys has a single talon used to move the arm through an arc of +- 80 degrees from horizontal
- *
  * The IntakeMotorSys is attached to teh end of the ArmSys, and is used to hold the cubes.
  */
 public class ArmSys extends Subsystem {
@@ -27,18 +26,8 @@ public class ArmSys extends Subsystem {
         Down
     }
 
-    // start position is with cube loaded and arm folded all in
-    //private static int POSN_START = -1180;
-
     // measure PW posn at power up - assume we are in the start posn
     private int mPosn_START;
-
-    // intake position
-
-//    private static int POSN_INTAKE = 2690;
-//    private static int POSN_SHOOT45 = 1473;
-//    private static int POSN_SHOOT135 = -400;
-
 
     // positions are sensor units to move a given angle from START position
     private static int POSN_START_DELTA = 0;
@@ -51,32 +40,14 @@ public class ArmSys extends Subsystem {
      * For now we just want the primary one.
      */
     public static final int kPIDLoopIdx = 0;
-    /**
-     * set to zero to skip waiting for confirmation, set to nonzero to wait
-     * and report to DS if action fails.
-     */
     public static final int kTimeoutMs = 10;
 
-    /**
-     * Base trajectory period to add to each individual
-     * trajectory point's unique duration.  This can be set
-     * to any value within [0,255]ms.
-     */
-    public static final int kBaseTrajPeriodMs = 0;
-
-    /**
-     * Motor deadband, set to 1%.
-     */
-    public static final double kNeutralDeadband = 0.01;
+    public static final int kBaseTrajPeriodMs = 0; // Base trajectory period to add to each individual trajectory point's unique duration
+    public static final double kNeutralDeadband = 0.01; //  Motor deadband, set to 1%.
 
     private WPI_TalonSRX mTalon;
-    private static final boolean TALON_INVERT = true;
-    //  The sensor position must move in a positive direction as the motor controller drives positive output (and LEDs are green)
-    //      true inverts the sensor
+    private static final boolean TALON_INVERT = true; // The sensor position must move in a positive direction as the motor controller drives positive output (and LEDs are green)
     private static final boolean TALON_SENSOR_PHASE = true;
-    private static final int TALON_FORWARD_LIMIT = 1000;
-    private static final int TALON_REVERSE_LIMIT = 0;
-    private static final boolean TALON_ENABLE_SOFT_LIMIT = false;
 
     /*
      * set the allowable closed-loop error, Closed-Loop output will be
@@ -91,8 +62,6 @@ public class ArmSys extends Subsystem {
      */
     private static final int kPIDSlot_Move = 0;
     private static final int kPIDSlot_Hold = 1;
-    private static final int kPIDSlot_2 = 2;
-    private static final int kPIDSlot_3 = 3;
 
     private MotionProfileController mMPController;
 
@@ -112,22 +81,11 @@ public class ArmSys extends Subsystem {
         return mInstance;
     }
 
-
     private ArmSys() {
-        CrashTracker.logMessage("ArmSys.ctor: initializing");
         boolean sensorPhase = false;  // checked 2018-02-16
         boolean motorInvert = false;
         double peakOut = 1.0;           // 1.0 is max
         try {
-            // set up the limit switches - counter is used to detect switch closing because might be too fast
-            mTopSwitch = new DigitalInput(RobotConfig.ARM_SWITCH_TOP);
-            mTopCounter = new Counter(mTopSwitch);
-            mBotSwitch = new DigitalInput(RobotConfig.ARM_SWITCH_BOT);
-            mBotCounter = new Counter(mBotSwitch);
-            mTopCounter.reset();
-            mBotCounter.reset();
-            System.out.println("ArmSys.ctor:  topSw: " + mTopSwitch.getChannel() + "  botSw: " + mBotSwitch.getChannel());
-
             mTalon = new WPI_TalonSRX(RobotConfig.ARM_TALON);
             mTalon.setName(String.format("%d: Arm", RobotConfig.ARM_TALON));
             // in case we are in magic motion or position hold mode
@@ -137,11 +95,6 @@ public class ArmSys extends Subsystem {
 
             mTalon.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
             mTalon.configNeutralDeadband(kNeutralDeadband, kTimeoutMs);
-
-            //mTalon.configForwardSoftLimitThreshold(TALON_FORWARD_LIMIT, kTimeoutMs);
-            //mTalon.configForwardSoftLimitEnable(TALON_ENABLE_SOFT_LIMIT, kTimeoutMs);
-            //mTalon.configReverseSoftLimitThreshold(TALON_REVERSE_LIMIT, kTimeoutMs);
-            //mTalon.configReverseSoftLimitEnable(TALON_ENABLE_SOFT_LIMIT, kTimeoutMs);
 
             mTalon.configOpenloopRamp(0.1, 10);
 
@@ -163,23 +116,39 @@ public class ArmSys extends Subsystem {
             // do not use closed loop ramp - interfers with PID
             //mTalon.configClosedloopRamp(0.1, kTimeoutMs);
 
-            // set PID values for postion hold closed loop
-            mTalon.config_kF(kPIDSlot_Hold, 0.0, kTimeoutMs);             // 1023/1180
-            mTalon.config_kP(kPIDSlot_Hold, 0.8, kTimeoutMs);  // original val 0.8            // 1023 / 400  * 0.1
-            mTalon.config_kI(kPIDSlot_Hold, 0.0, kTimeoutMs);
-            mTalon.config_kD(kPIDSlot_Hold, 0.0, kTimeoutMs);
-
-            // PID values for moving
-            mTalon.config_kF(kPIDSlot_Move, 0.0, kTimeoutMs);             // 1023/1180
-            mTalon.config_kP(kPIDSlot_Move, 0.5, kTimeoutMs);             // 1023 / 400  * 0.1
-            mTalon.config_kI(kPIDSlot_Move, 0.0, kTimeoutMs);
-            mTalon.config_kD(kPIDSlot_Move, 5.0, kTimeoutMs);
+            this.initPIDSlots();
+            this.initLimitSwitches();
 
             setSensorStartPosn();
 
         } catch (Exception ex) {
             System.out.println("************************** ArmSys.ctor Ex: " + ex.getMessage());
         }
+    }
+
+    private void initLimitSwitches() {
+        // set up the limit switches - counter is used to detect switch closing because might be too fast
+        mTopSwitch = new DigitalInput(RobotConfig.ARM_SWITCH_TOP);
+        mTopCounter = new Counter(mTopSwitch);
+        mBotSwitch = new DigitalInput(RobotConfig.ARM_SWITCH_BOT);
+        mBotCounter = new Counter(mBotSwitch);
+        mTopCounter.reset();
+        mBotCounter.reset();
+        System.out.println("ArmSys.ctor:  topSw: " + mTopSwitch.getChannel() + "  botSw: " + mBotSwitch.getChannel());
+    }
+
+    private void initPIDSlots() {
+        // HOLD pid values
+        mTalon.config_kF(kPIDSlot_Hold, 0.0, kTimeoutMs);             // 1023/1180
+        mTalon.config_kP(kPIDSlot_Hold, 0.8, kTimeoutMs);  // original val 0.8
+        mTalon.config_kI(kPIDSlot_Hold, 0.0, kTimeoutMs);
+        mTalon.config_kD(kPIDSlot_Hold, 0.0, kTimeoutMs);
+
+        // MOVING pid values
+        mTalon.config_kF(kPIDSlot_Move, 0.0, kTimeoutMs);             // 1023/1180
+        mTalon.config_kP(kPIDSlot_Move, 0.5, kTimeoutMs);             // 1023 / 400  * 0.1
+        mTalon.config_kI(kPIDSlot_Move, 0.0, kTimeoutMs);
+        mTalon.config_kD(kPIDSlot_Move, 5.0, kTimeoutMs);
     }
 
     /**
@@ -193,7 +162,6 @@ public class ArmSys extends Subsystem {
     @Override
     public void initDefaultCommand() {
     }
-
 
 
     //  grab the 360 degree position of the MagEncoder's absolute position, and set the relative sensor to match.
@@ -235,9 +203,9 @@ public class ArmSys extends Subsystem {
     private int mCounter = 0;
 
 
-    // ************************************************************ //
+    // *********************************************************************************8**************** //
     // MANUAL ARM MOVE
-    // ************************************************************ //
+    // ************************************************************************************************* //
 
     public void initForMove() {
         mCounter = 0;
@@ -259,16 +227,16 @@ public class ArmSys extends Subsystem {
         if (dir == Direction.Down) {
             speed = -speed;
         }
-        mTalon.set(ControlMode.PercentOutput, speed);
+        mTalon.set(ControlMode.PercentOutput, -speed); // PRODUCTION control is reversed
         if (++mCounter % 5 == 0) {
             printPosn("move");
         }
     }
 
 
-    // *************************************************** //
+    // ******************************************************************************************** //
     // MANUAL STOP
-    // *************************************************** //
+    // ******************************************************************************************* //
     private enum StopMode {
         Moving,
         Stopping,
@@ -276,10 +244,6 @@ public class ArmSys extends Subsystem {
     }
 
     private StopMode mStopMode = StopMode.Moving;
-
-    private double mLastError = 0;
-    private int mStopCallCount = 0;
-
 
     /**
      * Start the stop process, at end move to closed loop position hold
@@ -295,9 +259,8 @@ public class ArmSys extends Subsystem {
     }
 
     public boolean stopComplete() {
-
         double output = mTalon.getMotorOutputPercent();
-        if (output < 0.1) {
+        if (output > 0.1) {
             System.out.printf("ElvSys.stopComplete:  output%%: %.2f    \r\n", output);
             holdPosn();
             return true;
@@ -312,17 +275,14 @@ public class ArmSys extends Subsystem {
     private void holdPosn() {
         // select the hold PID slot
         mTalon.selectProfileSlot(kPIDSlot_Hold, 0);
-
         double curPosn = mTalon.getSelectedSensorPosition(0);
-        //double curPosn = mTalon.getSensorCollection().getPulseWidthPosition();
         printPosn("holdPosn");
-        int loopCnt = 0;
         mTalon.set(ControlMode.Position, curPosn);
     }
 
-    // ***************************************************** //
+    // ************************************************************************************************* //
     // ARM TO TARGET POSITIONS
-    // ***************************************************** //
+    // ************************************************************************************************ //
 
     /**
      * @return the current absolute position - pulsewidth
@@ -366,11 +326,8 @@ public class ArmSys extends Subsystem {
     private int mLoopCtr = 0;
 
     private void moveToTarget(int targPosnDelta) {
-        Direction dir;
-
         mTalon.selectProfileSlot(kPIDSlot_Move,0);
         mCalcTarg = mPosn_START + targPosnDelta;
-//        mCalcTarg = mPosn_START + targPosnDelta - getCurPosn();
         mMMStartPosn = getCurPosn();
         System.out.println("ArmSys.moveToTarget:  mPosn_START: " + mPosn_START + "  delta: " + targPosnDelta  + "  calcTarg: " + mCalcTarg+ "  curPosn: " + getCurPosn());
         mLoopCtr = 0;
@@ -399,9 +356,9 @@ public class ArmSys extends Subsystem {
     }
 
 
-    // ***************************************************************** //
+    // **************************************************************************************************************** //
     // MANUAL TARGET MOVE
-    // **************************************************************** //
+    // **************************************************************************************************************** //
 
     // full range from start to intake is about 3900 ticks
     private static int TICKS_PER_DEGREE = (int)(3900 / 180);
@@ -410,8 +367,6 @@ public class ArmSys extends Subsystem {
     private static final int ALLOWED_DISTERR = 5 * TICKS_PER_DEGREE;
     private float mDistance;
 
-    private int mStartPosn;
-    private int mTargetDist;
     private int mTargPosn;
 
     // set to +1 for forward, -1 for back
@@ -470,13 +425,9 @@ public class ArmSys extends Subsystem {
     }
 
 
-
-
-
-
-    // ***************************************************************** //
+    // ********************************************************************************************************** //
     // UTILITY METHODS
-    // ***************************************************************** //
+    // ********************************************************************************************************** //
 
     private double mLastRelPosn;
     private double mLastQuadPosn;
@@ -532,6 +483,5 @@ public class ArmSys extends Subsystem {
         SmartDashboard.putNumber("Arm/MotorOuput", mout);
         SmartDashboard.putNumber("Arm/ClosedLoopErr", closedLoopErr);
     }
-
 
 }

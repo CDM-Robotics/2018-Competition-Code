@@ -219,8 +219,8 @@ public class DriveSys extends Subsystem {
     public void arcadeDrive(double mag, double yaw) {
         mRoboDrive.arcadeDrive(-mag, yaw, false);
         if (mLoopCnt++ % 10 == 0) {
-            System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw + "  navYaw: " + mAhrs.getYaw());
-            printPosn("arcadeDrive");
+            //System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw + "  navYaw: " + mAhrs.getYaw());
+            //printPosn("arcadeDrive");
         }
     }
 

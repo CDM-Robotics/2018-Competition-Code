@@ -16,7 +16,7 @@ import org.cdm.team6072.profiles.IMotionProfile;
 import org.cdm.team6072.profiles.MotionProfileController;
 import org.cdm.team6072.profiles.PIDConfig;
 import util.CrashTracker;
-
+import util.Logger;
 
 
 public class ElevatorSys extends Subsystem {
@@ -197,7 +197,7 @@ public class ElevatorSys extends Subsystem {
         mTalon.config_kF(kPIDSlot_Hold, 0.0, kTimeoutMs);        // normally 0 for position hold but putting in small 0.1 damps oscillation
         mTalon.config_kP(kPIDSlot_Hold, 2.0, kTimeoutMs);        // kP_turn 1.0 used on elevator 2018-02-17
         mTalon.config_kI(kPIDSlot_Hold, 0.0, kTimeoutMs);
-        mTalon.config_kD(kPIDSlot_Hold, 20.0, kTimeoutMs);
+        mTalon.config_kD(kPIDSlot_Hold, 2.0, kTimeoutMs); // previously 20
     }
 
     private void initSoftLimits() {
@@ -379,6 +379,8 @@ public class ElevatorSys extends Subsystem {
     public void initStop() {
         mTalon.set(ControlMode.PercentOutput, 0);
         holdPos = getCurPosn();
+        Logger.getInstance().printRobotAction("Stopping at " + holdPos);
+
     }
 
 
@@ -390,7 +392,7 @@ public class ElevatorSys extends Subsystem {
 
     public boolean stopComplete() {
         double output = mTalon.getMotorOutputPercent();
-        if (output < 0.1) {
+        if (output < 0.1) { // original was <
             System.out.printf("ElvSys.stopComplete:  output%%: %.2f    \r\n", output);
             holdPosn();
             return true;
@@ -414,11 +416,6 @@ public class ElevatorSys extends Subsystem {
         int loopCnt = 0;
         // In Position mode, output value is in encoder ticks or an analog value, depending on the sensor.
         mTalon.set(ControlMode.Position, curPosn);
-        if (mWatchdog != null) {
-            // cancel the existing watchdog, set a new one
-            mWatchdog.Cancel();
-        }
-        //mWatchdog = TalonWatchdog.SetWatchdog(mTalon, 3, kPIDLoopIdx, TALON_ALLOWED_CLOSELOOP_ERROR + 50);
 
         boolean notFinished = true;
         double lastErr = -1;
@@ -456,23 +453,25 @@ public class ElevatorSys extends Subsystem {
 
     public void moveToSwitch() {
         moveToTarget(SWITCH_POSN_UNITS);
+        //moveToTargetPosn(SWITCH_POSN_UNITS_DELTA);
     }
     public boolean moveToSwitchComplete() {
         return moveToTargetComplete();
+        //return moveToTargetPosnComplete();
     }
 
     public void moveToScaleLo() {
-        moveToTarget(SCALELO_POSN_UNITS);
+        moveToTargetPosn(SCALELO_POSN_UNITS_DELTA);
     }
     public boolean moveToScaleLoComplete() {
-        return moveToTargetComplete();
+        return moveToTargetPosnComplete();
     }
 
     public void moveToScaleHi() {
-        moveToTarget(SCALEHI_POSN_UNITS);
+        moveToTargetPosn(SCALEHI_POSN_UNITS_DELAT);
     }
     public boolean moveToScaleHiComplete() {
-        return moveToTargetComplete();
+        return moveToTargetPosnComplete();
     }
 
 
@@ -504,10 +503,9 @@ public class ElevatorSys extends Subsystem {
 
 
 
-    // code for magic move  --------------------------------------------------------------------------
-
-    private double mMMTargetPosn = -1;
-
+    // ********************************************************************* //
+    // MAGIC MOVE
+    // ********************************************************************* //
     private boolean mMMStarted;
     private int mMMStartPosn;
 
@@ -587,8 +585,8 @@ public class ElevatorSys extends Subsystem {
         Direction dir;
 
         mTalon.selectProfileSlot(kPIDSlot_Move,0);
-        mCalcTarg = mPosn_START + targPosnDelta;
         mMMStartPosn = getCurPosn();
+        mCalcTarg = (mPosn_START + targPosnDelta) - mMMStartPosn; // add in to get to Target
         System.out.println("ElvSys.moveToTarget:  mPosn_START: " + mPosn_START + "  delta: " + targPosnDelta  + "  calcTarg: " + mCalcTarg+ "  curPosn: " + getCurPosn());
         mMMStarted = false;
         mLoopCtr = 0;
@@ -600,9 +598,13 @@ public class ElevatorSys extends Subsystem {
     public boolean moveToTargetPosnComplete() {
         double curVel = mTalon.getSelectedSensorVelocity(kPIDSlot_Move);
         int curPosn = Math.abs(getCurPosn());
-        boolean end =  (curVel == 0) && (Math.abs(mCalcTarg - curPosn) < 300);
+        boolean end =  (Math.abs(mCalcTarg - curPosn) < 300); //(curVel == 0) &&
+        System.out.println("ElevatorSys.moveToTargetPosnComplete " + curPosn + ", end:" + end + ", target: " + mCalcTarg);
         if (end) {
             printPosn("moveToTargetComplete -------- ");
+            // below is temp
+            mTalon.set(ControlMode.PercentOutput, 0);
+            holdPosn();
         }
         return end;
     }
@@ -647,13 +649,11 @@ public class ElevatorSys extends Subsystem {
 
 
 
-    // ------------  code for using a motion profile  ----------------------------------------------
+    // *************************************************************************************** //
+    // MOTION PROFILE CODE
+    // *************************************************************************************** //
 
-    /**
-     * Specify the motion profile to use
-     *
-     * @param profile
-     */
+
     public void setMPProfile(IMotionProfile profile) {
         System.out.println("ElevatorSys.setMPProfile:  setting up ");
 
@@ -686,6 +686,7 @@ public class ElevatorSys extends Subsystem {
      * @return the current absolute position - pulsewidth
      */
     private int getCurPosn() {
+        Logger.getInstance().printBanner("CURRENT POS: " + mTalon.getSelectedSensorPosition(0));
         return mTalon.getSelectedSensorPosition(0);
     }
 
