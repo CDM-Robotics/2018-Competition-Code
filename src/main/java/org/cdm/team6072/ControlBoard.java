@@ -125,14 +125,14 @@ public class ControlBoard {
         control_buttons[EXTREME_BUT_LEFT_BOT-1].whenReleased(new StopElevatorCmd());
 
         // move arm up
-        control_buttons[EXTREME_BUT_RIGHT_TOP-1] = new JoystickButton(control_stick, EXTREME_BUT_RIGHT_TOP);
-        control_buttons[EXTREME_BUT_RIGHT_TOP-1].whenPressed(new ArmMoveCmd(ArmSys.Direction.Up, 0.5));
-        control_buttons[EXTREME_BUT_RIGHT_TOP-1].whenReleased(new ArmStopCmd());
+        control_buttons[EXTREME_BUT_RIGHT_BOT-1] = new JoystickButton(control_stick, EXTREME_BUT_RIGHT_BOT);
+        control_buttons[EXTREME_BUT_RIGHT_BOT-1].whenPressed(new ArmMoveCmd(ArmSys.Direction.Up, 0.5));
+        control_buttons[EXTREME_BUT_RIGHT_BOT-1].whenReleased(new ArmStopCmd());
 
         // move arm down
-        control_buttons[EXTREME_BUT_RIGHT_BOT-1] = new JoystickButton(control_stick, EXTREME_BUT_RIGHT_BOT);
-        control_buttons[EXTREME_BUT_RIGHT_BOT-1].whenPressed(new ArmMoveCmd(ArmSys.Direction.Down, 0.5));
-        control_buttons[EXTREME_BUT_RIGHT_BOT-1].whenReleased(new ArmStopCmd());
+        control_buttons[EXTREME_BUT_RIGHT_TOP-1] = new JoystickButton(control_stick, EXTREME_BUT_RIGHT_TOP);
+        control_buttons[EXTREME_BUT_RIGHT_TOP-1].whenPressed(new ArmMoveCmd(ArmSys.Direction.Down, 0.5));
+        control_buttons[EXTREME_BUT_RIGHT_TOP-1].whenReleased(new ArmStopCmd());
 
         // intake wheels IN
         control_buttons[EXTREME_BUT_TRIGGER-1] = new JoystickButton(control_stick, EXTREME_BUT_TRIGGER);

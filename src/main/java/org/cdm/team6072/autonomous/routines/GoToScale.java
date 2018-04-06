@@ -17,11 +17,19 @@ public class GoToScale extends CommandGroup {
     public GoToScale(int startBox, ALLIANCE_SIDE side) {
         switch (startBox) {
             case 1:
-                goFromPosOneToLeft();
+                if (side == ALLIANCE_SIDE.LEFT) {
+                    goFromPosOneToLeft();
+                } else {
+                    crossLine();
+                }
             case 2:
                 goFromPosTwoToRight();
             case 3:
-                goFromPosThreeToRight();
+                if (side == ALLIANCE_SIDE.RIGHT) {
+                    goFromPosThreeToRight();
+                } else {
+                    crossLine();
+                }
         }
     }
 
@@ -50,6 +58,10 @@ public class GoToScale extends CommandGroup {
         addSequential(new DriveTurnYawCmd(-90), 3);
         addSequential(new PositionScaleShooter());
         addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
+    }
+
+    private void crossLine() {
+        addSequential(new DriveDistCmd(15));
     }
 
     public float inchesToFeet(int inches) {
