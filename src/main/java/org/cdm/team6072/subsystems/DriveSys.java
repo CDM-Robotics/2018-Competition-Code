@@ -455,7 +455,7 @@ public class DriveSys extends Subsystem {
     public void moveDistancePIDExec() {
         int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
         double mag = mDrivePIDOut.getVal();
-        mag = (mag/1.5); //2;      // slow it down
+        mag = (mag/1.3); //1.5;      // slow it down
         mag = checkDeadband(mag, DRIVE_NEGBOUND, DRIVE_POSBOUND);
         double yaw = mGyroPIDOut.getVal();
         if (mMoveDistLoopCnt++ % 5 == 0) {

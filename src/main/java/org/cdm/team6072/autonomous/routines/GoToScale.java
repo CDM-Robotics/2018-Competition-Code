@@ -1,9 +1,12 @@
 package org.cdm.team6072.autonomous.routines;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
+import org.cdm.team6072.autonomous.routines.subroutines.PositionScaleShooter;
 import org.cdm.team6072.commands.drive.DriveDistCmd;
 import org.cdm.team6072.commands.drive.DriveTurnYawCmd;
 import org.cdm.team6072.commands.elevator.ElvMoveToScaleHiCmd;
+import org.cdm.team6072.commands.intake.RunIntakeWheelsCmd;
+import org.cdm.team6072.subsystems.IntakeMotorSys;
 
 public class GoToScale extends CommandGroup {
 
@@ -12,7 +15,6 @@ public class GoToScale extends CommandGroup {
     }
 
     public GoToScale(int startBox, ALLIANCE_SIDE side) {
-        startBox = 2;
         switch (startBox) {
             case 1:
                 goFromPosOneToLeft();
@@ -36,14 +38,18 @@ public class GoToScale extends CommandGroup {
     private void goFromPosOneToLeft() {
         addSequential(new DriveDistCmd(20));
         addSequential(new DriveDistCmd(5));
-        addParallel(new ElvMoveToScaleHiCmd());
+        addSequential(new DriveTurnYawCmd(90), 3);
+        addSequential(new PositionScaleShooter());
+        addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
 
     }
 
     private void goFromPosThreeToRight() {
         addSequential(new DriveDistCmd(20));
         addSequential(new DriveDistCmd(5));
-        addParallel(new ElvMoveToScaleHiCmd());
+        addSequential(new DriveTurnYawCmd(-90), 3);
+        addSequential(new PositionScaleShooter());
+        addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
     }
 
     public float inchesToFeet(int inches) {

@@ -12,9 +12,9 @@ public class PositionIntake extends CommandGroup {
 
     // arm intake pos, close low, wheels in low
     public PositionIntake() {
-        addSequential(new ElvMoveToIntakeCmd());
+        addSequential(new ElvMoveToIntakeCmd(), 2);
         //addParallel(new ArmMoveToIntake());
-        addParallel(new CloseIntakeLoCmd());
-        addParallel(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In, 1.0));
+        addParallel(new CloseIntakeLoCmd(), 1);
+        addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In, 1.0));
     }
 }
