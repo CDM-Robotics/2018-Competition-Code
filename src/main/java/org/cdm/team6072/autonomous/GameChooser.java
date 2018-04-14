@@ -82,7 +82,6 @@ public class GameChooser {
         }
     }
 
-
     public static enum ALLIANCE_SIDE {
         LEFT, RIGHT
     }
