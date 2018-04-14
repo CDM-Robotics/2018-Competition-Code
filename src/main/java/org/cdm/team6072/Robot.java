@@ -34,11 +34,18 @@ public class Robot extends TimedRobot {
 
     // set up SmartDash for choosing auto
 
-    private   SendableChooser mChooser ;
+    private   SendableChooser<AutoInitSel> mChooser ;
 
-    private Command mCmdSwitch;
-    private Command mCmdScaleLeft;
-    private Command mCmdScaleRight;
+    private CommandGroup mCmdSwitch;
+    private CommandGroup mCmdScaleLeft;
+    private CommandGroup mCmdScaleRight;
+
+
+    private enum AutoInitSel {
+        SWITCH,
+        SCALELEFT,
+        SCALERIGHT
+    }
 
 
     // ********************************************** //
@@ -63,23 +70,28 @@ public class Robot extends TimedRobot {
         //       C:\Users\Public\Documents\FRC folder\FRC DS Data Storage.ini
         // Jars are in
         //      C:\Users\David\wpilib\tools
+        // Updated JARs :
+        //       http://first.wpi.edu/FRC/roborio/maven/release/edu/wpi/first/wpilib/SmartDashboard/
 
 //        SmartDashboard.putBoolean("AllowCross", true);
 //        SmartDashboard.putBoolean("RunScale", false);
 //        SmartDashboard.putNumber("StartBox1_3", 1);
 
-        GameChooser gameChooser = new GameChooser();
-        mCmdSwitch = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SWITCH, GameChooser.STARTBOX.CENTER, GameChooser.ALLOWCROSSFIELD.Yes);
-        mCmdScaleLeft = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SCALE, GameChooser.STARTBOX.LEFT, GameChooser.ALLOWCROSSFIELD.No);
-        mCmdScaleRight = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SCALE, GameChooser.STARTBOX.RIGHT, GameChooser.ALLOWCROSSFIELD.No);
-        mChooser = new SendableChooser();
-        mChooser.addDefault("Switch  Center", mCmdSwitch);
-        mChooser.addObject( "Scale   Left    NO cross", mCmdScaleLeft);
-        mChooser.addObject( "Scale   Right   NO cross", mCmdScaleRight);
+//        GameChooser gameChooser = new GameChooser();
+//        mCmdSwitch = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SWITCH, GameChooser.STARTBOX.CENTER, GameChooser.ALLOWCROSSFIELD.Yes);
+//        mCmdScaleLeft = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SCALE, GameChooser.STARTBOX.LEFT, GameChooser.ALLOWCROSSFIELD.No);
+//        mCmdScaleRight = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SCALE, GameChooser.STARTBOX.RIGHT, GameChooser.ALLOWCROSSFIELD.No);
+//        mChooser = new SendableChooser<CommandGroup>();
+//        mChooser.addDefault("Switch  Center", mCmdSwitch);
+//        mChooser.addObject( "Scale   Left    NO cross", mCmdScaleLeft);
+//        mChooser.addObject( "Scale   Right   NO cross", mCmdScaleRight);
+
+        mChooser = new SendableChooser<AutoInitSel>();
+        mChooser.addDefault("Switch  Center", AutoInitSel.SWITCH);
+        mChooser.addObject( "Scale   Left    NO cross", AutoInitSel.SCALELEFT);
+        mChooser.addObject( "Scale   Right   NO cross", AutoInitSel.SCALERIGHT);
 
         SmartDashboard.putData(mChooser);
-
-        SmartDashboard.putData("Switch cmd:", mCmdSwitch);
     }
 
     @Override
@@ -98,6 +110,51 @@ public class Robot extends TimedRobot {
             }
         });
     }
+
+
+
+    //******************************************** //
+    // AUTONOMOUS MODE
+    //******************************************* //
+    @Override
+    public void autonomousInit() {
+        super.autonomousInit();
+        Logger.getInstance().printBanner("AUTO INIT");
+
+        DriverStation ds = DriverStation.getInstance();
+        //CameraManager.getInstance().runCameras();
+
+        NavXSys.getInstance().zeroYawHeading();
+
+        AutoInitSel optSel = mChooser.getSelected();
+        GameChooser gameChooser = new GameChooser();
+        CommandGroup cmdGrp = new CommandGroup();
+        switch (optSel) {
+            case SWITCH:
+                cmdGrp = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SWITCH, GameChooser.STARTBOX.CENTER, GameChooser.ALLOWCROSSFIELD.Yes);
+                break;
+            case SCALELEFT:
+                cmdGrp = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SCALE, GameChooser.STARTBOX.LEFT, GameChooser.ALLOWCROSSFIELD.No);
+                break;
+            case SCALERIGHT:
+                cmdGrp = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SCALE, GameChooser.STARTBOX.RIGHT, GameChooser.ALLOWCROSSFIELD.No);
+                break;
+        }
+        cmdGrp.start();
+
+        System.out.println("AI: optSel:" + optSel + "  ----------------------------------------------------");
+    }
+
+
+    @Override
+    public void autonomousPeriodic() {
+        Scheduler.getInstance().run();
+    }
+
+
+
+
+
 
     // ******************************************** //
     // TELEOP MODE
@@ -143,29 +200,6 @@ public class Robot extends TimedRobot {
     }
 
 
-    //******************************************** //
-    // AUTONOMOUS MODE
-    //******************************************* //
-    @Override
-    public void autonomousInit() {
-        super.autonomousInit();
-        Logger.getInstance().printBanner("AUTO INIT");
-
-        DriverStation ds = DriverStation.getInstance();
-        //CameraManager.getInstance().runCameras();
-
-        NavXSys.getInstance().zeroYawHeading();
-
-        CommandGroup cmdGroup = (CommandGroup)mChooser.getSelected();
-        cmdGroup.start();
-    }
-
-
-
-    @Override
-    public void autonomousPeriodic() {
-        Scheduler.getInstance().run();
-    }
 
 
     //******************************************* //

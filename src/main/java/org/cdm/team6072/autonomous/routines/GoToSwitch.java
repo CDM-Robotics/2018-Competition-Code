@@ -24,20 +24,23 @@ public class GoToSwitch extends CommandGroup {
     private float midChannelToSwitchDist = 3;
 
     private GameChooser.ALLIANCE_SIDE mSide;
+    GameChooser.STARTBOX mStartBox;
+    GameChooser.ALLOWCROSSFIELD mAllowCross;
+
 
     // startBox options are LEFT, CENTER, RIGhT
     // but currently hard wired to CENTER
-    public GoToSwitch(GameChooser.STARTBOX startBox, GameChooser.ALLIANCE_SIDE side, GameChooser.ALLOWCROSSFIELD allowCross) {
-        System.out.println("GoToSwitch: startBox -> " + startBox + ", side -> " + side);
-
+    public GoToSwitch(GameChooser.STARTBOX startBox, GameChooser.ALLIANCE_SIDE side,  GameChooser.ALLOWCROSSFIELD allowCross) {
+        System.out.println("GoToSwitch: startBox: " + startBox + "  allowCross: " + allowCross);
+        mStartBox = startBox;
+        mAllowCross = allowCross;
         mSide = side;
-
-        switch (startBox) {
+        switch (mStartBox) {
             case LEFT:
-                if (side == GameChooser.ALLIANCE_SIDE.LEFT) {
+                if (mSide == GameChooser.ALLIANCE_SIDE.LEFT) {
                     goFromPosOnetoLeft();
                 } else {
-                    if (allowCross == GameChooser.ALLOWCROSSFIELD.Yes) {
+                    if (mAllowCross == GameChooser.ALLOWCROSSFIELD.Yes) {
                         goFromPosOneToRight();
                     }
                     else {
@@ -45,17 +48,17 @@ public class GoToSwitch extends CommandGroup {
                     }
                 }
             case CENTER:
-                if (side == GameChooser.ALLIANCE_SIDE.LEFT) {
+                if (mSide == GameChooser.ALLIANCE_SIDE.LEFT) {
                     goFromPosTwoToLeft();
                 } else {
                     goFromPosTwoToRight();
                 }
             case RIGHT:
-                if (side == GameChooser.ALLIANCE_SIDE.RIGHT) {
+                if (mSide == GameChooser.ALLIANCE_SIDE.RIGHT) {
                     goFromPosThreeToRight();
                 }
                 else {
-                    if (allowCross == GameChooser.ALLOWCROSSFIELD.Yes) {
+                    if (mAllowCross == GameChooser.ALLOWCROSSFIELD.Yes) {
                         goFromPosThreeToLeft();
                     }
                     else {
