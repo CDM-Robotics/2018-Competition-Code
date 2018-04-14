@@ -1,6 +1,7 @@
 package org.cdm.team6072.autonomous;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.command.CommandGroup;
 import org.cdm.team6072.autonomous.routines.GoToScale;
 import org.cdm.team6072.autonomous.routines.GoToSwitch;
 import org.cdm.team6072.autonomous.routines.tests.TestSwitchRoutine;
@@ -11,78 +12,117 @@ import util.Logger;
 public class GameChooser {
 
     private DriverStation.Alliance allianceColor;
-    private char switchSide;
-    private char scaleSide;
-    private char farSwitchSide;
-    private int stationNum;
+
+    private char switchSideChar;
+    private ALLIANCE_SIDE switchSide;
+
+    private char scaleSideChar;
+    private ALLIANCE_SIDE scaleSide;
+
+    private char farSwitchSideChar;
+    private ALLIANCE_SIDE farSwitchSide;
+
+
+    public static enum CHOOSER {
+        RUN_TEST,
+        RUN_SWITCH,
+        RUN_SCALE,
+        RUN_EXCHANGE
+    }
+
+    public static enum STARTBOX {
+        LEFT,
+        CENTER,
+        RIGHT
+    }
+
+    public static enum ALLOWCROSSFIELD {
+        Yes,
+        No
+    }
+
+
+    private static CHOOSER optionRun = CHOOSER.RUN_SWITCH;
+    private static STARTBOX optionStartBox = STARTBOX.CENTER;
+    private static ALLOWCROSSFIELD allowCross = ALLOWCROSSFIELD.No;
+
 
 
     public GameChooser() {
-
     }
+
 
     private void parseGameData() {
         String gameData = DriverStation.getInstance().getGameSpecificMessage();
 
-        this.stationNum = DriverStation.getInstance().getLocation();
         try {
-            this.switchSide = gameData.charAt(0);
-            this.scaleSide = gameData.charAt(1);
-            this.farSwitchSide = gameData.charAt(2);
+            this.switchSideChar = gameData.charAt(0);
+            if (switchSideChar == 'L') {
+                switchSide = ALLIANCE_SIDE.LEFT;
+            }
+            else {
+                switchSide = ALLIANCE_SIDE.RIGHT;
+            }
+            this.scaleSideChar = gameData.charAt(1);
+            if (scaleSideChar == 'L') {
+                scaleSide = ALLIANCE_SIDE.LEFT;
+            }
+            else {
+                scaleSide = ALLIANCE_SIDE.RIGHT;
+            }
+            this.farSwitchSideChar = gameData.charAt(2);
+            if (farSwitchSideChar == 'L') {
+                farSwitchSide = ALLIANCE_SIDE.LEFT;
+            }
+            else {
+                farSwitchSide = ALLIANCE_SIDE.RIGHT;
+            }
         } catch (IndexOutOfBoundsException ex) {
             Logger.getInstance().printError("Game Chooser cannot parse game data");
         }
     }
 
-    public void runChooser() {
+    public static enum ALLIANCE_SIDE {
+        LEFT, RIGHT
+    }
+
+
+
+    public CommandGroup chooseCmdGrp(CHOOSER run, STARTBOX startBox, ALLOWCROSSFIELD allowCrossField) {
+
+        this.optionRun = run;
+        this.optionStartBox = startBox;
         this.parseGameData();
-        Logger.getInstance().printBanner("GAME DATA SWITCH SIDE: " + this.switchSide);
 
-        int option = 2;
-        switch (option) {
-            case 1:
-                TestSwitchRoutine test = new TestSwitchRoutine();
-                test.start();
-                break;
-            case 2:
-                //initSwitchRoutine(this.stationNum, switchSide);
-                System.out.println("TEST: EXECUTING INIT SWITCH ROUTINE BOX TO SIDE RIGHT " + this.switchSide);
-                initSwitchRoutine(2, this.switchSide);
-                break;
-            case 3:
-                System.out.println("TEST: EXECUTING INIT SCALE ROUTINE  side " + this.scaleSide);
-                initScaleRoutine(3, this.scaleSide);
-                break;
-            default:
-                break;
+        Logger.getInstance().printBanner("GAME DATA SWITCH: " + this.switchSideChar + "  SCALE: " + this.scaleSideChar);
+
+        switch (optionRun) {
+
+            case RUN_TEST:
+                System.out.println("EXECUTING TEST SWITCH ROUTINE " + this.switchSide);
+//                TestSwitchRoutine test = new TestSwitchRoutine();
+//                test.start();
+//                break;
+                return new TestSwitchRoutine();
+
+            case RUN_SWITCH:
+                System.out.println("EXECUTING SWITCH ROUTINE BOX TO SIDE " + this.switchSide);
+//                GoToSwitch switchRoutine = new GoToSwitch(STARTBOX.CENTER, this.switchSide, allowCross);
+//                switchRoutine.start();
+//                break;
+                return new GoToSwitch(STARTBOX.CENTER, this.switchSide, allowCross);
+
+            case RUN_SCALE:
+                System.out.println("EXECUTING SCALE ROUTINE  side " + this.scaleSide);
+//                GoToScale scaleRoutine = new GoToScale(optionStartBox, this.scaleSide, allowCross);
+//                scaleRoutine.start();
+//                break;
+                return new GoToScale(optionStartBox, this.scaleSide, allowCross);
         }
+        return null;
     }
 
-    public void initSwitchRoutine(int startBox, char switchSide) {
-        GoToSwitch switchRoutine;
-        GoToSwitch.ALLIANCE_SIDE side = null;
 
-        if (switchSide == 'L') {
-            side = GoToSwitch.ALLIANCE_SIDE.LEFT;
-        } else if (switchSide == 'R') {
-            side = GoToSwitch.ALLIANCE_SIDE.RIGHT;
-        }
 
-        Logger.getInstance().printRobotAction("GameChooser.initSwitchRoutine startBox: " + startBox + ", side: " + side.toString());
-        switchRoutine = new GoToSwitch(startBox, side);
-        switchRoutine.start();
-    }
 
-    public void initScaleRoutine(int startBox, char scaleSide) {
-        GoToScale scaleRoutine;
-        GoToScale.ALLIANCE_SIDE side = null;
-
-        if (scaleSide == 'L') {
-            side = GoToScale.ALLIANCE_SIDE.LEFT;
-        } else if (scaleSide == 'R') {
-            side = GoToScale.ALLIANCE_SIDE.RIGHT;
-        }
-        scaleRoutine = new GoToScale(startBox, side);
-        scaleRoutine.start();
-    }
 }
