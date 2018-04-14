@@ -1,6 +1,7 @@
 package org.cdm.team6072.autonomous.routines;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
+import org.cdm.team6072.autonomous.GameChooser;
 import org.cdm.team6072.commands.arm.ArmMoveToIntake;
 import org.cdm.team6072.commands.drive.DriveDistCmd;
 import org.cdm.team6072.commands.drive.DriveTurnYawCmd;
@@ -23,13 +24,13 @@ public class GoToExchange extends CommandGroup {
     // -    3        R                R                  3  -      \\
     // -----------------------               --------------------- \\
 
-    public GoToExchange(int startBox) {
+    public GoToExchange(GameChooser.STARTBOX startBox) {
         switch (startBox) {
-            case 1:
+            case LEFT:
                 return;
-            case 2:
-                return;
-            case 3:
+            case CENTER:
+                this.placeStartingCubeFromPosTwo();
+            case RIGHT:
                 return;
         }
 
@@ -51,14 +52,27 @@ public class GoToExchange extends CommandGroup {
         addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
     }
 
+
     private void placeStartingCubeFromPosTwo() {
         addSequential(new DriveDistCmd(1));
         addSequential(new DriveTurnYawCmd(-90), 2);
-        addSequential(new DriveDistCmd((float)55/12));
-        addParallel(new ArmMoveToIntake(), 3);
-        addSequential(new DriveDistCmd(-90), 2);
+        addSequential(new DriveDistCmd((float)45/12));
+        //addParallel(new ArmMoveToIntake(), 3);
+        addSequential(new DriveTurnYawCmd(-180), 2);
         addSequential(new DriveDistCmd(1));
-        addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
+        addSequential(new DriveDistCmd(1, DriveDistCmd.DIR.REVERSE));
+        //addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
+        this.processSecondCubeFromExchangePos();
+    }
+
+    // -145 turn, forward 55
+    // called after initial exchange trip and robot is backed off the wall 1 foot
+    private void processSecondCubeFromExchangePos() {
+        addSequential(new DriveTurnYawCmd(38), 2);
+        addSequential(new DriveDistCmd((float)55/12));
+        addSequential(new DriveDistCmd((float)38/12, DriveDistCmd.DIR.REVERSE));
+        addSequential(new DriveTurnYawCmd(180), 2);
+        addSequential(new DriveDistCmd(1), 2);
     }
 
 

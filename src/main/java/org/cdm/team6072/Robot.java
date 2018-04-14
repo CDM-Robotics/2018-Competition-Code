@@ -44,7 +44,8 @@ public class Robot extends TimedRobot {
     private enum AutoInitSel {
         SWITCH,
         SCALELEFT,
-        SCALERIGHT
+        SCALERIGHT,
+        EXCHANGECENTER
     }
 
 
@@ -73,23 +74,11 @@ public class Robot extends TimedRobot {
         // Updated JARs :
         //       http://first.wpi.edu/FRC/roborio/maven/release/edu/wpi/first/wpilib/SmartDashboard/
 
-//        SmartDashboard.putBoolean("AllowCross", true);
-//        SmartDashboard.putBoolean("RunScale", false);
-//        SmartDashboard.putNumber("StartBox1_3", 1);
-
-//        GameChooser gameChooser = new GameChooser();
-//        mCmdSwitch = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SWITCH, GameChooser.STARTBOX.CENTER, GameChooser.ALLOWCROSSFIELD.Yes);
-//        mCmdScaleLeft = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SCALE, GameChooser.STARTBOX.LEFT, GameChooser.ALLOWCROSSFIELD.No);
-//        mCmdScaleRight = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SCALE, GameChooser.STARTBOX.RIGHT, GameChooser.ALLOWCROSSFIELD.No);
-//        mChooser = new SendableChooser<CommandGroup>();
-//        mChooser.addDefault("Switch  Center", mCmdSwitch);
-//        mChooser.addObject( "Scale   Left    NO cross", mCmdScaleLeft);
-//        mChooser.addObject( "Scale   Right   NO cross", mCmdScaleRight);
-
         mChooser = new SendableChooser<AutoInitSel>();
-        mChooser.addDefault("Switch  Center", AutoInitSel.SWITCH);
-        mChooser.addObject( "Scale   Left    NO cross", AutoInitSel.SCALELEFT);
-        mChooser.addObject( "Scale   Right   NO cross", AutoInitSel.SCALERIGHT);
+        mChooser.addDefault("Switch       Center", AutoInitSel.SWITCH);
+        mChooser.addObject( "Exchange     Center", AutoInitSel.EXCHANGECENTER);
+        mChooser.addObject( "Scale        Left    NO cross", AutoInitSel.SCALELEFT);
+        mChooser.addObject( "Scale        Right   NO cross", AutoInitSel.SCALERIGHT);
 
         SmartDashboard.putData(mChooser);
     }
@@ -139,6 +128,9 @@ public class Robot extends TimedRobot {
             case SCALERIGHT:
                 cmdGrp = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SCALE, GameChooser.STARTBOX.RIGHT, GameChooser.ALLOWCROSSFIELD.No);
                 break;
+            case EXCHANGECENTER:
+                cmdGrp = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_EXCHANGE, GameChooser.STARTBOX.CENTER, GameChooser.ALLOWCROSSFIELD.No);
+                break;
         }
         cmdGrp.start();
 
@@ -173,7 +165,6 @@ public class Robot extends TimedRobot {
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(mArcadeDriveCmd);
 
-        SmartDashboard.putData("TI Switch cmd:", mCmdSwitch);
 
         // CameraManager.getInstance().runCameras();
     }

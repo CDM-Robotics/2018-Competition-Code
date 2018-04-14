@@ -2,6 +2,7 @@ package org.cdm.team6072.autonomous;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.command.CommandGroup;
+import org.cdm.team6072.autonomous.routines.GoToExchange;
 import org.cdm.team6072.autonomous.routines.GoToScale;
 import org.cdm.team6072.autonomous.routines.GoToSwitch;
 import org.cdm.team6072.autonomous.routines.tests.TestSwitchRoutine;
@@ -33,9 +34,17 @@ public class GameChooser {
     }
 
 
+    public static enum NUM_CUBES {
+        ONE,
+        TWO,
+        THREE
+    }
+
+
     private static CHOOSER optionRun = CHOOSER.RUN_SWITCH;
     private static STARTBOX optionStartBox = STARTBOX.CENTER;
     private static ALLOWCROSSFIELD allowCross = ALLOWCROSSFIELD.No;
+    private static NUM_CUBES optionNumCubes = NUM_CUBES.ONE;
 
 
 
@@ -87,12 +96,16 @@ public class GameChooser {
     }
 
 
-
     public CommandGroup chooseCmdGrp(CHOOSER run, STARTBOX startBox, ALLOWCROSSFIELD allowCrossField) {
+        return chooseCmdGrp(run, startBox, allowCrossField, NUM_CUBES.ONE);
+    }
+
+    public CommandGroup chooseCmdGrp(CHOOSER run, STARTBOX startBox, ALLOWCROSSFIELD allowCrossField, NUM_CUBES numCubes) {
 
         this.optionRun = run;
         this.optionStartBox = startBox;
         this.parseGameData();
+        this.optionNumCubes = numCubes;
 
         Logger.getInstance().printBanner("GAME DATA SWITCH: " + switchSide + "  SCALE: " + scaleSide);
 
@@ -104,11 +117,14 @@ public class GameChooser {
 
             case RUN_SWITCH:
                 System.out.println("SELECTED SWITCH ROUTINE:  BOX: " + STARTBOX.CENTER + "  TO SIDE " + switchSide);
-                return new GoToSwitch(STARTBOX.CENTER, this.scaleSide, allowCross);
+                return new GoToSwitch(STARTBOX.CENTER, this.scaleSide, allowCross, numCubes);
 
             case RUN_SCALE:
                 System.out.println("SELECTED SCALE ROUTINE  BOX: " + optionStartBox + "  TO SIDE " + scaleSide);
                 return new GoToScale(optionStartBox, this.scaleSide, allowCross);
+
+            case RUN_EXCHANGE:
+                return new GoToExchange(optionStartBox);
         }
         return null;
     }

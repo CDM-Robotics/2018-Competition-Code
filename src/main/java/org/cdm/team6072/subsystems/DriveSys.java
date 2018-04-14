@@ -217,7 +217,7 @@ public class DriveSys extends Subsystem {
     private int mLoopCnt = 0;
 
     public void arcadeDrive(double mag, double yaw) {
-        mRoboDrive.arcadeDrive(-mag, yaw, false);
+        mRoboDrive.arcadeDrive(mag, yaw, false);
         if (mLoopCnt++ % 10 == 0) {
             //System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw + "  navYaw: " + mAhrs.getYaw());
             //printPosn("arcadeDrive");
@@ -317,7 +317,7 @@ public class DriveSys extends Subsystem {
                 // not in deadband - keep turning
             }
         }
-        mRoboDrive.arcadeDrive(-mag, yaw, false);
+        mRoboDrive.arcadeDrive(mag, yaw, false);
     }
 
     // motion profile code
@@ -424,6 +424,21 @@ public class DriveSys extends Subsystem {
         mDrivePID.enable();
     }
 
+    // wheel diameter is 6 inches (0.5 feet), so one rev = PI * 0.5 feet
+    // distance to go in encoder ticks
+    public void startMoveDistanceReverse(float distInFeet) {
+        mTargetDist = (int) ((distInFeet / (Math.PI * 0.5)) * 4096);
+        double dist = ((distInFeet / (Math.PI * 0.5)) * 4096);
+        System.out.printf("DS.startMoveDist: distInFeet: %.3f   mTargdist:  %d   floatDist: %.3f  \r\n", distInFeet, mTargetDist, dist);
+        mStartPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
+        mTargPosn = mStartPosn - mTargetDist;
+        mHitTarg = false;
+        mMoveDistLoopCnt = 0;
+        mLastErr = 99999999;
+        mDrivePID.setSetpoint(mTargPosn);
+        mDrivePID.enable();
+    }
+
 
     // set this true when get within ERR of target, to prevent further driving
     private boolean mHitTarg = false;
@@ -461,7 +476,7 @@ public class DriveSys extends Subsystem {
         if (mMoveDistLoopCnt++ % 5 == 0) {
             System.out.printf("DS.moveDistPIDExec: start: %d   cur: %d   targ: %d   mag: %.3f  yaw: %.3f  \r\n", mStartPosn, curPosn, mTargPosn, mag, yaw);
         }
-        mRoboDrive.arcadeDrive(mag, yaw, false);       // PROD is +mag,   TEST is -mag
+        mRoboDrive.arcadeDrive(-mag, yaw, false);       // PROD is +mag,   TEST is -mag
         mHitTarg = mDrivePID.onTarget();
         if (mHitTarg) {
             printPosn("moveDistancePIDExec_hit");
@@ -478,9 +493,9 @@ public class DriveSys extends Subsystem {
            System.out.printf("DS.moveDistPIDExec: start: %d   cur: %d   targ: %d   mag: %.3f  yaw: %.3f  \r\n", mStartPosn, curPosn, mTargPosn, mag, yaw);
         }
         if (reverse == false) {
-            mRoboDrive.arcadeDrive(mag, yaw, false);       // PROD is +mag,   TEST is -mag
+            mRoboDrive.arcadeDrive(-mag, yaw, false);       // PROD is +mag,   TEST is -mag
         } else {
-            mRoboDrive.arcadeDrive(-mag, yaw, false);
+            mRoboDrive.arcadeDrive(mag, yaw, false);
         }
         mHitTarg = mDrivePID.onTarget();
         if (mHitTarg) {

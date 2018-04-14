@@ -48,7 +48,11 @@ public class DriveDistCmd extends Command {
     @Override
     protected void initialize() {
         mDriveSys = DriveSys.getInstance();
-        mDriveSys.startMoveDistance(mDistInFeet);
+        if (reverse == false) {
+            mDriveSys.startMoveDistance(mDistInFeet);
+        } else {
+            mDriveSys.startMoveDistanceReverse(mDistInFeet);
+        }
         if (timeout != -1) {
             this.setTimeout(timeout/1000);
         }
@@ -60,7 +64,7 @@ public class DriveDistCmd extends Command {
      */
     protected void execute() {
         //mDriveSys.moveDistanceExec();
-        mDriveSys.moveDistancePIDExec(reverse);
+        mDriveSys.moveDistancePIDExec();
     }
 
 

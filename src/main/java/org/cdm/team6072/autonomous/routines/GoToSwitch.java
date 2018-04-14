@@ -32,7 +32,8 @@ public class GoToSwitch extends CommandGroup {
 
     // startBox options are LEFT, CENTER, RIGhT
     // but currently hard wired to CENTER
-    public GoToSwitch(GameChooser.STARTBOX startBox, GameChooser.ALLIANCE_SIDE side,  GameChooser.ALLOWCROSSFIELD allowCross) {
+    public GoToSwitch(GameChooser.STARTBOX startBox, GameChooser.ALLIANCE_SIDE side,
+                        GameChooser.ALLOWCROSSFIELD allowCross, GameChooser.NUM_CUBES numCubes) {
         System.out.println("GoToSwitch: startBox: " + startBox + "  allowCross: " + allowCross);
         mStartBox = startBox;
         mAllowCross = allowCross;
@@ -53,7 +54,8 @@ public class GoToSwitch extends CommandGroup {
                 if (mSide == GameChooser.ALLIANCE_SIDE.LEFT) {
                     goFromPosTwoToLeft();
                 } else {
-                    goFromPosTwoToRight();
+                    //goFromPosTwoToRight();
+                    runTwoCubeSwitchFromPosTwo(); // testing the two cube routine (RIGHT)
                 }
             case RIGHT:
                 if (mSide == GameChooser.ALLIANCE_SIDE.RIGHT) {
@@ -88,8 +90,8 @@ public class GoToSwitch extends CommandGroup {
         addSequential(new DriveDistCmd(5));
         addSequential(new DriveTurnYawCmd(0),2);
         addSequential(new DriveDistCmd(2), 1);
-        addSequential(new PositionSwitchShooter(), 3);
-        addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
+        //addSequential(new PositionSwitchShooter(), 3);
+        //addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
     }
 
     private void goFromPosOneToRight() {
@@ -144,14 +146,14 @@ public class GoToSwitch extends CommandGroup {
     private void runTwoCubeSwitchFromPosTwo() {
         this.goFromPosTwoToRight();
         addSequential(new DriveDistCmd((float) 50/12, DriveDistCmd.DIR.REVERSE));
-        addSequential(new DriveTurnYawCmd(-83));
-        addSequential(new DriveDistCmd((float)78/12));
-        addParallel(new PositionIntake(), 2);
-        addSequential(new CloseIntakeHiCmd());
-        addSequential(new DriveDistCmd((float)78/12, DriveDistCmd.DIR.REVERSE));
-        addSequential(new DriveTurnYawCmd(83));
-        addSequential(new DriveDistCmd((float) 50/12, DriveDistCmd.DIR.FORWARD));
-        addSequential(new PositionSwitchShooter(), 2);
-        addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
+        addSequential(new DriveTurnYawCmd(-56));
+        addSequential(new DriveDistCmd((float)68/12));
+        //addParallel(new PositionIntake(), 2);
+        //addSequential(new CloseIntakeHiCmd());
+        addSequential(new DriveDistCmd((float)50/12, DriveDistCmd.DIR.REVERSE));
+        addSequential(new DriveTurnYawCmd(0));
+        addSequential(new DriveDistCmd((float) 45/12, DriveDistCmd.DIR.FORWARD));
+        //addSequential(new PositionSwitchShooter(), 2);
+        //addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
     }
 }
