@@ -11,8 +11,13 @@ public class DriveDistCmd extends Command {
     private Joystick mStick;
     private DriveSys mDriveSys;
     private float mDistInFeet;
+    private boolean reverse = false;
     private int timeout = -1;
     private CmdWatchdog mWatchDog;
+
+    public enum DIR {
+        FORWARD, REVERSE
+    }
 
     /**
      * Specify the the command requires the DriveSys subsystem
@@ -27,6 +32,16 @@ public class DriveDistCmd extends Command {
         this.setName(cmdName);
         mDistInFeet = distInFeeet;
         this.timeout = milliSecs;
+    }
+
+    public DriveDistCmd(float distInFeet, DIR direction) {
+        requires(DriveSys.getInstance());
+        mDistInFeet = distInFeet;
+        if (direction == DIR.REVERSE) {
+            reverse = true;
+        } else {
+            reverse = false;
+        }
     }
 
 
@@ -45,7 +60,7 @@ public class DriveDistCmd extends Command {
      */
     protected void execute() {
         //mDriveSys.moveDistanceExec();
-        mDriveSys.moveDistancePIDExec();
+        mDriveSys.moveDistancePIDExec(reverse);
     }
 
 
