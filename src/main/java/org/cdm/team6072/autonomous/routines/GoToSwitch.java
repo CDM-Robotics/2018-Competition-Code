@@ -1,6 +1,7 @@
 package org.cdm.team6072.autonomous.routines;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
+import org.cdm.team6072.autonomous.GameChooser;
 import org.cdm.team6072.autonomous.routines.subroutines.PositionSwitchShooter;
 import org.cdm.team6072.commands.drive.DriveDistCmd;
 import org.cdm.team6072.commands.drive.DriveTurnYawCmd;
@@ -19,44 +20,55 @@ public class GoToSwitch extends CommandGroup {
     // -    3        R                R                  3  -      \\
     // -----------------------               --------------------- \\
 
-    public static enum ALLIANCE_SIDE {
-        LEFT, RIGHT
-    }
-
     private float midChannelDist = (float) 12;
     private float midChannelToSwitchDist = 3;
 
-    private ALLIANCE_SIDE mSide;
+    private GameChooser.ALLIANCE_SIDE mSide;
 
-    // startBox options are 1, 2, 3
-    public GoToSwitch(int startBox, ALLIANCE_SIDE side) {
+    // startBox options are LEFT, CENTER, RIGhT
+    // but currently hard wired to CENTER
+    public GoToSwitch(GameChooser.STARTBOX startBox, GameChooser.ALLIANCE_SIDE side, GameChooser.ALLOWCROSSFIELD allowCross) {
         System.out.println("GoToSwitch: startBox -> " + startBox + ", side -> " + side);
 
         mSide = side;
 
-        switch (2) { // this really should be read from a GUI
-            case 1:
-                // do something
-                if (side == ALLIANCE_SIDE.LEFT) {
+        switch (startBox) {
+            case LEFT:
+                if (side == GameChooser.ALLIANCE_SIDE.LEFT) {
                     goFromPosOnetoLeft();
                 } else {
-                    goFromPosOneToRight();
+                    if (allowCross == GameChooser.ALLOWCROSSFIELD.Yes) {
+                        goFromPosOneToRight();
+                    }
+                    else {
+                        crossLine();
+                    }
                 }
-            case 2:
-                // do something
-                if (side == ALLIANCE_SIDE.LEFT) {
+            case CENTER:
+                if (side == GameChooser.ALLIANCE_SIDE.LEFT) {
                     goFromPosTwoToLeft();
                 } else {
                     goFromPosTwoToRight();
                 }
-            case 3:
-                // do something
-                if (side == ALLIANCE_SIDE.LEFT) {
-                    goFromPosThreeToLeft();
-                } else {
+            case RIGHT:
+                if (side == GameChooser.ALLIANCE_SIDE.RIGHT) {
                     goFromPosThreeToRight();
                 }
+                else {
+                    if (allowCross == GameChooser.ALLOWCROSSFIELD.Yes) {
+                        goFromPosThreeToLeft();
+                    }
+                    else {
+                        crossLine();
+                    }
+                }
         }
+    }
+
+
+
+    private void crossLine() {
+        addSequential(new DriveDistCmd(15));
     }
 
     private void goFromPosThreeToRight() {

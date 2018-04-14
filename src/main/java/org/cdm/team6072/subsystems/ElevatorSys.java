@@ -36,12 +36,12 @@ public class ElevatorSys extends Subsystem {
     private static int SCALELO_POSN_UNITS = 70 * kUnitsPerInch / 2;
     private static int SCALEHI_POSN_UNITS = 90 * kUnitsPerInch / 2;
 
-    // if using Position PID, measure these values as delat from the absolute start position
+    // if using Position PID, measure these values as delta from the absolute start position
     // then change the values in the moveToXXX() methods
     private static int INTAKE_POSN_DELTA = 3 * kUnitsPerInch / 2;
     private static int SWITCH_POSN_UNITS_DELTA = 35 * kUnitsPerInch / 2;
     private static int SCALELO_POSN_UNITS_DELTA = 70 * kUnitsPerInch / 2;
-    private static int SCALEHI_POSN_UNITS_DELAT = 90 * kUnitsPerInch / 2;
+    private static int SCALEHI_POSN_UNITS_DELTA = 90 * kUnitsPerInch / 2;
 
 
     /**
@@ -163,7 +163,6 @@ public class ElevatorSys extends Subsystem {
             this.initCurrentLimits();
             this.initDeadbandNominalConfig();
 
-
             // bot to top 29000 in 1 sec = 2900 ticks per 100 ms
             mTalon.configMotionCruiseVelocity(3500, kTimeoutMs);        // 2900
             mTalon.configMotionAcceleration(2500, kTimeoutMs);      // 2000
@@ -188,7 +187,7 @@ public class ElevatorSys extends Subsystem {
 
         // Move slot configuration
         mTalon.config_kF(kPIDSlot_Move, .4429, kTimeoutMs);        // 0.4429
-        mTalon.config_kP(kPIDSlot_Move, 0.14, kTimeoutMs);      // 0.14
+        mTalon.config_kP(kPIDSlot_Move, 0.14, kTimeoutMs);          // 0.14
         mTalon.config_kI(kPIDSlot_Move, 0.0, kTimeoutMs);
         mTalon.config_kD(kPIDSlot_Move, 0.0, kTimeoutMs);
 
@@ -247,6 +246,7 @@ public class ElevatorSys extends Subsystem {
     // should only be called on robot.init
     public void setSensorStartPosn() {
         mTalon.getSensorCollection().setPulseWidthPosition(0, kTimeoutMs);
+        mPosn_START = mTalon.getSensorCollection().getQuadraturePosition();
         mBasePosn = mTalon.getSensorCollection().getPulseWidthPosition();
         int absolutePosition = mBasePosn;
         /* mask out overflows, keep bottom 12 bits */
@@ -452,12 +452,10 @@ public class ElevatorSys extends Subsystem {
     }
 
     public void moveToSwitch() {
-        moveToTarget(SWITCH_POSN_UNITS);
-        //moveToTargetPosn(SWITCH_POSN_UNITS_DELTA);
+        moveToTargetPosn(SWITCH_POSN_UNITS_DELTA);
     }
     public boolean moveToSwitchComplete() {
-        return moveToTargetComplete();
-        //return moveToTargetPosnComplete();
+        return moveToTargetPosnComplete();
     }
 
     public void moveToScaleLo() {
@@ -468,7 +466,7 @@ public class ElevatorSys extends Subsystem {
     }
 
     public void moveToScaleHi() {
-        moveToTargetPosn(SCALEHI_POSN_UNITS_DELAT);
+        moveToTargetPosn(SCALEHI_POSN_UNITS_DELTA);
     }
     public boolean moveToScaleHiComplete() {
         return moveToTargetPosnComplete();
@@ -586,8 +584,9 @@ public class ElevatorSys extends Subsystem {
 
         mTalon.selectProfileSlot(kPIDSlot_Move,0);
         mMMStartPosn = getCurPosn();
-        mCalcTarg = (mPosn_START + targPosnDelta) - mMMStartPosn; // add in to get to Target
-        System.out.println("ElvSys.moveToTarget:  mPosn_START: " + mPosn_START + "  delta: " + targPosnDelta  + "  calcTarg: " + mCalcTarg+ "  curPosn: " + getCurPosn());
+        mCalcTarg = mPosn_START + targPosnDelta;
+        //mCalcTarg = (mPosn_START + targPosnDelta) - mMMStartPosn; // this was in Coles version
+        System.out.println("ElvSys.moveToTargetPosn:  mPosn_START: " + mPosn_START + "  delta: " + targPosnDelta  + "  calcTarg: " + mCalcTarg+ "  curPosn: " + getCurPosn());
         mMMStarted = false;
         mLoopCtr = 0;
         mTalon.set(ControlMode.Position, mCalcTarg);
@@ -595,17 +594,21 @@ public class ElevatorSys extends Subsystem {
     }
 
 
+    /**
+     * Do not need to hold as we are in position PID
+     * @return
+     */
     public boolean moveToTargetPosnComplete() {
         double curVel = mTalon.getSelectedSensorVelocity(kPIDSlot_Move);
         int curPosn = Math.abs(getCurPosn());
         boolean end =  (Math.abs(mCalcTarg - curPosn) < 300); //(curVel == 0) &&
         System.out.println("ElevatorSys.moveToTargetPosnComplete " + curPosn + ", end:" + end + ", target: " + mCalcTarg);
-        if (end) {
-            printPosn("moveToTargetComplete -------- ");
-            // below is temp
-            mTalon.set(ControlMode.PercentOutput, 0);
-            holdPosn();
-        }
+//        if (end) {
+//            printPosn("moveToTargetComplete -------- ");
+//            // below is temp
+//            mTalon.set(ControlMode.PercentOutput, 0);
+//            holdPosn();
+//        }
         return end;
     }
 

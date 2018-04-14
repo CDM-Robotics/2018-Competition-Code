@@ -2,19 +2,15 @@ package org.cdm.team6072;
 
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.cdm.team6072.autonomous.GameChooser;
-import org.cdm.team6072.autonomous.routines.GoToScale;
-import org.cdm.team6072.autonomous.routines.GoToSwitch;
-import org.cdm.team6072.autonomous.routines.tests.TestSwitchRoutine;
 import org.cdm.team6072.commands.drive.*;
-import org.cdm.team6072.commands.auton.*;
 import org.cdm.team6072.subsystems.*;
-import sun.rmi.runtime.Log;
 import util.ControlledLogger;
 import util.Logger;
 
@@ -36,6 +32,14 @@ public class Robot extends TimedRobot {
     private ControlBoard mControlBoard  = ControlBoard.getInstance();
     private UsbCamera cam;
 
+    // set up SmartDash for choosing auto
+
+    private   SendableChooser mChooser ;
+
+    private Command mCmdSwitch;
+    private Command mCmdScaleLeft;
+    private Command mCmdScaleRight;
+
 
     // ********************************************** //
     // ENABLE/DISABLE MODE
@@ -53,6 +57,29 @@ public class Robot extends TimedRobot {
 
         // must initialize nav system here for the navX-MXP
         NavXSys.getInstance();
+
+        // set up chooser
+        // Dashboard default is set in file
+        //       C:\Users\Public\Documents\FRC folder\FRC DS Data Storage.ini
+        // Jars are in
+        //      C:\Users\David\wpilib\tools
+
+//        SmartDashboard.putBoolean("AllowCross", true);
+//        SmartDashboard.putBoolean("RunScale", false);
+//        SmartDashboard.putNumber("StartBox1_3", 1);
+
+        GameChooser gameChooser = new GameChooser();
+        mCmdSwitch = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SWITCH, GameChooser.STARTBOX.CENTER, GameChooser.ALLOWCROSSFIELD.Yes);
+        mCmdScaleLeft = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SCALE, GameChooser.STARTBOX.LEFT, GameChooser.ALLOWCROSSFIELD.No);
+        mCmdScaleRight = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SCALE, GameChooser.STARTBOX.RIGHT, GameChooser.ALLOWCROSSFIELD.No);
+        mChooser = new SendableChooser();
+        mChooser.addDefault("Switch  Center", mCmdSwitch);
+        mChooser.addObject( "Scale   Left    NO cross", mCmdScaleLeft);
+        mChooser.addObject( "Scale   Right   NO cross", mCmdScaleRight);
+
+        SmartDashboard.putData(mChooser);
+
+        SmartDashboard.putData("Switch cmd:", mCmdSwitch);
     }
 
     @Override
@@ -79,11 +106,17 @@ public class Robot extends TimedRobot {
     public void teleopInit() {
         Logger.getInstance().printBanner("TELEOP INIT");
 
+        double startBox = SmartDashboard.getNumber("StartBox1_3", -1);
+
+        System.out.println("teleopInit: start box: " + startBox);
+
         NavXSys.getInstance().zeroYawHeading();
 
         ArcadeDriveCmd  mArcadeDriveCmd = new ArcadeDriveCmd(mControlBoard.drive_stick);
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(mArcadeDriveCmd);
+
+        SmartDashboard.putData("TI Switch cmd:", mCmdSwitch);
 
         // CameraManager.getInstance().runCameras();
     }
@@ -123,9 +156,11 @@ public class Robot extends TimedRobot {
 
         NavXSys.getInstance().zeroYawHeading();
 
-        GameChooser autoChooser = new GameChooser();
-        autoChooser.runChooser();
+        CommandGroup cmdGroup = (CommandGroup)mChooser.getSelected();
+        cmdGroup.start();
     }
+
+
 
     @Override
     public void autonomousPeriodic() {
