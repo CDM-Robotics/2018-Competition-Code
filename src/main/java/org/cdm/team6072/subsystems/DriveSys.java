@@ -459,9 +459,29 @@ public class DriveSys extends Subsystem {
         mag = checkDeadband(mag, DRIVE_NEGBOUND, DRIVE_POSBOUND);
         double yaw = mGyroPIDOut.getVal();
         if (mMoveDistLoopCnt++ % 5 == 0) {
-           System.out.printf("DS.moveDistPIDExec: start: %d   cur: %d   targ: %d   mag: %.3f  yaw: %.3f  \r\n", mStartPosn, curPosn, mTargPosn, mag, yaw);
+            System.out.printf("DS.moveDistPIDExec: start: %d   cur: %d   targ: %d   mag: %.3f  yaw: %.3f  \r\n", mStartPosn, curPosn, mTargPosn, mag, yaw);
         }
         mRoboDrive.arcadeDrive(mag, yaw, false);       // PROD is +mag,   TEST is -mag
+        mHitTarg = mDrivePID.onTarget();
+        if (mHitTarg) {
+            printPosn("moveDistancePIDExec_hit");
+        }
+    }
+
+    public void moveDistancePIDExec(boolean reverse) {
+        int curPosn = mRight_Master.getSensorCollection().getPulseWidthPosition();
+        double mag = mDrivePIDOut.getVal();
+        mag = (mag/1.3); //1.5;      // slow it down
+        mag = checkDeadband(mag, DRIVE_NEGBOUND, DRIVE_POSBOUND);
+        double yaw = mGyroPIDOut.getVal();
+        if (mMoveDistLoopCnt++ % 5 == 0) {
+           System.out.printf("DS.moveDistPIDExec: start: %d   cur: %d   targ: %d   mag: %.3f  yaw: %.3f  \r\n", mStartPosn, curPosn, mTargPosn, mag, yaw);
+        }
+        if (reverse == false) {
+            mRoboDrive.arcadeDrive(mag, yaw, false);       // PROD is +mag,   TEST is -mag
+        } else {
+            mRoboDrive.arcadeDrive(-mag, yaw, false);
+        }
         mHitTarg = mDrivePID.onTarget();
         if (mHitTarg) {
             printPosn("moveDistancePIDExec_hit");

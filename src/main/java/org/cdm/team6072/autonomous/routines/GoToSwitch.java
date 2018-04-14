@@ -2,10 +2,12 @@ package org.cdm.team6072.autonomous.routines;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import org.cdm.team6072.autonomous.GameChooser;
+import org.cdm.team6072.autonomous.routines.subroutines.PositionIntake;
 import org.cdm.team6072.autonomous.routines.subroutines.PositionSwitchShooter;
 import org.cdm.team6072.commands.drive.DriveDistCmd;
 import org.cdm.team6072.commands.drive.DriveTurnYawCmd;
 import org.cdm.team6072.commands.elevator.ElvMoveToSwitchCmd;
+import org.cdm.team6072.commands.intake.CloseIntakeHiCmd;
 import org.cdm.team6072.commands.intake.RunIntakeWheelsCmd;
 import org.cdm.team6072.subsystems.ArmSys;
 import org.cdm.team6072.subsystems.DriveSys;
@@ -133,5 +135,20 @@ public class GoToSwitch extends CommandGroup {
     public float inchesToFeet(int inches) {
         System.out.println("inches to feet: " + (float)(inches/12));
         return (float)(inches/12);
+    }
+
+    // testing right
+    private void runTwoCubeSwitchFromPosTwo() {
+        this.goFromPosTwoToRight();
+        addSequential(new DriveDistCmd((float) 50/12, DriveDistCmd.DIR.REVERSE));
+        addSequential(new DriveTurnYawCmd(-83));
+        addSequential(new DriveDistCmd((float)78/12));
+        addParallel(new PositionIntake(), 2);
+        addSequential(new CloseIntakeHiCmd());
+        addSequential(new DriveDistCmd((float)78/12, DriveDistCmd.DIR.REVERSE));
+        addSequential(new DriveTurnYawCmd(83));
+        addSequential(new DriveDistCmd((float) 50/12, DriveDistCmd.DIR.FORWARD));
+        addSequential(new PositionSwitchShooter(), 2);
+        addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
     }
 }
