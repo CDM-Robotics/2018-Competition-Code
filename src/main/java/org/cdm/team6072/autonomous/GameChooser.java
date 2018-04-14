@@ -51,7 +51,7 @@ public class GameChooser {
                 break;
             case 3:
                 System.out.println("TEST: EXECUTING INIT SCALE ROUTINE  side " + this.scaleSide);
-                initScaleRoutine(1, this.scaleSide);
+                initScaleRoutine(3, this.scaleSide);
                 break;
             default:
                 break;
