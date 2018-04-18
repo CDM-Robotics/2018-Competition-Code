@@ -2,12 +2,8 @@ package org.cdm.team6072.autonomous.routines;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import org.cdm.team6072.autonomous.GameChooser;
-import org.cdm.team6072.commands.arm.ArmMoveToIntake;
 import org.cdm.team6072.commands.drive.DriveDistCmd;
 import org.cdm.team6072.commands.drive.DriveTurnYawCmd;
-import org.cdm.team6072.commands.intake.CloseIntakeHiCmd;
-import org.cdm.team6072.commands.intake.RunIntakeWheelsCmd;
-import org.cdm.team6072.subsystems.IntakeMotorSys;
 
 public class GoToExchange extends CommandGroup {
 
@@ -24,36 +20,62 @@ public class GoToExchange extends CommandGroup {
     // -    3        R                R                  3  -      \\
     // -----------------------               --------------------- \\
 
-    public GoToExchange(GameChooser.STARTBOX startBox) {
+    public GoToExchange(GameChooser.STARTBOX startBox, GameChooser.NUM_CUBES numCubes) {
         switch (startBox) {
             case LEFT:
-                return;
+                posnOneToExchange_TwoCube();
+                break;
             case CENTER:
-                this.placeStartingCubeFromPosTwo();
+                this.posnTwoToExchange_TwoCube();
+                break;
             case RIGHT:
-                return;
+                this.posnThreeToExchange_TwoCube();
+                break;
         }
-
     }
 
+
+    // IGNORE METHOD BELOW
     // currently runs 1 cube (assumes no starting cubes, this is just a test and will be moded)
-    private void twoCubeExchangeFromPosTwo() {
-        addSequential(new DriveTurnYawCmd(-19));
-        addSequential(new DriveDistCmd((float) 95/12));
-        addSequential(new DriveTurnYawCmd(19));
-        addSequential(new DriveDistCmd((float) 7/12));
-        addParallel(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In, 1.0));
-        addSequential(new CloseIntakeHiCmd());
-        addSequential(new DriveDistCmd(3, DriveDistCmd.DIR.REVERSE));
-        addSequential(new DriveTurnYawCmd(-90));
-        addSequential(new DriveDistCmd((float) 35/12));
-        addSequential(new DriveTurnYawCmd(-90));
-        addSequential(new DriveDistCmd((float)65/12));
-        addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
+//    private void twoCubeExchangeFromPosTwo() {
+//        addSequential(new DriveTurnYawCmd(-19));
+//        addSequential(new DriveDistCmd((float) 95/12));
+//        addSequential(new DriveTurnYawCmd(19));
+//        addSequential(new DriveDistCmd((float) 7/12));
+//        addParallel(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In, 1.0));
+//        addSequential(new CloseIntakeHiCmd());
+//        addSequential(new DriveDistCmd(3, DriveDistCmd.DIR.REVERSE));
+//        addSequential(new DriveTurnYawCmd(-90));
+//        addSequential(new DriveDistCmd((float) 35/12));
+//        addSequential(new DriveTurnYawCmd(-90));
+//        addSequential(new DriveDistCmd((float)65/12));
+//        addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
+//    }
+
+    private void posnOneToExchange_TwoCube() {
+        addSequential(new DriveDistCmd(1));
+        addSequential(new DriveTurnYawCmd(90), 2);
+        addSequential(new DriveDistCmd((float)56/12), 2);
+        addSequential(new DriveTurnYawCmd(180));
+        addSequential(new DriveDistCmd(1));
+        addSequential(new DriveDistCmd(1, DriveDistCmd.DIR.REVERSE));
+        this.processSecondCubeFromExchangePos();
     }
 
 
-    private void placeStartingCubeFromPosTwo() {
+
+
+    private void posnThreeToExchange_TwoCube() {
+        addSequential(new DriveDistCmd(1));
+        addSequential(new DriveTurnYawCmd(-90), 2);
+        addSequential(new DriveDistCmd((float)136/12));
+        addSequential(new DriveTurnYawCmd(-180));
+        addSequential(new DriveDistCmd(1));
+        addSequential(new DriveDistCmd(1, DriveDistCmd.DIR.REVERSE));
+        this.processSecondCubeFromExchangePos();
+    }
+
+    private void posnTwoToExchange_TwoCube() {
         addSequential(new DriveDistCmd(1));
         addSequential(new DriveTurnYawCmd(-90), 2);
         addSequential(new DriveDistCmd((float)45/12));

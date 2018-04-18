@@ -2,7 +2,6 @@ package org.cdm.team6072;
 
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.*;
-import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -33,19 +32,18 @@ public class Robot extends TimedRobot {
     private UsbCamera cam;
 
     // set up SmartDash for choosing auto
-
     private   SendableChooser<AutoInitSel> mChooser ;
 
-    private CommandGroup mCmdSwitch;
-    private CommandGroup mCmdScaleLeft;
-    private CommandGroup mCmdScaleRight;
-
-
     private enum AutoInitSel {
-        SWITCH,
+        SWITCHCENTER,
+        SWITCHCENTER_TWOCUBE,
+        SWITCHLEFT_TWOCUBE,
+        SWITCHRIGHT_TWOCUBE,
         SCALELEFT,
         SCALERIGHT,
-        EXCHANGECENTER
+        EXCHANGELEFT,
+        EXCHANGECENTER,
+        EXCHANGERIGHT
     }
 
 
@@ -66,6 +64,11 @@ public class Robot extends TimedRobot {
         // must initialize nav system here for the navX-MXP
         NavXSys.getInstance();
 
+        //CameraManager.getInstance().runCameras();
+        //CameraServer.getInstance().startAutomaticCapture("cam2", 0);
+        CameraManager.getInstance().runCameras();
+
+
         // set up chooser
         // Dashboard default is set in file
         //       C:\Users\Public\Documents\FRC folder\FRC DS Data Storage.ini
@@ -75,10 +78,15 @@ public class Robot extends TimedRobot {
         //       http://first.wpi.edu/FRC/roborio/maven/release/edu/wpi/first/wpilib/SmartDashboard/
 
         mChooser = new SendableChooser<AutoInitSel>();
-        mChooser.addDefault("Switch       Center", AutoInitSel.SWITCH);
-        mChooser.addObject( "Exchange     Center", AutoInitSel.EXCHANGECENTER);
-        mChooser.addObject( "Scale        Left    NO cross", AutoInitSel.SCALELEFT);
-        mChooser.addObject( "Scale        Right   NO cross", AutoInitSel.SCALERIGHT);
+        mChooser.addObject("Switch       Left      Two", AutoInitSel.SWITCHLEFT_TWOCUBE);
+        mChooser.addDefault("Switch       Center      One", AutoInitSel.SWITCHCENTER);
+        mChooser.addObject("Switch       Center    Two", AutoInitSel.SWITCHCENTER_TWOCUBE);
+        mChooser.addObject("Switch       Right     Two", AutoInitSel.SWITCHRIGHT_TWOCUBE);
+        mChooser.addObject("Exchange     Left      Two", AutoInitSel.EXCHANGELEFT);
+        mChooser.addObject("Exchange     Center    Two", AutoInitSel.EXCHANGECENTER);
+        mChooser.addObject("Exchange     Right     Two", AutoInitSel.EXCHANGERIGHT);
+        mChooser.addObject("Scale        Left      Fallback Exchange", AutoInitSel.SCALELEFT);
+        mChooser.addObject("Scale        Right     Fallback Exchange", AutoInitSel.SCALERIGHT);
 
         SmartDashboard.putData(mChooser);
     }
@@ -102,7 +110,7 @@ public class Robot extends TimedRobot {
 
 
 
-    //******************************************** //
+    //************************************************************************************************************************ //
     // AUTONOMOUS MODE
     //******************************************* //
     @Override
@@ -115,26 +123,46 @@ public class Robot extends TimedRobot {
 
         NavXSys.getInstance().zeroYawHeading();
 
+        mDriveSys.setGearLo();
         AutoInitSel optSel = mChooser.getSelected();
         GameChooser gameChooser = new GameChooser();
         CommandGroup cmdGrp = new CommandGroup();
         switch (optSel) {
-            case SWITCH:
+            case SWITCHCENTER:
                 cmdGrp = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SWITCH, GameChooser.STARTBOX.CENTER, GameChooser.ALLOWCROSSFIELD.Yes);
                 break;
+            case SWITCHLEFT_TWOCUBE:
+                cmdGrp = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SWITCH, GameChooser.STARTBOX.LEFT,
+                        GameChooser.ALLOWCROSSFIELD.No, GameChooser.NUM_CUBES.TWO);
+                break;
+            case SWITCHCENTER_TWOCUBE:
+                cmdGrp = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SWITCH, GameChooser.STARTBOX.CENTER,
+                        GameChooser.ALLOWCROSSFIELD.No, GameChooser.NUM_CUBES.TWO);
+                break;
+            case SWITCHRIGHT_TWOCUBE:
+                cmdGrp = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SWITCH, GameChooser.STARTBOX.RIGHT,
+                            GameChooser.ALLOWCROSSFIELD.No, GameChooser.NUM_CUBES.TWO);
+                break;
             case SCALELEFT:
-                cmdGrp = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SCALE, GameChooser.STARTBOX.LEFT, GameChooser.ALLOWCROSSFIELD.No);
+                cmdGrp = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SCALE, GameChooser.STARTBOX.LEFT,
+                            GameChooser.ALLOWCROSSFIELD.No, GameChooser.NUM_CUBES.TWO);
                 break;
             case SCALERIGHT:
                 cmdGrp = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SCALE, GameChooser.STARTBOX.RIGHT, GameChooser.ALLOWCROSSFIELD.No);
                 break;
+            case EXCHANGELEFT:
+                cmdGrp = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_EXCHANGE, GameChooser.STARTBOX.LEFT, GameChooser.ALLOWCROSSFIELD.No);
+                break;
             case EXCHANGECENTER:
                 cmdGrp = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_EXCHANGE, GameChooser.STARTBOX.CENTER, GameChooser.ALLOWCROSSFIELD.No);
+                break;
+            case EXCHANGERIGHT:
+                cmdGrp = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_EXCHANGE, GameChooser.STARTBOX.RIGHT, GameChooser.ALLOWCROSSFIELD.No);
                 break;
         }
         cmdGrp.start();
 
-        System.out.println("AI: optSel:" + optSel + "  ----------------------------------------------------");
+        System.out.println("Robot.AI: optSel:" + optSel + "  ----------------------------------------------------");
     }
 
 
@@ -146,18 +174,12 @@ public class Robot extends TimedRobot {
 
 
 
-
-
-    // ******************************************** //
+    // ********************************************************************************************************************************************* //
     // TELEOP MODE
     // ******************************************* //
     @Override
     public void teleopInit() {
         Logger.getInstance().printBanner("TELEOP INIT");
-
-        double startBox = SmartDashboard.getNumber("StartBox1_3", -1);
-
-        System.out.println("teleopInit: start box: " + startBox);
 
         NavXSys.getInstance().zeroYawHeading();
 
@@ -165,8 +187,7 @@ public class Robot extends TimedRobot {
         Scheduler.getInstance().removeAll();
         Scheduler.getInstance().add(mArcadeDriveCmd);
 
-
-        // CameraManager.getInstance().runCameras();
+        //CameraManager.getInstance().runCameras();
     }
 
     /**
@@ -182,12 +203,12 @@ public class Robot extends TimedRobot {
 
         // reset the disabled loop print count to allow a few prints when disabled
         // update PDP stats every half second
-        new ControlledLogger().print(200, new Runnable() {
-            @Override
-            public void run() {
-                NavXSys.getInstance().outputAngles();
-            }
-        });
+//        new ControlledLogger().print(200, new Runnable() {
+//            @Override
+//            public void run() {
+//                NavXSys.getInstance().outputAngles();
+//            }
+//        });
     }
 
 

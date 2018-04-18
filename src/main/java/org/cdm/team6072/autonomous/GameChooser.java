@@ -107,24 +107,37 @@ public class GameChooser {
         this.parseGameData();
         this.optionNumCubes = numCubes;
 
-        Logger.getInstance().printBanner("GAME DATA SWITCH: " + switchSide + "  SCALE: " + scaleSide);
+        Logger.getInstance().printBanner("GAME DATA SWITCHCENTER: " + switchSide + "  SCALE: " + scaleSide);
+
+        boolean isScaleCross = ( (optionStartBox == STARTBOX.LEFT && scaleSide == ALLIANCE_SIDE.RIGHT)
+                                    ||
+                                    (optionStartBox == STARTBOX.RIGHT && scaleSide == ALLIANCE_SIDE.LEFT)
+                                );
+        boolean isSwitchCross = ( (optionStartBox == STARTBOX.LEFT && switchSide == ALLIANCE_SIDE.RIGHT)
+                                    ||
+                                    (optionStartBox == STARTBOX.RIGHT && switchSide == ALLIANCE_SIDE.LEFT)
+                                );
 
         switch (optionRun) {
 
             case RUN_TEST:
-                System.out.println("SELECTED TEST SWITCH ROUTINE " + this.switchSide);
+                System.out.println("SELECTED TEST SWITCHCENTER ROUTINE " + this.switchSide);
                 return new TestSwitchRoutine();
 
             case RUN_SWITCH:
-                System.out.println("SELECTED SWITCH ROUTINE:  BOX: " + STARTBOX.CENTER + "  TO SIDE " + switchSide);
-                return new GoToSwitch(STARTBOX.CENTER, this.scaleSide, allowCross, numCubes);
+                System.out.println("SELECTED SWITCHCENTER ROUTINE:  BOX: " + STARTBOX.CENTER + "  TO SIDE " + switchSide);
+                return new GoToSwitch(optionStartBox, this.scaleSide, allowCross, numCubes);
 
             case RUN_SCALE:
                 System.out.println("SELECTED SCALE ROUTINE  BOX: " + optionStartBox + "  TO SIDE " + scaleSide);
+                // do not do cross the field - fall back to doing Exchange
+                if (isScaleCross  && allowCrossField == ALLOWCROSSFIELD.No) {
+                    return new GoToExchange(optionStartBox, numCubes);
+                }
                 return new GoToScale(optionStartBox, this.scaleSide, allowCross);
 
             case RUN_EXCHANGE:
-                return new GoToExchange(optionStartBox);
+                return new GoToExchange(optionStartBox, numCubes);
         }
         return null;
     }

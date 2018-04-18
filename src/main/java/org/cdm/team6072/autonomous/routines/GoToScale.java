@@ -33,9 +33,11 @@ public class GoToScale extends CommandGroup {
                         crossLine();
                     }
                 }
+                break;
 
             case CENTER:
                 goFromPosTwoToRight();
+                break;
 
             case RIGHT:
                 if (side == GameChooser.ALLIANCE_SIDE.RIGHT) {
@@ -49,6 +51,7 @@ public class GoToScale extends CommandGroup {
                         crossLine();
                     }
                 }
+                break;
         }
     }
 
@@ -114,10 +117,11 @@ public class GoToScale extends CommandGroup {
     }
 
     private void goFromPosThreeToRight() {
+        System.out.println("GTS:  goFromPosThreeToRight");
         addSequential(new DriveDistCmd(20));
-        addSequential(new DriveDistCmd(5));
+        addSequential(new DriveDistCmd(4));
         addSequential(new DriveTurnYawCmd(-90), 3);
-        addSequential(new PositionScaleShooter());
+        //addSequential(new PositionScaleShooter());
         addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
     }
 

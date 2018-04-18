@@ -107,7 +107,7 @@ public class DriveSys extends Subsystem {
 
             initDrivePID();
 
-            SmartDashboard.putData(mGyroPID);
+            //SmartDashboard.putData(mGyroPID);
         }
         catch (Exception ex) {
             System.out.println("Exception in DriveSys ctor: " + ex.getMessage() + "\r\n" + ex.getStackTrace());
@@ -188,13 +188,13 @@ public class DriveSys extends Subsystem {
         }
     }
 
-    private void setGearLo() {
+    public void setGearLo() {
         Logger.getInstance().printRobotAction("DriveSys.setGearLo");
         mSol_GearShift.set(DoubleSolenoid.Value.kForward);
         mIsHiGear = false;
     }
 
-    private void setGearHi() {
+    public void setGearHi() {
         Logger.getInstance().printRobotAction("DriveSys.setGearHi");
         mSol_GearShift.set(DoubleSolenoid.Value.kReverse);
         mIsHiGear = true;

@@ -144,7 +144,7 @@ public class ControlBoard {
         control_buttons[EXTREME_BUT_THUMB-1].whenPressed(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
         control_buttons[EXTREME_BUT_THUMB-1].whenReleased(new IntakeRunWheelsInLoCmd());
 
-        // position SWITCH
+        // position SWITCHCENTER
         control_buttons[EXTREME_BUT_7 -1] = new JoystickButton(control_stick, EXTREME_BUT_7);
         control_buttons[EXTREME_BUT_7 -1].whenPressed(new PositionSwitchShooter());
 

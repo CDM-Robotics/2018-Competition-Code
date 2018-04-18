@@ -43,7 +43,9 @@ public class CameraManager {
             cam1.setVideoMode(VideoMode.PixelFormat.kYUYV, 320, 240, 30);
         }));*/
         cam0 = CameraServer.getInstance().startAutomaticCapture();
-        cam0.setVideoMode(VideoMode.PixelFormat.kYUYV, 320, 240, 30);
+        //cam0.setResolution(1920, 1080);
+        System.out.println("CAMERA: " + cam0.getDescription());
+        //cam0.setVideoMode(VideoMode.PixelFormat.kYUYV, 320, 240, 30);
     }
 
     public void runCameras() {
