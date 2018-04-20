@@ -2,13 +2,11 @@ package org.cdm.team6072.commands.intake;
 
 
 import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.command.CommandGroup;
-import edu.wpi.first.wpilibj.command.TimedCommand;
 import org.cdm.team6072.subsystems.IntakeMotorSys;
 import util.CrashTracker;
 
 
-public class RunIntakeWheelsCmd extends Command {
+public class StartRunIntakeWheelsCmd extends Command {
 
 
     private IntakeMotorSys mGrabber;
@@ -16,8 +14,8 @@ public class RunIntakeWheelsCmd extends Command {
     private double mSpeed;
 
 
-    public RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn runDirn, double speed) {
-        CrashTracker.logMessage("RunIntakeWheelsCmd: direction: " + runDirn);
+    public StartRunIntakeWheelsCmd(IntakeMotorSys.WheelDirn runDirn, double speed) {
+        CrashTracker.logMessage("StartRunIntakeWheelsCmd: direction: " + runDirn);
         requires(IntakeMotorSys.getInstance());
         mRunDirn = runDirn;
         mSpeed = speed;
@@ -37,7 +35,7 @@ public class RunIntakeWheelsCmd extends Command {
 
     @Override
     protected boolean isFinished() {
-        return false;
+        return true;
     }
 
 

@@ -11,9 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.cdm.team6072.RobotConfig;
 import org.cdm.team6072.profiles.MotionProfileController;
 import org.cdm.team6072.profiles.PIDConfig;
-import org.omg.IOP.TAG_MULTIPLE_COMPONENTS;
 import util.ControlledLogger;
-import util.CrashTracker;
 
 /**
  * ArmSys has a single talon used to move the arm through an arc of +- 80 degrees from horizontal
@@ -27,7 +25,7 @@ public class ArmSys extends Subsystem {
     }
 
     // measure PW posn at power up - assume we are in the start posn
-    private int mPosn_START;
+    private int mPosn_START_Quad;
 
     // positions are sensor units to move a given angle from START position
     private static int POSN_START_DELTA = 0;
@@ -168,8 +166,8 @@ public class ArmSys extends Subsystem {
     // should only be called on robot.init
     public void setSensorStartPosn() {
         mTalon.getSensorCollection().setPulseWidthPosition(0, kTimeoutMs);
-        mPosn_START = mTalon.getSensorCollection().getQuadraturePosition();
-        int absolutePosition = mPosn_START;
+        mPosn_START_Quad = mTalon.getSensorCollection().getQuadraturePosition();
+        int absolutePosition = mPosn_START_Quad;
         /* mask out overflows, keep bottom 12 bits */
         absolutePosition &= 0xFFF;
         if (TALON_SENSOR_PHASE)
@@ -327,9 +325,9 @@ public class ArmSys extends Subsystem {
 
     private void moveToTarget(int targPosnDelta) {
         mTalon.selectProfileSlot(kPIDSlot_Move,0);
-        mCalcTarg = mPosn_START + targPosnDelta;
+        mCalcTarg = mPosn_START_Quad + targPosnDelta;
         mMMStartPosn = getCurPosn();
-        System.out.println("ArmSys.moveToTarget:  mPosn_START: " + mPosn_START + "  delta: " + targPosnDelta  + "  calcTarg: " + mCalcTarg+ "  curPosn: " + getCurPosn());
+        System.out.println("ArmSys.moveToTarget:  mPosn_START_Quad: " + mPosn_START_Quad + "  delta: " + targPosnDelta  + "  calcTarg: " + mCalcTarg+ "  curPosn: " + getCurPosn());
         mLoopCtr = 0;
         mTalon.set(ControlMode.Position, mCalcTarg);
     }
@@ -381,7 +379,7 @@ public class ArmSys extends Subsystem {
     // use a PW delta from START posn to get target
     public void startMoveTarget(int targPosnDelta) {
         mHitTarg = false;
-        mCalcTarg = mPosn_START - targPosnDelta;
+        mCalcTarg = mPosn_START_Quad - targPosnDelta;
         double curPosn = getCurPosn();
         if (mCalcTarg > curPosn) {
             mMotorDirn = 1;
@@ -390,7 +388,7 @@ public class ArmSys extends Subsystem {
             mMotorDirn = -1;
         }
         mTalon.set(ControlMode.PercentOutput, mMotorDirn * 0.8);
-        System.out.println("AS.startMoveTarget:  mPosn_START: " + mPosn_START + "  delta: " + targPosnDelta  + "  calcTarg: " + mCalcTarg+ "  curPosn: " + getCurPosn());
+        System.out.println("AS.startMoveTarget:  mPosn_START_Quad: " + mPosn_START_Quad + "  delta: " + targPosnDelta  + "  calcTarg: " + mCalcTarg+ "  curPosn: " + getCurPosn());
         mHitTarg = false;
         mMoveDistLoopCnt = 0;
         mLastErr = 99999999;
@@ -446,10 +444,10 @@ public class ArmSys extends Subsystem {
         }
         int quadPosn = mTalon.getSensorCollection().getQuadraturePosition();
         int pwPosn = mTalon.getSensorCollection().getPulseWidthPosition();
-        int pwDelta = pwPosn - mPosn_START;
+        int pwDelta = pwPosn - mPosn_START_Quad;
         double pwVel = mTalon.getSensorCollection().getPulseWidthVelocity();
-        int relDelta = absSensPosn - mPosn_START;
-        int quadDelta = quadPosn - mPosn_START;
+        int relDelta = absSensPosn - mPosn_START_Quad;
+        int quadDelta = quadPosn - mPosn_START_Quad;
         double vel = mTalon.getSensorCollection().getQuadratureVelocity();
         double mout = mTalon.getMotorOutputPercent();
         double voltOut = mTalon.getMotorOutputVoltage();
@@ -457,7 +455,7 @@ public class ArmSys extends Subsystem {
         double closedLoopErr = mTalon.getClosedLoopError(0);
 
         mLastQuadPosn = quadPosn;
-        System.out.println("ArmSys." + caller + "  base: " + mPosn_START + "  sens: " + sensPosnSign + absSensPosn + ", currPos: " + getCurPosn()
+        System.out.println("ArmSys." + caller + "  base: " + mPosn_START_Quad + "  sens: " + sensPosnSign + absSensPosn + ", currPos: " + getCurPosn()
                 + "  quad: " + quadPosn  +  "  pw: " + pwPosn + "  clErr: " + closedLoopErr);
     }
 

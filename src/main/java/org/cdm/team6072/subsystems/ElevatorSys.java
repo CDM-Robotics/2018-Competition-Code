@@ -69,7 +69,7 @@ public class ElevatorSys extends Subsystem {
     /**
      * Log the sensor position at power up - use this as the base reference for positioning.
      */
-    private int mBasePosn;
+    private int mPosn_START_PW;
 
     // talon setup  -------------------------------------------------------------------------------
 
@@ -171,7 +171,6 @@ public class ElevatorSys extends Subsystem {
             this.initPIDValues();
             setSensorStartPosn();
 
-
         } catch (Exception ex) {
             System.out.println("************************** ElevatorSys.ctor Ex: " + ex.getMessage());
         }
@@ -246,9 +245,9 @@ public class ElevatorSys extends Subsystem {
     // should only be called on robot.init
     public void setSensorStartPosn() {
         mTalon.getSensorCollection().setPulseWidthPosition(0, kTimeoutMs);
-        mPosn_START = mTalon.getSensorCollection().getQuadraturePosition();
-        mBasePosn = mTalon.getSensorCollection().getPulseWidthPosition();
-        int absolutePosition = mBasePosn;
+        mPosn_START_Quad = mTalon.getSensorCollection().getQuadraturePosition();
+        mPosn_START_PW = mTalon.getSensorCollection().getPulseWidthPosition();
+        int absolutePosition = mPosn_START_PW;
         /* mask out overflows, keep bottom 12 bits */
         absolutePosition &= 0xFFF;
         if (TALON_SENSOR_PHASE)
@@ -452,25 +451,54 @@ public class ElevatorSys extends Subsystem {
     }
 
     public void moveToSwitch() {
-        moveToTargetPosn(SWITCH_POSN_UNITS_DELTA);
+        moveToTarget(SWITCH_POSN_UNITS);
     }
     public boolean moveToSwitchComplete() {
-        return moveToTargetPosnComplete();
+        return moveToTargetComplete();
     }
 
     public void moveToScaleLo() {
-        moveToTargetPosn(SCALELO_POSN_UNITS_DELTA);
+        moveToTarget(SCALELO_POSN_UNITS);
     }
     public boolean moveToScaleLoComplete() {
-        return moveToTargetPosnComplete();
+        return moveToTargetComplete();
     }
 
     public void moveToScaleHi() {
-        moveToTargetPosn(SCALEHI_POSN_UNITS_DELTA);
+        moveToTarget(SCALEHI_POSN_UNITS);
     }
     public boolean moveToScaleHiComplete() {
-        return moveToTargetPosnComplete();
+        return moveToTargetComplete();
     }
+    
+    
+//    public void moveToIntake() {
+//        moveToTargetPosn(INTAKE_POSN);
+//    }
+//    public boolean moveToIntakeComplete() {
+//        return moveToTargetPosnComplete();
+//    }
+//
+//    public void moveToSwitch() {
+//        moveToTargetPosn(SWITCH_POSN_UNITS_DELTA);
+//    }
+//    public boolean moveToSwitchComplete() {
+//        return moveToTargetPosnComplete();
+//    }
+//
+//    public void moveToScaleLo() {
+//        moveToTargetPosn(SCALELO_POSN_UNITS_DELTA);
+//    }
+//    public boolean moveToScaleLoComplete() {
+//        return moveToTargetPosnComplete();
+//    }
+//
+//    public void moveToScaleHi() {
+//        moveToTargetPosn(SCALEHI_POSN_UNITS_DELTA);
+//    }
+//    public boolean moveToScaleHiComplete() {
+//        return moveToTargetPosnComplete();
+//    }
 
 
     /**
@@ -487,7 +515,7 @@ public class ElevatorSys extends Subsystem {
         else {
             dir = Direction.Down;
         }
-        System.out.println("ElvSys.moveToTarget:  mBasePosn: " + mBasePosn + "  targPosn: " + targPosn + "  curPosn: " + getCurPosn() + "  distToMove: " + distToMove);
+        System.out.println("ElvSys.moveToTarget:  mPosn_START_PW: " + mPosn_START_PW + "  targPosn: " + targPosn + "  curPosn: " + getCurPosn() + "  distToMove: " + distToMove);
 
         // change here to switch to using Position PID
         // NOTE NOTE - magic move is using targPosn, but Position is using a delta
@@ -575,7 +603,7 @@ public class ElevatorSys extends Subsystem {
     // POSITION MODE FOR MOVING TO TARGET
     // ********************************************************************** //
 
-    private int mPosn_START;
+    private int mPosn_START_Quad;
     private int mCalcTarg;
 
 
@@ -584,9 +612,9 @@ public class ElevatorSys extends Subsystem {
 
         mTalon.selectProfileSlot(kPIDSlot_Move,0);
         mMMStartPosn = getCurPosn();
-        mCalcTarg = mPosn_START + targPosnDelta;
-        //mCalcTarg = (mPosn_START + targPosnDelta) - mMMStartPosn; // this was in Coles version
-        System.out.println("ElvSys.moveToTargetPosn:  mPosn_START: " + mPosn_START + "  delta: " + targPosnDelta  + "  calcTarg: " + mCalcTarg+ "  curPosn: " + getCurPosn());
+        mCalcTarg = mPosn_START_Quad + targPosnDelta;
+        //mCalcTarg = (mPosn_START_Quad + targPosnDelta) - mMMStartPosn; // this was in Coles version
+        System.out.println("ElvSys.moveToTargetPosn:  mPosn_START_Quad: " + mPosn_START_Quad + "  delta: " + targPosnDelta  + "  calcTarg: " + mCalcTarg+ "  curPosn: " + getCurPosn());
         mMMStarted = false;
         mLoopCtr = 0;
         mTalon.set(ControlMode.Position, mCalcTarg);
@@ -689,7 +717,7 @@ public class ElevatorSys extends Subsystem {
      * @return the current absolute position - pulsewidth
      */
     private int getCurPosn() {
-        Logger.getInstance().printBanner("CURRENT POS: " + mTalon.getSelectedSensorPosition(0));
+        //Logger.getInstance().printBanner("CURRENT POS: " + mTalon.getSelectedSensorPosition(0));
         return mTalon.getSelectedSensorPosition(0);
     }
 
@@ -708,13 +736,13 @@ public class ElevatorSys extends Subsystem {
         }
         int quadPosn = mTalon.getSensorCollection().getQuadraturePosition();
         int pwPosn = mTalon.getSensorCollection().getPulseWidthPosition();
-        int relDelta = absSensPosn - mBasePosn;
-        int quadDelta = quadPosn - mBasePosn;
+        int relDelta = absSensPosn - mPosn_START_PW;
+        int quadDelta = quadPosn - mPosn_START_PW;
         mLastSensPosn = absSensPosn;
         double closedLoopErr = mTalon.getClosedLoopError(0);
 
         mLastQuadPosn = quadPosn;
-        System.out.println("ElvSys." + caller + ":  base: " + mBasePosn + "  sens: " + sensPosnSign + absSensPosn + "  rDelta: " + relDelta
+        System.out.println("ElvSys." + caller + ":  base: " + mPosn_START_PW + "  sens: " + sensPosnSign + absSensPosn + "  rDelta: " + relDelta
                 + "  quad: " + quadPosn  + "  qDelta: " + quadDelta + "  pw: " + pwPosn + "  clErr: " + closedLoopErr);
 
     }

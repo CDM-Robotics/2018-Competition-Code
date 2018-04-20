@@ -211,13 +211,13 @@ public class DriveSys extends Subsystem {
      */
     public void tankDrive(double left, double right) {
         //System.out.println("Drivetrain.tankDrive: " + left + "      " + right);
-        mRoboDrive.tankDrive( -1.0*left, -1.0*right, true);
+        mRoboDrive.tankDrive( 1.0*left, 1.0*right, true);
     }
 
     private int mLoopCnt = 0;
 
     public void arcadeDrive(double mag, double yaw) {
-        mRoboDrive.arcadeDrive(mag, yaw, false);
+        mRoboDrive.arcadeDrive(-mag, yaw, false);
         if (mLoopCnt++ % 10 == 0) {
             //System.out.println("DriveSys.arcadeDrive: mag: " + mag + "    yaw: " + yaw + "  navYaw: " + mAhrs.getYaw());
             //printPosn("arcadeDrive");
@@ -476,7 +476,7 @@ public class DriveSys extends Subsystem {
         if (mMoveDistLoopCnt++ % 5 == 0) {
             System.out.printf("DS.moveDistPIDExec: start: %d   cur: %d   targ: %d   mag: %.3f  yaw: %.3f  \r\n", mStartPosn, curPosn, mTargPosn, mag, yaw);
         }
-        mRoboDrive.arcadeDrive(-mag, yaw, false);       // PROD is +mag,   TEST is -mag
+        mRoboDrive.arcadeDrive(mag, yaw, false);       // PROD is +mag,   TEST is -mag
         mHitTarg = mDrivePID.onTarget();
         if (mHitTarg) {
             printPosn("moveDistancePIDExec_hit");
@@ -493,9 +493,9 @@ public class DriveSys extends Subsystem {
            System.out.printf("DS.moveDistPIDExec: start: %d   cur: %d   targ: %d   mag: %.3f  yaw: %.3f  \r\n", mStartPosn, curPosn, mTargPosn, mag, yaw);
         }
         if (reverse == false) {
-            mRoboDrive.arcadeDrive(-mag, yaw, false);       // PROD is +mag,   TEST is -mag
+            mRoboDrive.arcadeDrive(mag, yaw, false);       // PROD is +mag,   TEST is -mag
         } else {
-            mRoboDrive.arcadeDrive(mag, yaw, false);
+            mRoboDrive.arcadeDrive(-mag, yaw, false);
         }
         mHitTarg = mDrivePID.onTarget();
         if (mHitTarg) {

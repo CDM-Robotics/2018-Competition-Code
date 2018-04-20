@@ -78,15 +78,15 @@ public class Robot extends TimedRobot {
         //       http://first.wpi.edu/FRC/roborio/maven/release/edu/wpi/first/wpilib/SmartDashboard/
 
         mChooser = new SendableChooser<AutoInitSel>();
-        mChooser.addObject("Switch       Left      Two", AutoInitSel.SWITCHLEFT_TWOCUBE);
-        mChooser.addDefault("Switch       Center      One", AutoInitSel.SWITCHCENTER);
-        mChooser.addObject("Switch       Center    Two", AutoInitSel.SWITCHCENTER_TWOCUBE);
-        mChooser.addObject("Switch       Right     Two", AutoInitSel.SWITCHRIGHT_TWOCUBE);
-        mChooser.addObject("Exchange     Left      Two", AutoInitSel.EXCHANGELEFT);
-        mChooser.addObject("Exchange     Center    Two", AutoInitSel.EXCHANGECENTER);
-        mChooser.addObject("Exchange     Right     Two", AutoInitSel.EXCHANGERIGHT);
-        mChooser.addObject("Scale        Left      Fallback Exchange", AutoInitSel.SCALELEFT);
-        mChooser.addObject("Scale        Right     Fallback Exchange", AutoInitSel.SCALERIGHT);
+        mChooser.addObject("Switch       Left                   Two", AutoInitSel.SWITCHLEFT_TWOCUBE);
+        mChooser.addObject("Switch             Center          One", AutoInitSel.SWITCHCENTER);
+        mChooser.addDefault("Switch             Center           Two", AutoInitSel.SWITCHCENTER_TWOCUBE);
+        mChooser.addObject("Switch                    Right     Two", AutoInitSel.SWITCHRIGHT_TWOCUBE);
+        mChooser.addObject("Exchange     Left                   Two", AutoInitSel.EXCHANGELEFT);
+        mChooser.addObject("Exchange           Center           Two", AutoInitSel.EXCHANGECENTER);
+        mChooser.addObject("Exchange                   Right    Two", AutoInitSel.EXCHANGERIGHT);
+        mChooser.addObject("Scale        Left                   Fallback Switch Two", AutoInitSel.SCALELEFT);
+        mChooser.addObject("Scale                      Right    Fallback Switch Two", AutoInitSel.SCALERIGHT);
 
         SmartDashboard.putData(mChooser);
     }
@@ -123,7 +123,7 @@ public class Robot extends TimedRobot {
 
         NavXSys.getInstance().zeroYawHeading();
 
-        mDriveSys.setGearLo();
+        //mDriveSys.setGearLo();
         AutoInitSel optSel = mChooser.getSelected();
         GameChooser gameChooser = new GameChooser();
         CommandGroup cmdGrp = new CommandGroup();

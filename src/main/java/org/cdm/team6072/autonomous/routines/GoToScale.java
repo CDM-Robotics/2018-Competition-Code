@@ -3,10 +3,13 @@ package org.cdm.team6072.autonomous.routines;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import org.cdm.team6072.autonomous.GameChooser;
 import org.cdm.team6072.autonomous.routines.subroutines.PositionScaleShooter;
+import org.cdm.team6072.commands.arm.ArmMoveToIntake;
 import org.cdm.team6072.commands.drive.DriveDistCmd;
 import org.cdm.team6072.commands.drive.DriveTurnYawCmd;
 import org.cdm.team6072.commands.elevator.ElvMoveToScaleHiCmd;
+import org.cdm.team6072.commands.elevator.ElvMoveToSwitchCmd;
 import org.cdm.team6072.commands.intake.RunIntakeWheelsCmd;
+import org.cdm.team6072.commands.intake.TimedRunIntakeWheelsCmd;
 import org.cdm.team6072.subsystems.IntakeMotorSys;
 
 public class GoToScale extends CommandGroup {
@@ -55,22 +58,15 @@ public class GoToScale extends CommandGroup {
         }
     }
 
-    private void goFromPosTwoToRight() {
-        addSequential(new DriveDistCmd((float)1.5));
-        addSequential(new DriveTurnYawCmd(45), 2);
-        addSequential(new DriveDistCmd(this.inchesToFeet(154)));
-        addSequential(new DriveTurnYawCmd(0), 2);
-        addSequential(new DriveDistCmd(this.inchesToFeet(208)));
-        addSequential(new DriveTurnYawCmd(-90), 2);
-        addSequential(new DriveDistCmd((float)0.1));
-    }
+    // --------------  posn  1  ---------------------------------------------
 
     private void goFromPosOneToLeft() {
+        addParallel(new ElvMoveToScaleHiCmd());
+        addParallel(new ArmMoveToIntake());
         addSequential(new DriveDistCmd(20));
         addSequential(new DriveDistCmd(5));
         addSequential(new DriveTurnYawCmd(90), 3);
-        addSequential(new PositionScaleShooter());
-        addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
+        addSequential(new TimedRunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0, 1.0));
     }
 
 
@@ -82,8 +78,25 @@ public class GoToScale extends CommandGroup {
         addSequential(new DriveDistCmd((float)96/12));
         addSequential(new PositionScaleShooter());
         addSequential(new DriveTurnYawCmd(-90), 2);
+        // fire
         addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
     }
+
+    // ---------------  posn 2  -------------------------------------------------
+
+    private void goFromPosTwoToRight() {
+        addSequential(new DriveDistCmd((float)1.5));
+        addSequential(new DriveTurnYawCmd(45), 2);
+        addSequential(new DriveDistCmd(this.inchesToFeet(154)));
+        addSequential(new DriveTurnYawCmd(0), 2);
+        addSequential(new DriveDistCmd(this.inchesToFeet(208)));
+        addSequential(new DriveTurnYawCmd(-90), 2);
+        addSequential(new DriveDistCmd((float)0.1));
+    }
+
+
+
+    // ------------  posn 3  -----------------------------------------------
 
 
     // robot is 38 long by 34 wide
@@ -106,14 +119,16 @@ public class GoToScale extends CommandGroup {
     //       so need to go 323 - 227 = 96
     //
     private void goFromPosThreeToLeft() {
+        addParallel(new ElvMoveToScaleHiCmd());
+        addParallel(new ArmMoveToIntake());
         addSequential(new DriveDistCmd((float)227/12));            // 242 inches for centerline of robot
         addSequential(new DriveTurnYawCmd(-90), 2);
         addSequential(new DriveDistCmd((float) 214/12));
         addSequential(new DriveTurnYawCmd(90), 2);
         addSequential(new DriveDistCmd((float)96/12));
-        addParallel(new PositionScaleShooter());
         addSequential(new DriveTurnYawCmd(90), 2);
-        addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
+        // fire
+        addSequential(new TimedRunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0, 1.0));
     }
 
     private void goFromPosThreeToRight() {

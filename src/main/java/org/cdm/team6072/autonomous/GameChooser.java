@@ -70,6 +70,12 @@ public class GameChooser {
      */
     public static void parseGameData() {
         String gameData = DriverStation.getInstance().getGameSpecificMessage();
+        if (!(gameData == null  || gameData.isEmpty())) {
+            System.out.println("GAME DATA:    " + gameData + "    *****************************************");
+        }
+        else {
+            System.out.println("BAD BAD  GAME DATA:      *****************************************");
+        }
 
         try {
             if (gameData.charAt(0) == 'L') {
@@ -125,14 +131,14 @@ public class GameChooser {
                 return new TestSwitchRoutine();
 
             case RUN_SWITCH:
-                System.out.println("SELECTED SWITCHCENTER ROUTINE:  BOX: " + STARTBOX.CENTER + "  TO SIDE " + switchSide);
-                return new GoToSwitch(optionStartBox, this.scaleSide, allowCross, numCubes);
+                System.out.println("SELECTED SWITCH:  BOX: " + STARTBOX.CENTER + "  TO SIDE " + switchSide);
+                return new GoToSwitch(optionStartBox, this.switchSide, allowCross, numCubes);
 
             case RUN_SCALE:
                 System.out.println("SELECTED SCALE ROUTINE  BOX: " + optionStartBox + "  TO SIDE " + scaleSide);
                 // do not do cross the field - fall back to doing Exchange
                 if (isScaleCross  && allowCrossField == ALLOWCROSSFIELD.No) {
-                    return new GoToExchange(optionStartBox, numCubes);
+                    return new GoToSwitch(optionStartBox, this.scaleSide, allowCross, NUM_CUBES.TWO);
                 }
                 return new GoToScale(optionStartBox, this.scaleSide, allowCross);
 

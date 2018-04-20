@@ -14,7 +14,7 @@ public class PositionIntake extends CommandGroup {
     public PositionIntake() {
         addSequential(new ElvMoveToIntakeCmd(), 2);
         //addParallel(new ArmMoveToIntake());
-        addParallel(new CloseIntakeLoCmd(), 1);
+        addSequential(new CloseIntakeLoCmd(), 0.1);
         addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In, 1.0));
     }
 }
