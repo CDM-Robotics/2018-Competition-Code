@@ -138,7 +138,7 @@ public class GameChooser {
                 System.out.println("SELECTED SCALE ROUTINE  BOX: " + optionStartBox + "  TO SIDE " + scaleSide);
                 // do not do cross the field - fall back to doing Exchange
                 if (isScaleCross  && allowCrossField == ALLOWCROSSFIELD.No) {
-                    return new GoToSwitch(optionStartBox, this.scaleSide, allowCross, NUM_CUBES.TWO);
+                    return new GoToSwitch(optionStartBox, this.scaleSide, ALLOWCROSSFIELD.No, NUM_CUBES.ONE);
                 }
                 return new GoToScale(optionStartBox, this.scaleSide, allowCross);
 

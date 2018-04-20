@@ -63,8 +63,8 @@ public class GoToScale extends CommandGroup {
     private void goFromPosOneToLeft() {
         addParallel(new ElvMoveToScaleHiCmd());
         addParallel(new ArmMoveToIntake());
-        addSequential(new DriveDistCmd(20));
-        addSequential(new DriveDistCmd(5));
+        addSequential(new DriveDistCmd(25));
+        //addSequential(new DriveDistCmd(5));
         addSequential(new DriveTurnYawCmd(90), 3);
         addSequential(new TimedRunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0, 1.0));
     }
@@ -126,18 +126,21 @@ public class GoToScale extends CommandGroup {
         addSequential(new DriveDistCmd((float) 214/12));
         addSequential(new DriveTurnYawCmd(90), 2);
         addSequential(new DriveDistCmd((float)96/12));
-        addSequential(new DriveTurnYawCmd(90), 2);
+        addSequential(new DriveTurnYawCmd(90), 1);
+        addSequential(new DriveDistCmd((float) 12/12));
+
         // fire
         addSequential(new TimedRunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0, 1.0));
     }
 
     private void goFromPosThreeToRight() {
         System.out.println("GTS:  goFromPosThreeToRight");
-        addSequential(new DriveDistCmd(20));
-        addSequential(new DriveDistCmd(4));
+        addParallel(new ElvMoveToScaleHiCmd());
+        addParallel(new ArmMoveToIntake());
+        addSequential(new DriveDistCmd(24));
+        //addSequential(new DriveDistCmd(4));
         addSequential(new DriveTurnYawCmd(-90), 3);
-        //addSequential(new PositionScaleShooter());
-        addSequential(new RunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0));
+        addSequential(new TimedRunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0, 1.0));
     }
 
     private void crossLine() {

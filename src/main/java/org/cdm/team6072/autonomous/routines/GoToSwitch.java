@@ -28,7 +28,7 @@ public class GoToSwitch extends CommandGroup {
     GameChooser.ALLOWCROSSFIELD mAllowCross;
 
 
-    private static double RUN_WHEELS_TIME = 0.5;
+    private static double RUN_WHEELS_TIME = 1.0;
 
 
     // startBox options are LEFT, CENTER, RIGHT
@@ -198,7 +198,7 @@ public class GoToSwitch extends CommandGroup {
         // grab the cube
         addSequential(new StartRunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In, 1.0));
         addSequential(new DriveDistCmd((float)64/12), 2);
-        addSequential(new TimedStopRunIntakeWheelsCmd(0.5 ));
+        addSequential(new TimedStopRunIntakeWheelsCmd(1.0 ));
         addSequential(new CloseIntakeHiCmd(), 0.1);
 
         // move back to switch
@@ -237,13 +237,13 @@ public class GoToSwitch extends CommandGroup {
         addSequential(new DriveDistCmd((float)64/12));
 
         // grab the cube
-        addSequential(new TimedStopRunIntakeWheelsCmd(0.5 ));
+        addSequential(new TimedStopRunIntakeWheelsCmd(1.0 ));
         addSequential(new CloseIntakeHiCmd(), 0.1);
 
         addParallel(new ElvMoveToSwitchCmd());
 
         addSequential(new DriveDistCmd((float)50/12, DriveDistCmd.DIR.REVERSE));
-        addSequential(new DriveTurnYawCmd(0),2);
+        addSequential(new DriveTurnYawCmd(0),1);
         addSequential(new DriveDistCmd((float) 45/12, DriveDistCmd.DIR.FORWARD),2);
 
         // shoot

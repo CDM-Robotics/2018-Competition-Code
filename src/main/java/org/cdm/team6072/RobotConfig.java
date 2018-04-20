@@ -19,7 +19,7 @@ public class RobotConfig {
     public static int DRIVE_LEFT_SLAVE0 = 14;
     public static int DRIVE_LEFT_SLAVE0_PDP = 15;
 
-    public static int DRIVE_RIGHT_MASTER = 30;
+    public static int DRIVE_RIGHT_MASTER = 30;          // pdp 0
     public static int DRIVE_RIGHT_MASTER_PDP = 1;
     public static int DRIVE_RIGHT_SLAVE0 = 1;
     public static int DRIVE_RIGHT_SLAVE0_PDP = 0;       // yes really is different from the CAN ID
