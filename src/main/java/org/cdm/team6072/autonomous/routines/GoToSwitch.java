@@ -34,7 +34,7 @@ public class GoToSwitch extends CommandGroup {
     // startBox options are LEFT, CENTER, RIGHT
     // but currently hard wired to CENTER
     public GoToSwitch(GameChooser.STARTBOX startBox, GameChooser.ALLIANCE_SIDE side,
-                        GameChooser.ALLOWCROSSFIELD allowCross, GameChooser.NUM_CUBES numCubes) {
+                        GameChooser.ALLOWCROSSFIELD allowCross, GameChooser.NUM_CUBES numCubes, boolean doSwitchEndOnly) {
         System.out.println("GoToSwitch: startBox: " + startBox + "  allowCross: " + allowCross + "   side: " + side);
         mStartBox = startBox;
         mAllowCross = allowCross;
@@ -44,15 +44,20 @@ public class GoToSwitch extends CommandGroup {
                 if (mSide == GameChooser.ALLIANCE_SIDE.LEFT) {
                     switch(numCubes) {
                         case ONE:
-                            goFromPosOnetoLeft_OneCube();
+                            if (doSwitchEndOnly) {
+                                goFromPosOnetoLeftEnd_OneCube();
+                            }
+                            else {
+                                goFromPosOnetoLeft_OneCube();
+                            }
                             break;
                         case TWO:
                             goFromPosOnetoLeft_TwoCube();
                     }
                 } else {
                     if (mAllowCross == GameChooser.ALLOWCROSSFIELD.Yes) {
-                        goFromPosOneToRight_OneCube();
-                    }
+                            goFromPosOneToRight_OneCube();
+                        }
                     else {
                         crossLine();
                     }
@@ -83,7 +88,12 @@ public class GoToSwitch extends CommandGroup {
                 if (mSide == GameChooser.ALLIANCE_SIDE.RIGHT) {
                     switch(numCubes) {
                         case ONE:
-                            goFromPosThreeToRight_OneCube();
+                            if (doSwitchEndOnly) {
+                                goFromPosThreeToRightEnd_OneCube();
+                            }
+                            else {
+                                goFromPosThreeToRight_OneCube();
+                            }
                             break;
                         case TWO:
                             goFromPosThreetoRight_TwoCube();
@@ -114,6 +124,20 @@ public class GoToSwitch extends CommandGroup {
     // --------------  Posn  1  ------------------------------------------
 
 
+    // one cube approach switch on end
+    // 168 from field end to switch centerline
+    // robot is 38 long
+    private void goFromPosOnetoLeftEnd_OneCube() {
+        System.out.println("GTSwitch.goFromPosOnetoLeftEnd_OneCube");
+        addParallel(new ElvMoveToSwitchCmd());
+        addSequential(new DriveDistCmd((168 - 19)/12), 5);
+        addSequential(new DriveTurnYawCmd(90), 1);
+        addSequential(new DriveDistCmd(6/12), 2);
+        // fire
+        addSequential(new TimedRunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0, RUN_WHEELS_TIME));
+    }
+
+    //go into switch on side
     private void goFromPosOnetoLeft_OneCube() {
         System.out.println("GTSwitch.goFromPosOnetoLeft_OneCube");
         addParallel(new ElvMoveToSwitchCmd());
@@ -138,16 +162,16 @@ public class GoToSwitch extends CommandGroup {
 
         addSequential(new DriveTurnYawCmd(45));
         addSequential(new StartRunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In, 1.0));
-        addSequential(new DriveDistCmd(36/12), 2);
+        addSequential(new DriveDistCmd(30/12), 2);
         // grab the cube
-        addSequential(new TimedStopRunIntakeWheelsCmd(RUN_WHEELS_TIME));
+        addSequential(new TimedStopRunIntakeWheelsCmd(0.75));
         addSequential(new CloseIntakeHiCmd());
 
         // back up and approach switch
         addParallel(new ElvMoveToSwitchCmd());
         addSequential(new DriveDistCmd((float) 24/12, DriveDistCmd.DIR.REVERSE));
         addSequential(new DriveTurnYawCmd(0));
-        addSequential(new DriveDistCmd(30/12), 2);
+        addSequential(new DriveDistCmd(25/12), 1.5);
         // and fire
         addSequential(new TimedRunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0, RUN_WHEELS_TIME));
     }
@@ -217,9 +241,9 @@ public class GoToSwitch extends CommandGroup {
         addSequential(new DriveTurnYawCmd(-50),2);
         addSequential(new DriveDistCmd(6));
         addSequential(new DriveTurnYawCmd(0),2);
-        addSequential(new DriveDistCmd(this.inchesToFeet(30)), 1);
+        addSequential(new DriveDistCmd(this.inchesToFeet(30)), 0.5);        // 1.0
         // fire
-        addSequential(new TimedRunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0, RUN_WHEELS_TIME));
+        addSequential(new TimedRunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0, 0.5)); // RUN_WHEEL
         System.out.println("end of goFromPosTwoToLeft_OneCube **************");
     }
 
@@ -227,24 +251,24 @@ public class GoToSwitch extends CommandGroup {
         System.out.println("GTSwitch.goPosnTwoToLeft_TwoCube");
         this.goFromPosTwoToLeft_OneCube();
 
-        addParallel(new ElvMoveToIntakeCmd(), 1.5);
-        addParallel(new CloseIntakeLoCmd(), 0.1);
+        addParallel(new ElvMoveToIntakeCmd(), 1.5);                     // 1.5
+        addParallel(new CloseIntakeLoCmd(), 0.1);                       // 1.0
 
-        addSequential(new DriveDistCmd((float) 50/12, DriveDistCmd.DIR.REVERSE));
-        addSequential(new DriveTurnYawCmd(50),1);
+        addSequential(new DriveDistCmd((float) 50/12, DriveDistCmd.DIR.REVERSE));       // 50/12
+        addSequential(new DriveTurnYawCmd(50),0.5);                                   //  50   1
 
         addSequential(new StartRunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.In, 1.0));
-        addSequential(new DriveDistCmd((float)64/12));
+        addSequential(new DriveDistCmd((float)54/12));                                  // 58 / 12
 
         // grab the cube
-        addSequential(new TimedStopRunIntakeWheelsCmd(1.0 ));
-        addSequential(new CloseIntakeHiCmd(), 0.1);
+        addSequential(new TimedStopRunIntakeWheelsCmd(0.5 ));                           // 0.5
+        addSequential(new CloseIntakeHiCmd(), 0.1);                                      // 0.1
 
         addParallel(new ElvMoveToSwitchCmd());
 
-        addSequential(new DriveDistCmd((float)50/12, DriveDistCmd.DIR.REVERSE));
-        addSequential(new DriveTurnYawCmd(0),1);
-        addSequential(new DriveDistCmd((float) 45/12, DriveDistCmd.DIR.FORWARD),2);
+        addSequential(new DriveDistCmd((float)40/12, DriveDistCmd.DIR.REVERSE));        // 50 / 12
+        addSequential(new DriveTurnYawCmd(0),0.5);                                    // 1
+        addSequential(new DriveDistCmd((float) 48/12, DriveDistCmd.DIR.FORWARD),2);     // 45/12
 
         // shoot
         addSequential(new TimedRunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0, RUN_WHEELS_TIME));
@@ -253,6 +277,21 @@ public class GoToSwitch extends CommandGroup {
 
 
     //  ------------------  Posn 3  -------------------------------------------------------
+
+
+
+    // one cube approach switch on end
+    // 168 from field end to switch centerline
+    // robot is 38 long
+    private void goFromPosThreeToRightEnd_OneCube() {
+        System.out.println("GTSwitch.goFromPosOnetoLeftEnd_OneCube");
+        addParallel(new ElvMoveToSwitchCmd());
+        addSequential(new DriveDistCmd((168 - 19)/12), 5);
+        addSequential(new DriveTurnYawCmd(-90), 1);
+        addSequential(new DriveDistCmd(6/12), 2);
+        // fire
+        addSequential(new TimedRunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0, RUN_WHEELS_TIME));
+    }
 
     private void goFromPosThreeToRight_OneCube() {
         addParallel(new ElvMoveToSwitchCmd());

@@ -63,9 +63,10 @@ public class GoToScale extends CommandGroup {
     private void goFromPosOneToLeft() {
         addParallel(new ElvMoveToScaleHiCmd());
         addParallel(new ArmMoveToIntake());
-        addSequential(new DriveDistCmd(25));
+        addSequential(new DriveDistCmd(24));
         //addSequential(new DriveDistCmd(5));
         addSequential(new DriveTurnYawCmd(90), 3);
+        addSequential(new DriveDistCmd((float) 6/12));
         addSequential(new TimedRunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0, 1.0));
     }
 
@@ -140,6 +141,7 @@ public class GoToScale extends CommandGroup {
         addSequential(new DriveDistCmd(24));
         //addSequential(new DriveDistCmd(4));
         addSequential(new DriveTurnYawCmd(-90), 3);
+        addSequential(new DriveDistCmd((float) 6/12));
         addSequential(new TimedRunIntakeWheelsCmd(IntakeMotorSys.WheelDirn.Out, 1.0, 1.0));
     }
 

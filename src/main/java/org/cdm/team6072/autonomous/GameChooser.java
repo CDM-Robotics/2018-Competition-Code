@@ -132,13 +132,14 @@ public class GameChooser {
 
             case RUN_SWITCH:
                 System.out.println("SELECTED SWITCH:  BOX: " + STARTBOX.CENTER + "  TO SIDE " + switchSide);
-                return new GoToSwitch(optionStartBox, this.switchSide, allowCross, numCubes);
+                return new GoToSwitch(optionStartBox, this.switchSide, allowCross, numCubes, false);
 
             case RUN_SCALE:
                 System.out.println("SELECTED SCALE ROUTINE  BOX: " + optionStartBox + "  TO SIDE " + scaleSide);
                 // do not do cross the field - fall back to doing Exchange
                 if (isScaleCross  && allowCrossField == ALLOWCROSSFIELD.No) {
-                    return new GoToSwitch(optionStartBox, this.scaleSide, ALLOWCROSSFIELD.No, NUM_CUBES.ONE);
+                    // do a single cube switch
+                    return new GoToSwitch(optionStartBox, this.scaleSide, ALLOWCROSSFIELD.No, NUM_CUBES.ONE,true);
                 }
                 return new GoToScale(optionStartBox, this.scaleSide, allowCross);
 
