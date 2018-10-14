@@ -130,7 +130,7 @@ public class Robot extends TimedRobot {
         switch (optSel) {
             case SWITCHCENTER:
                 cmdGrp = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SWITCH, GameChooser.STARTBOX.CENTER, GameChooser.ALLOWCROSSFIELD.Yes);
-                break;
+                 break;
             case SWITCHLEFT_TWOCUBE:
                 cmdGrp = gameChooser.chooseCmdGrp(GameChooser.CHOOSER.RUN_SWITCH, GameChooser.STARTBOX.LEFT,
                         GameChooser.ALLOWCROSSFIELD.No, GameChooser.NUM_CUBES.TWO);

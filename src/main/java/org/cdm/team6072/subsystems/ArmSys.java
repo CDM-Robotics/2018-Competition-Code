@@ -253,13 +253,13 @@ public class ArmSys extends Subsystem {
     public void stopping() {
         double output = mTalon.getMotorOutputPercent();
         double outVolts = mTalon.getMotorOutputVoltage();
-        System.out.printf("ElvSys.stopping:  output%%: %.2f    volts: %.3f  \r\n", output, outVolts);
+        System.out.printf("ArmSys.stopping:  output%%: %.2f    volts: %.3f  \r\n", output, outVolts);
     }
 
     public boolean stopComplete() {
         double output = mTalon.getMotorOutputPercent();
         if (output < 0.1) {
-            System.out.printf("ElvSys.stopComplete:  output%%: %.2f    \r\n", output);
+            System.out.printf("ArmSys.stopComplete:  output%%: %.2f    \r\n", output);
             holdPosn();
             return true;
         }
